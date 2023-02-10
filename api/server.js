@@ -26,6 +26,7 @@ const API_RATE_LIMITER = rateLimit({
   message: 'Too many requests!'
 })
 
+app.use(API_RATE_LIMITER)
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(multer().array())
