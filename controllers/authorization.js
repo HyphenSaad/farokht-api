@@ -1,5 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import { User } from '../models/index.js'
 
 const Register = async (request, response, next) => {
@@ -28,7 +29,7 @@ const Register = async (request, response, next) => {
       role, password: await bcrypt.hash(password, await bcrypt.genSalt(10))
     })
 
-    const token = user.CreateJWT()
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME })
 
     response.status(StatusCodes.CREATED).json({
       user: {
@@ -57,7 +58,7 @@ const Login = async (request, response, next) => {
   if (!isValidPassword || user.role !== role.toLowerCase())
     throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Login Credentials!' }
 
-  const token = user.CreateJWT()
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME })
   user.password = ''
   user.__v = undefined
   response.status(StatusCodes.OK).json({ user, token })
@@ -66,9 +67,10 @@ const Login = async (request, response, next) => {
 const Update = async (request, response, next) => {
   const { firstName, lastName, phoneNumber1, phoneNumber2, landline,
     email, password, companyName, location, address, paymentMethod,
-    bankName, bankBranchCode, bankAccountNumber, role } = request.body
+    bankName, bankBranchCode, bankAccountNumber, role, status } = request.body
 
-  if (!firstName || !lastName || !phoneNumber1 || !companyName || !location || !password
+  if (!firstName || !lastName || !phoneNumber1 || !companyName || !location ||
+    ((request.user.role && request.user.role !== 'admin') && !password)
     || !address || !paymentMethod || !bankName || !bankBranchCode || !bankAccountNumber)
     throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
@@ -95,13 +97,15 @@ const Update = async (request, response, next) => {
   user.bankName = bankName
   user.bankBranchCode = bankBranchCode
   user.bankAccountNumber = bankAccountNumber
-  user.password = await bcrypt.hash(password, await bcrypt.genSalt(10))
+  if (password) user.password = await bcrypt.hash(password, await bcrypt.genSalt(10))
 
-  if (request.user.role && request.user.role === 'admin' && role !== 'admin')
+  if (request.user.role && request.user.role === 'admin' && role !== 'admin') {
     user.role = role
+    user.status = status
+  }
 
-  await user.save().then(() => {
-    const token = user.CreateJWT()
+  await user.save().then(async () => {
+    const token = jwt.sign({ userId: options._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME })
     user.password = ''
     user.__v = undefined
     response.status(StatusCodes.OK).json({ user, token })

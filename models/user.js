@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import validator from 'validator'
-import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
+import { Item } from './index.js'
 
 // TODO: Add Unique Constraint On Both Phone Numbers
 
@@ -137,24 +137,12 @@ const UserSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-// UserSchema.index({ phoneNumber2: 1 }, { unique: true, sparse: true })
-// UserSchema.index({ landline: 1 }, { unique: true, sparse: true })
-// UserSchema.index({ email: 1 }, { unique: true, sparse: true })
-
-// UserSchema.pre('save', async function () {
-//   if (!this.isModified('password')) return
-//   console.log('password updated')
-//   const salt = await bcrypt.genSalt(10)
-//   this.password = await bcrypt.hash(this.password, salt)
-// })
-
-UserSchema.methods.CreateJWT = function () {
-  return jwt.sign(
-    { userId: this._id },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_LIFETIME }
-  )
-}
+UserSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+  const doc = await this.model.findOne(this.getFilter())
+  console.log(doc)
+  await Item.deleteMany({ userId: doc._id })
+  next();
+})
 
 UserSchema.methods.ComparePassword = async function (candidatePassword) {
   const isMatched = await bcrypt.compare(candidatePassword, this.password)

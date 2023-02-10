@@ -13,6 +13,7 @@ const ItemPrepare = async (request, response, next) => {
     throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Request Data-Shape!' }
 
   const itemTags = []
+  if (tags.length < 1) throw { status: StatusCodes.BAD_REQUEST, message: 'Tags are Required!' }
   for (const _tag of tags) {
     const tag = await Tag.findOne({ name: _tag.trim() })
     if (!tag) {
@@ -23,6 +24,7 @@ const ItemPrepare = async (request, response, next) => {
   }
 
   const itemAttributes = []
+  if (attributes.length < 1) throw { status: StatusCodes.BAD_REQUEST, message: 'Attributes are Required!' }
   for (const _attribute of attributes) {
     if (!_attribute.name || !_attribute.value)
       throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Attribute Data-Shape!' }
@@ -46,6 +48,7 @@ const ItemPrepare = async (request, response, next) => {
   for (let i = 0; i < 5; ++i)
     pictureURLs.push(`Image ${i + 1} Random ID: ${uuidv4()}`)
 
+  if (priceSlabs.length < 1) throw { status: StatusCodes.BAD_REQUEST, message: 'Price Slabs are Required!' }
   priceSlabs.forEach(priceSlab => {
     if (!priceSlab.slab || !priceSlab.price)
       throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Price Slab Data-Shape!' }
