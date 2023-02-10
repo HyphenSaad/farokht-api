@@ -38,13 +38,13 @@ app.get('/', (req, res) => {
 // app.use(NotFoundMiddleware)
 // app.use(ErrorHandlerMiddleware)
 
-const StartServer = async () => {
-  try {
-    await ConnectMongoDB(process.env.MONGODB_URI)
-    await CreateAdmin()
-  } catch (error) { console.log(`Error: ${error}`) }
-}
+// const StartServer = async () => {
+//   try {
+//     await ConnectMongoDB(process.env.MONGODB_URI)
+//     await CreateAdmin()
+//   } catch (error) { console.log(`Error: ${error}`) }
+// }
 
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
 
-StartServer()
+// StartServer()
