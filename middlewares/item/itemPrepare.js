@@ -3,11 +3,13 @@ import { v4 as uuidv4 } from 'uuid'
 import { StatusCodes } from 'http-status-codes'
 
 const ItemPrepare = async (request, response, next) => {
-  const { name, minOrderNumber, description, userId, tags, attributes, unitOfMeasure, pictures, status } = JSON.parse(request.body.data)
-  if (!name || !minOrderNumber || !description || !pictures || !tags || !unitOfMeasure || !attributes || !userId)
+  const { name, minOrderNumber, description, userId, tags, attributes, unitOfMeasure,
+    pictures, status, priceSlabs } = JSON.parse(request.body.data)
+
+  if (!name || !minOrderNumber || !description || !pictures || !tags || !unitOfMeasure || !attributes || !userId || !priceSlabs)
     throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
-  if (!Array.isArray(pictures) || !Array.isArray(tags) || !Array.isArray(attributes))
+  if (!Array.isArray(pictures) || !Array.isArray(tags) || !Array.isArray(attributes) || !Array.isArray(priceSlabs))
     throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Request Data-Shape!' }
 
   const itemTags = []
@@ -22,6 +24,9 @@ const ItemPrepare = async (request, response, next) => {
 
   const itemAttributes = []
   for (const _attribute of attributes) {
+    if (!_attribute.name || !_attribute.value)
+      throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Attribute Data-Shape!' }
+
     const attributeOfItem = await AttributeOfItem.findOne({ name: _attribute.name.trim() })
     if (!attributeOfItem) {
       const object = await AttributeOfItem.create({ name: _attribute.name.trim() })
@@ -41,10 +46,15 @@ const ItemPrepare = async (request, response, next) => {
   for (let i = 0; i < 5; ++i)
     pictureURLs.push(`Image ${i + 1} Random ID: ${uuidv4()}`)
 
+  priceSlabs.forEach(priceSlab => {
+    if (!priceSlab.slab || !priceSlab.price)
+      throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Price Slab Data-Shape!' }
+  })
+
   request.item = {
     name, minOrderNumber, description, userId, tags: itemTags,
     attributes: itemAttributes, unitOfMeasure: itemUnitOfMeasure,
-    pictures: pictureURLs
+    priceSlabs, pictures: pictureURLs
   }
 
   if (request.user.role === 'admin')

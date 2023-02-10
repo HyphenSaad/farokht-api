@@ -70,6 +70,21 @@ const ItemSchema = new mongoose.Schema({
     default: 'enabled',
     lowercase: true,
   },
+  priceSlabs: {
+    type: [{
+      slab: {
+        type: Number,
+        required: [true, 'Price slab is required!'],
+        min: [1, 'Price slab is too short!'],
+      },
+      price: {
+        type: Number,
+        required: [true, 'Price slab is required!'],
+        min: [1, 'Price slab is too short!'],
+      }
+    }],
+    validate: [notEmpty, 'Price slabs are required!'],
+  }
 }, { timestamps: true })
 
 export default mongoose.model('item', ItemSchema)

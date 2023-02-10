@@ -47,6 +47,7 @@ const UpdateItem = async (request, response, next) => {
   item.attributes = request.item.attributes.map(attribute => { return { _id: attribute._id, value: attribute.value } })
   item.unitOfMeasure = request.item.unitOfMeasure._id
   item.pictures = request.item.pictures
+  item.priceSlabs = request.item.priceSlabs
 
   await item.save().then(() => {
     response.status(StatusCodes.OK).json({
@@ -59,6 +60,7 @@ const UpdateItem = async (request, response, next) => {
       attributes: request.item.attributes,
       unitOfMeasure: request.item.unitOfMeasure,
       pictures: request.item.pictures,
+      priceSlabs: request.item.priceSlabs,
       status: item.status
     })
   }).catch(error => next(error))
@@ -120,12 +122,13 @@ const GetAllItems = async (request, response, next) => {
   const tag = request.query.tag || ''
   const options = {}
 
-  if (isNaN(request.query.minOrderNumber))
-    throw { status: StatusCodes.BAD_REQUEST, message: 'MinOrderNumber Should Be Numeric Only!' }
+  if (request.query.minOrderNumber)
+    if (isNaN(request.query.minOrderNumber))
+      throw { status: StatusCodes.BAD_REQUEST, message: 'MinOrderNumber Should Be Numeric Only!' }
+    else if (request.query.minOrderNumber) options.minOrderNumber = { '$lte': `${request.query.minOrderNumber}` }
 
   if (request.user.role === 'admin' && request.query.status) options.status = request.query.status
   if (request.query.name) options.name = { '$regex': `${request.query.name}`, '$options': 'i' }
-  if (request.query.minOrderNumber) options.minOrderNumber = { '$lte': `${request.query.minOrderNumber}` }
 
   const items = (await Item.find(options).limit(limit).skip((page - 1) * limit)
     .populate('tags unitOfMeasure attributes._id')).filter(item => {
