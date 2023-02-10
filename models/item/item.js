@@ -55,7 +55,7 @@ const ItemSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Attribute value is required!'],
         minLength: [3, 'Attribute value is too short!'],
-        maxLength: [25, 'Attribute value is too long!'],
+        maxLength: [75, 'Attribute value is too long!'],
         trim: true,
       }
     }],

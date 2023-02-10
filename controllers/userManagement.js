@@ -51,7 +51,7 @@ const GetAllUsers = async (request, response, next) => {
   if (request.query.paymentMethod) options.paymentMethod = { '$regex': `${request.query.paymentMethod}`, '$options': 'i' }
   if (request.query.bankName) options.bankName = { '$regex': `${request.query.bankName}`, '$options': 'i' }
   if (request.query.branchCode) options.branchCode = { '$regex': `${request.query.branchCode}`, '$options': 'i' }
-  if (request.query.status) options.status = { '$regex': `${request.query.status}`, '$options': 'i' }
+  if (request.query.bankAccountNumber) options.bankAccountNumber = { '$regex': `${request.query.bankAccountNumber}`, '$options': 'i' }
 
   const users = (await User.find(options).limit(limit).skip((page - 1) * limit)).filter(user => {
     user.password = undefined
