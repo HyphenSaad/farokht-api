@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js --experimental-modules --es-module-specifier-resolution=node"
+    "start": "node --experimental-modules server.js"
   },
   "keywords": [],
   "author": "Saadin",
