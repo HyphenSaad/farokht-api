@@ -42,8 +42,9 @@ const StartServer = async () => {
   try {
     await ConnectMongoDB(process.env.MONGODB_URI)
     await CreateAdmin()
-    app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
   } catch (error) { console.log(`Error: ${error}`) }
 }
+
+app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
 
 StartServer()
