@@ -13,7 +13,7 @@ import ConnectMongoDB from './configs/database.js'
 // ROUTERS
 // import Router from './routes/index.js'
 // MIDDLEWARES
-import { NotFoundMiddleware, ErrorHandlerMiddleware } from './middlewares/index.js'
+import { NotFoundMiddleware } from './middlewares/index.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
