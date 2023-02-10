@@ -30,7 +30,7 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(multer().array())
 
-app.use('/api/v1/', API_RATE_LIMITER, Router)
+app.use('/api/v1/', Router)
 app.set('trust proxy', 1)
 app.get('/ip', (request, response) => response.send(request.ip))
 
