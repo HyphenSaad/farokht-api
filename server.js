@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 // app.use('/api/v1/', Router)
 
 app.use(NotFoundMiddleware)
-app.use(ErrorHandlerMiddleware)
+// app.use(ErrorHandlerMiddleware)
 
 const StartServer = async () => {
   try {
@@ -45,6 +45,5 @@ const StartServer = async () => {
     app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
   } catch (error) { console.log(`Error: ${error}`) }
 }
-
 
 StartServer()
