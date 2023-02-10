@@ -125,7 +125,7 @@ const GetAllItems = async (request, response, next) => {
 
   if (request.user.role === 'admin' && request.query.status) options.status = request.query.status
   if (request.query.name) options.name = { '$regex': `${request.query.name}`, '$options': 'i' }
-  if (request.query.minOrderNumber) options.minOrderNumber = { '$gte': `${request.query.minOrderNumber}` }
+  if (request.query.minOrderNumber) options.minOrderNumber = { '$lte': `${request.query.minOrderNumber}` }
 
   const items = (await Item.find(options).limit(limit).skip((page - 1) * limit)
     .populate('tags unitOfMeasure attributes._id')).filter(item => {
