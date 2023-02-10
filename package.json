@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js --omit=dev",
+    "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [],
@@ -23,7 +23,7 @@
     "mongoose": "^6.9.0",
     "multer": "^1.4.5-lts.1",
     "uuid": "^9.0.0",
-    "morgan": "^1.10.0",
+    
     "nodemon": "^2.0.20"
   }
 }

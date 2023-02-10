@@ -1,7 +1,7 @@
 import express from 'express'
 import expressAsyncErrors from 'express-async-errors'
 import rateLimit from 'express-rate-limit'
-import morgan from 'morgan'
+// import morgan from 'morgan'
 import multer from 'multer'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -26,7 +26,7 @@ const API_RATE_LIMITER = rateLimit({
   message: 'Too many requests!'
 })
 
-app.use(morgan('dev'))
+// app.use(morgan('dev'))
 app.use(express.json())
 app.use(multer().array())
 
