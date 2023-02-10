@@ -7,13 +7,13 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 // SEEDING
-import { CreateAdmin } from './seed.js'
+// import { CreateAdmin } from './seed.js'
 // DATABASE
-import ConnectMongoDB from './configs/database.js'
+// import ConnectMongoDB from './configs/database.js'
 // ROUTERS
-import Router from './routes/index.js'
+// import Router from './routes/index.js'
 // MIDDLEWARES
-import { NotFoundMiddleware, ErrorHandlerMiddleware } from './middlewares/index.js'
+// import { NotFoundMiddleware, ErrorHandlerMiddleware } from './middlewares/index.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
