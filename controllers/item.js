@@ -8,6 +8,8 @@ const CreateItem = async (request, response, next) => {
   if (request.user.role !== 'admin')
     if (request.user._id.toString() !== request.item.userId)
       throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
+    else if (request.user.status.toString().toLowerCase() !== 'approved')
+      throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
 
   const item = await Item.create(request.item)
   await item.populate('tags unitOfMeasure attributes._id')
@@ -22,13 +24,14 @@ const UpdateItem = async (request, response, next) => {
   if (!item) throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item ID!' }
   await item.populate('userId')
 
-  // if (!item.userId) throw new BadRequestError('Item Vendor Not Found!')
-  if (!request.item.userId)
+  if (!request.item.userId || !item.userId)
     throw { status: StatusCodes.BAD_REQUEST, message: 'Item Vendor Not Found!' }
 
   if (request.user.role !== 'admin')
     if (item.userId._id.toString() !== request.item.userId)
       throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
+    else if (request.user.status.toString().toLowerCase() !== 'approved')
+      throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
 
   if (request.user.role === 'admin') {
     const user = await User.findOne({ _id: request.item.userId })
@@ -65,7 +68,11 @@ const DeleteItem = async (request, response, next) => {
   if (!request.params.itemId) throw { status: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
 
   const options = { _id: request.params.itemId }
-  if (request.user.role === 'vendor') options.userId = request.user._id.toString()
+  if (request.user.role === 'vendor') {
+    if (request.user.status.toString().toLowerCase() !== 'approved')
+      throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
+    options.userId = request.user._id.toString()
+  }
 
   const output = await Item.deleteOne(options)
   if (output.deletedCount > 0)
@@ -115,6 +122,7 @@ const GetAllItems = async (request, response, next) => {
 
   if (request.user.role === 'admin' && request.query.status) options.status = request.query.status
   if (request.query.name) options.name = { '$regex': `${request.query.name}`, '$options': 'i' }
+  if (request.query.minOrderNumber) options.minOrderNumber = { '$gte': `${request.query.minOrderNumber}` }
 
   const items = (await Item.find(options).limit(limit).skip((page - 1) * limit)
     .populate('tags unitOfMeasure attributes._id')).filter(item => {
