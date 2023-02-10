@@ -12,6 +12,12 @@ const Register = async (request, response, next) => {
     !location || !address || !paymentMethod || !bankName || !bankBranchCode || !bankAccountNumber)
     throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
+  if (!password.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/))
+    throw {
+      status: StatusCodes.BAD_REQUEST,
+      message: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 digit!'
+    }
+
   // TODO: How about PhoneNumber2 ?
   const userAlreadyExists = await User.findOne({ phoneNumber1 })
   if (userAlreadyExists)
@@ -73,6 +79,12 @@ const Update = async (request, response, next) => {
     ((request.user.role && request.user.role !== 'admin') && !password)
     || !address || !paymentMethod || !bankName || !bankBranchCode || !bankAccountNumber)
     throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
+
+  if (!password.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/))
+    throw {
+      status: StatusCodes.BAD_REQUEST,
+      message: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 digit!'
+    }
 
   if (phoneNumber2 && (phoneNumber1.trim() === phoneNumber2.trim()))
     throw { status: StatusCodes.BAD_REQUEST, message: 'Phone Number 1 and 2 Can\'t Be Same!' }
