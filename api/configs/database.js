@@ -12,7 +12,10 @@ const ConnectMongoDB = async (uri) => {
 
   await mongoose.connect(uri, connectionOptions)
     .then(() => console.log(`Successfully Connected To MongoDB, @URI = ${uri}`))
-    .catch(error => console.error(`Database Connection Error: ${error}`))
+    .catch(error => {
+      console.error(`Database Connection Error: ${error}`)
+      process.exit(1)
+    })
 };
 
 mongoose.connection.on("disconnected", () => console.log(`MongoDB Connection Disconnected!`))
