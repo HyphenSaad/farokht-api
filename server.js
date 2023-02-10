@@ -1,6 +1,5 @@
 import express from 'express'
 import expressAsyncErrors from 'express-async-errors'
-import { BadRequestError, NotFoundError, UnAuthorizedError } from './errors/index.js'
 import rateLimit from 'express-rate-limit'
 // import morgan from 'morgan'
 import multer from 'multer'
@@ -37,7 +36,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/', Router)
 
 app.use(NotFoundMiddleware)
-// app.use(ErrorHandlerMiddleware)
+app.use(ErrorHandlerMiddleware)
 
 const StartServer = async () => {
   try {

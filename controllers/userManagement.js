@@ -8,14 +8,18 @@ const CreateUser = async (request, response, next) => {
 
 const UpdateUser = async (request, response, next) => {
   const userId = request.params.userId
-  if (!userId) throw new BadRequestError('User ID is Required!')
+  if (!userId)
+    // throw new BadRequestError('User ID is Required!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
   request.updateUserId = userId
   await Update(request, response, next)
 }
 
 const DeleteUser = async (request, response, next) => {
   const userId = request.params.userId
-  if (!userId) throw new BadRequestError('User ID is Required!')
+  if (!userId)
+    // throw new BadRequestError('User ID is Required!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   const output = await User.deleteOne({ _id: userId })
   if (output.deletedCount > 0)
@@ -26,10 +30,14 @@ const DeleteUser = async (request, response, next) => {
 
 const GetUser = async (request, response, next) => {
   const userId = request.params.userId
-  if (!userId) throw new BadRequestError('User ID is Required!')
+  if (!userId)
+    // throw new BadRequestError('User ID is Required!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   const user = await User.findOne({ _id: userId })
-  if (!user) throw new BadRequestError('User Not Found!')
+  if (!user)
+    // throw new BadRequestError('User Not Found!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
   user.password = undefined
   response.status(StatusCodes.OK).json(user)
 }

@@ -1,14 +1,17 @@
 import { StatusCodes } from 'http-status-codes'
-import { BadRequestError } from '../errors/index.js'
+// import { BadRequestError } from '../errors/index.js'
 import { Item, User } from '../models/index.js'
 
 const CreateItem = async (request, response, next) => {
   const user = await User.findOne({ _id: request.item.userId })
-  if (!user) throw new BadRequestError('Invalid Vendor ID!')
+  if (!user)
+    // throw new BadRequestError('Invalid Vendor ID!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   if (request.user.role !== 'admin')
     if (request.user._id.toString() !== request.item.userId)
-      throw new BadRequestError('You Are Unauthorized To Perform This Operation!')
+      // throw new BadRequestError('You Are Unauthorized To Perform This Operation!')
+      throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   const item = await Item.create(request.item)
   await item.populate('tags unitOfMeasure attributes._id')
@@ -17,22 +20,30 @@ const CreateItem = async (request, response, next) => {
 
 const UpdateItem = async (request, response, next) => {
   if (!request.params.itemId)
-    throw new BadRequestError('Item ID is Required!')
+    // throw new BadRequestError('Item ID is Required!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   const item = await Item.findOne({ _id: request.params.itemId })
-  if (!item) throw new BadRequestError('Invalid Item ID!')
+  if (!item)
+    // throw new BadRequestError('Invalid Item ID!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
   await item.populate('userId')
 
   // if (!item.userId) throw new BadRequestError('Item Vendor Not Found!')
-  if (!request.item.userId) throw new BadRequestError('Item Vendor Not Found!')
+  if (!request.item.userId)
+    // throw new BadRequestError('Item Vendor Not Found!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   if (request.user.role !== 'admin')
     if (item.userId._id.toString() !== request.item.userId)
-      throw new BadRequestError('You Are Unauthorized To Perform This Operation!')
+      // throw new BadRequestError('You Are Unauthorized To Perform This Operation!')
+      throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   if (request.user.role === 'admin') {
     const user = await User.findOne({ _id: request.item.userId })
-    if (user.role !== 'vendor') throw new BadRequestError('Item Owner Can Only Be Vendor')
+    if (user.role !== 'vendor')
+      // throw new BadRequestError('Item Owner Can Only Be Vendor')
+      throw { status: StatusCodes.BAD_REQUEST, message: '' }
     else item.userId = request.item.userId
   }
 
@@ -62,7 +73,9 @@ const UpdateItem = async (request, response, next) => {
 }
 
 const DeleteItem = async (request, response, next) => {
-  if (!request.params.itemId) throw new BadRequestError('Item ID is Required!')
+  if (!request.params.itemId)
+    // throw new BadRequestError('Item ID is Required!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   const options = { _id: request.params.itemId }
   if (request.user.role === 'vendor') options.userId = request.user._id.toString()
@@ -75,19 +88,25 @@ const DeleteItem = async (request, response, next) => {
 }
 
 const GetItem = async (request, response, next) => {
-  if (!request.params.itemId) throw new BadRequestError('Item ID is Required!')
+  if (!request.params.itemId)
+    // throw new BadRequestError('Item ID is Required!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   const options = { _id: request.params.itemId }
   if (request.user.role === 'retailer') options.status = 'enabled'
 
   const item = await Item.findOne(options)
-  if (!item) throw new BadRequestError('Item Not Found!')
+  if (!item)
+    // throw new BadRequestError('Item Not Found!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
   await item.populate('tags unitOfMeasure attributes._id')
   response.status(StatusCodes.OK).json(item)
 }
 
 const GetAllVendorItems = async (request, response, next) => {
-  if (!request.params.userId) throw new BadRequestError('User ID is Required!')
+  if (!request.params.userId)
+    // throw new BadRequestError('User ID is Required!')
+    throw { status: StatusCodes.BAD_REQUEST, message: '' }
 
   const page = request.query.page || 1
   const limit = request.query.limit || 10
