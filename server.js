@@ -30,7 +30,7 @@ if (process.env.ENVIRONMENT.toLowerCase() === 'dev') app.use(morgan('dev'))
 app.use(express.json())
 app.use(multer().array())
 
-app.get('/', (request, request) => response.send('<script>Developed By: Saadin</script>'))
+app.get('/', (request, response) => response.send('<script>Developed By: Saadin</script>'))
 app.use('/api/v1/', API_RATE_LIMITER, Router)
 
 app.use(NotFoundMiddleware)
