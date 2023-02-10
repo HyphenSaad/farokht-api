@@ -1,4 +1,3 @@
-// import { BadRequestError } from '../../errors/index.js'
 import { Tag, UnitOfMeasure, AttributeOfItem } from '../../models/index.js'
 import { v4 as uuidv4 } from 'uuid'
 import { StatusCodes } from 'http-status-codes'
@@ -6,12 +5,10 @@ import { StatusCodes } from 'http-status-codes'
 const ItemPrepare = async (request, response, next) => {
   const { name, minOrderNumber, description, userId, tags, attributes, unitOfMeasure, pictures, status } = JSON.parse(request.body.data)
   if (!name || !minOrderNumber || !description || !pictures || !tags || !unitOfMeasure || !attributes || !userId)
-    // throw new BadRequestError('Please Provide All Values!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   if (!Array.isArray(pictures) || !Array.isArray(tags) || !Array.isArray(attributes))
-    // throw new BadRequestError('Invalid Request Data-Shape!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Request Data-Shape!' }
 
   const itemTags = []
   for (const _tag of tags) {
@@ -51,9 +48,7 @@ const ItemPrepare = async (request, response, next) => {
   }
 
   if (request.user.role === 'admin')
-    if (!status)
-      // throw new BadRequestError('Invalid Item Status!')
-      throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    if (!status) throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status!' }
     else request.item.status = status
 
   return next()

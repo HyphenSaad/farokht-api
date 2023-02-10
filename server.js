@@ -1,7 +1,7 @@
 import express from 'express'
 import expressAsyncErrors from 'express-async-errors'
 import rateLimit from 'express-rate-limit'
-// import morgan from 'morgan'
+import morgan from 'morgan'
 import multer from 'multer'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -30,7 +30,7 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(multer().array())
 
-app.use('/api/v1/', Router)
+app.use('/api/v1/', API_RATE_LIMITER, Router)
 
 app.use(NotFoundMiddleware)
 app.use(ErrorHandlerMiddleware)

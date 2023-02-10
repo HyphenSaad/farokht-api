@@ -1,14 +1,12 @@
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 import { User } from '../models/index.js'
-// import { UnAuthorizedError } from '../errors/index.js'
 
 const TokenAuthorization = (request, response, next) => {
   const authorizationHeader = request.headers.authorization
 
   if (!authorizationHeader || !authorizationHeader.startsWith('Bearer'))
-    // throw new UnAuthorizedError('Invalid Authorization Token!')
-    throw { status: StatusCodes.UNAUTHORIZED, message: '' }
+    throw { status: StatusCodes.UNAUTHORIZED, message: 'Invalid Authorization Token!' }
 
   const token = authorizationHeader.split(' ')[1]
   try {
@@ -16,17 +14,13 @@ const TokenAuthorization = (request, response, next) => {
     request.user = { userId: payload.userId }
 
     return next()
-  } catch (error) {
-    // throw new UnAuthorizedError('Invalid Authorization Token!')
-    throw { status: StatusCodes.UNAUTHORIZED, message: '' }
-  }
+  } catch (error) { throw { status: StatusCodes.UNAUTHORIZED, message: 'Invalid Authorization Token!' } }
 }
 
 const AdminAuthorization = async (request, response, next) => {
   const user = await User.findOne({ _id: request.user.userId })
   if (user.role !== 'admin')
-    // throw new UnAuthorizedError('You Are Not Authorized To Access This Resource!')
-    throw { status: StatusCodes.UNAUTHORIZED, message: '' }
+    throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
   request.user = user
   return next()
 }
@@ -34,8 +28,7 @@ const AdminAuthorization = async (request, response, next) => {
 const VendorAuthorization = async (request, response, next) => {
   const user = await User.findOne({ _id: request.user.userId })
   if (user.role !== 'vendor')
-    // throw new UnAuthorizedError('You Are Not Authorized To Access This Resource!')
-    throw { status: StatusCodes.UNAUTHORIZED, message: '' }
+    throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
   request.user = user
   return next()
 }
@@ -43,8 +36,7 @@ const VendorAuthorization = async (request, response, next) => {
 const RetailerAuthorization = async (request, response, next) => {
   const user = await User.findOne({ _id: request.user.userId })
   if (user.role !== 'retailer')
-    // throw new UnAuthorizedError('You Are Not Authorized To Access This Resource!')
-    throw { status: StatusCodes.UNAUTHORIZED, message: '' }
+    throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
   request.user = user
   return next()
 }

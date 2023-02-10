@@ -1,6 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 import bcrypt from 'bcryptjs'
-// import { BadRequestError } from '../errors/index.js'
 import { User } from '../models/index.js'
 
 const Register = async (request, response, next) => {
@@ -10,22 +9,17 @@ const Register = async (request, response, next) => {
 
   if (!firstName || !lastName || !phoneNumber1 || !password || !role || !companyName ||
     !location || !address || !paymentMethod || !bankName || !bankBranchCode || !bankAccountNumber)
-    // throw new BadRequestError('Please Provide All Values!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   // TODO: How about PhoneNumber2 ?
   const userAlreadyExists = await User.findOne({ phoneNumber1 })
   if (userAlreadyExists)
-    // throw new BadRequestError('Phone Number Is Already Registered!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Phone Number Is Already Registered!' }
 
-  if (role === 'admin')
-    // throw new BadRequestError('Invalid Role!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+  if (role === 'admin') throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Role!' }
 
   if (phoneNumber2 && (phoneNumber1.trim() === phoneNumber2.trim()))
-    // throw new BadRequestError('Phone Number 1 and 2 Can\'t Be Same!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Phone Number 1 and 2 Can\'t Be Same!' }
 
   try {
     const user = await User.create({
@@ -54,18 +48,14 @@ const Login = async (request, response, next) => {
   const { phoneNumber, password, role } = request.body
 
   if (!phoneNumber || !password || !role)
-    // throw new BadRequestError('Please Provide All Values!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   const user = await User.findOne({ phoneNumber1: phoneNumber }).select('+password')
-  if (!user)
-    // throw new BadRequestError('Invalid Login Credentials!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+  if (!user) throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Login Credentials!' }
 
   const isValidPassword = await user.ComparePassword(password)
   if (!isValidPassword || user.role !== role.toLowerCase())
-    // throw new BadRequestError('Invalid Login Credentials!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Login Credentials!' }
 
   const token = user.CreateJWT()
   user.password = ''
@@ -80,21 +70,17 @@ const Update = async (request, response, next) => {
 
   if (!firstName || !lastName || !phoneNumber1 || !companyName || !location || !password
     || !address || !paymentMethod || !bankName || !bankBranchCode || !bankAccountNumber)
-    // throw new BadRequestError('Please Provide All Values!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   if (phoneNumber2 && (phoneNumber1.trim() === phoneNumber2.trim()))
-    // throw new BadRequestError('Phone Number 1 and 2 Can\'t Be Same!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Phone Number 1 and 2 Can\'t Be Same!' }
 
   const options = {}
   if (request.user.role && request.user.role === 'admin') options._id = request.updateUserId
   else options._id = request.user.userId
 
   const user = await User.findOne(options)
-  if (!user)
-    // throw new BadRequestError('User Not Found!')
-    throw { status: StatusCodes.BAD_REQUEST, message: '' }
+  if (!user) throw { status: StatusCodes.BAD_REQUEST, message: 'User Not Found!' }
 
   user.firstName = firstName
   user.lastName = lastName
