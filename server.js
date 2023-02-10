@@ -32,8 +32,11 @@ app.use(multer().array())
 
 app.get('/', (request, response) => {
   response.send(`
-    <h1>Welcome To <span style="color:red">Farokht</span> API</h1>
-    <h6>Developed By: <span style="color:blue">Saadin</span> API</h6>
+    <style>body{ marging: 0; padding: 0; }</style>
+    <div style="text-align: center; display: flex; justify-content: center; align-items: center">
+      <h1>Welcome To <span style="color:red">Farokht</span> API</h1>
+      <h2>Developed By: <span style="color:blue">Saadin</span></h2>
+    </div>
   `)
 })
 
