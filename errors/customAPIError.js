@@ -1,7 +1,10 @@
-// class CustomAPIError extends Error {
-//   constructor(message) {
-//     super(message)
-//   }
-// }
+class CustomAPIError extends Error {
+  constructor(message) {
+    super(message)
+    Object.setPrototypeOf(this, new.target.prototype)
 
-// export default CustomAPIError
+    Error.captureStackTrace(this)
+  }
+}
+
+export default CustomAPIError
