@@ -26,12 +26,11 @@ const API_RATE_LIMITER = rateLimit({
   message: 'Too many requests!'
 })
 
-app.use(API_RATE_LIMITER)
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(multer().array())
 
-// app.use('/api/v1/', API_RATE_LIMITER, Router)
+app.use('/api/v1/', API_RATE_LIMITER, Router)
 app.set('trust proxy', 1)
 app.get('/ip', (request, response) => response.send(request.ip))
 
