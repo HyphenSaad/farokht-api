@@ -11,9 +11,9 @@ import { CreateAdmin } from './seed.js'
 // DATABASE
 import ConnectMongoDB from './configs/database.js'
 // ROUTERS
-// import Router from './routes/index.js'
+import Router from './routes/index.js'
 // MIDDLEWARES
-import { NotFoundMiddleware } from './middlewares/index.js'
+import { NotFoundMiddleware, ErrorHandlerMiddleware } from './middlewares/index.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -26,17 +26,17 @@ const API_RATE_LIMITER = rateLimit({
   message: 'Too many requests!'
 })
 
-// app.use(morgan('dev'))
-// app.use(express.json())
-// app.use(multer().array())
+app.use(morgan('dev'))
+app.use(express.json())
+app.use(multer().array())
 
 app.get('/', (req, res) => {
   res.send('saad')
 })
-// app.use('/api/v1/', Router)
+app.use('/api/v1/', Router)
 
 app.use(NotFoundMiddleware)
-// app.use(ErrorHandlerMiddleware)
+app.use(ErrorHandlerMiddleware)
 
 const StartServer = async () => {
   try {
