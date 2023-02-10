@@ -120,6 +120,9 @@ const GetAllItems = async (request, response, next) => {
   const tag = request.query.tag || ''
   const options = {}
 
+  if (isNaN(request.query.minOrderNumber))
+    throw { status: StatusCodes.BAD_REQUEST, message: 'MinOrderNumber Should Be Numeric Only!' }
+
   if (request.user.role === 'admin' && request.query.status) options.status = request.query.status
   if (request.query.name) options.name = { '$regex': `${request.query.name}`, '$options': 'i' }
   if (request.query.minOrderNumber) options.minOrderNumber = { '$gte': `${request.query.minOrderNumber}` }
