@@ -26,13 +26,14 @@ const API_RATE_LIMITER = rateLimit({
   message: 'Too many requests!'
 })
 
-app.use(morgan('dev'))
+// app.use(morgan('dev'))
 app.use(express.json())
 app.use(multer().array())
 
-app.use('/api/v1/', Router)
-app.set('trust proxy', 1)
-app.get('/ip', (request, response) => response.send(request.ip))
+app.get('/', (req, res) => {
+  res.send('saad')
+})
+// app.use('/api/v1/', Router)
 
 app.use(NotFoundMiddleware)
 app.use(ErrorHandlerMiddleware)
