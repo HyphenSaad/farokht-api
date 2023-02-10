@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { request, response } from 'express'
 import expressAsyncErrors from 'express-async-errors'
 import rateLimit from 'express-rate-limit'
 import morgan from 'morgan'
@@ -30,6 +30,9 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(multer().array())
 
+app.get('/', (request, request) => {
+  response.send('<script>Developed By: Saadin</script>')
+})
 app.use('/api/v1/', API_RATE_LIMITER, Router)
 
 app.use(NotFoundMiddleware)
