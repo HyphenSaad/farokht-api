@@ -27,16 +27,16 @@ const API_RATE_LIMITER = rateLimit({
 })
 
 // app.use(morgan('dev'))
-app.use(express.json())
-app.use(multer().array())
+// app.use(express.json())
+// app.use(multer().array())
 
 app.get('/', (req, res) => {
   res.send('saad')
 })
 // app.use('/api/v1/', Router)
 
-app.use(NotFoundMiddleware)
-app.use(ErrorHandlerMiddleware)
+// app.use(NotFoundMiddleware)
+// app.use(ErrorHandlerMiddleware)
 
 const StartServer = async () => {
   try {
