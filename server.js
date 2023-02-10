@@ -7,9 +7,9 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 // SEEDING
-// import { CreateAdmin } from './seed.js'
+import { CreateAdmin } from './seed.js'
 // DATABASE
-// import ConnectMongoDB from './configs/database.js'
+import ConnectMongoDB from './configs/database.js'
 // ROUTERS
 // import Router from './routes/index.js'
 // MIDDLEWARES
@@ -38,13 +38,13 @@ app.get('/', (req, res) => {
 // app.use(NotFoundMiddleware)
 // app.use(ErrorHandlerMiddleware)
 
-// const StartServer = async () => {
-//   try {
-//     await ConnectMongoDB(process.env.MONGODB_URI)
-//     await CreateAdmin()
-//   } catch (error) { console.log(`Error: ${error}`) }
-// }
+const StartServer = async () => {
+  try {
+    await ConnectMongoDB(process.env.MONGODB_URI)
+    await CreateAdmin()
+    app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
+  } catch (error) { console.log(`Error: ${error}`) }
+}
 
-app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
 
-// StartServer()
+StartServer()
