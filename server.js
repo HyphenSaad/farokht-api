@@ -6,13 +6,9 @@ import multer from 'multer'
 import dotenv from 'dotenv'
 dotenv.config()
 
-// SEEDING
 import { CreateAdmin } from './seed.js'
-// DATABASE
 import ConnectMongoDB from './configs/database.js'
-// ROUTERS
 import Router from './routes/index.js'
-// MIDDLEWARES
 import { NotFoundMiddleware, ErrorHandlerMiddleware } from './middlewares/index.js'
 
 const app = express()
@@ -26,7 +22,9 @@ const API_RATE_LIMITER = rateLimit({
   message: 'Too many requests!'
 })
 
-if (process.env.ENVIRONMENT.toLowerCase() === 'dev') app.use(morgan('dev'))
+if (process.env.ENVIRONMENT.toLowerCase() === 'dev')
+  app.use(morgan('dev'))
+
 app.use(express.json())
 app.use(multer().array())
 

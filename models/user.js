@@ -3,8 +3,6 @@ import validator from 'validator'
 import bcrypt from 'bcryptjs'
 import { Item } from './index.js'
 
-// TODO: Add Unique Constraint On Both Phone Numbers
-
 const UserSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -40,8 +38,8 @@ const UserSchema = new mongoose.Schema({
   },
   landline: {
     type: String,
-    minLength: [10, 'Invalid landline number!'], // FIXME: What will be the minimum length of landline?
-    maxLength: [10, 'Invalid landline number!'], // FIXME: What will be the maximum length of landline?
+    minLength: [10, 'Invalid landline number!'],
+    maxLength: [10, 'Invalid landline number!'],
     trim: true,
     match: [/^[0-9]+$/, 'Landline number should only contains digits!'],
   },
@@ -59,8 +57,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Password is required!'],
     minLength: [8, 'Password is too short!'],
-    // match: [/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/,
-    //   'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 digit!'],
     select: false, // TODO: Yeh Kya Karta Hai???
   },
   role: {
@@ -75,27 +71,25 @@ const UserSchema = new mongoose.Schema({
   companyName: {
     type: String,
     required: [true, 'Company name is required!'],
-    minLength: [3, 'Company name is too short!'], // FIXME: What will be the minimum length of companyName?
-    manLength: [50, 'Company name is too long!'], // FIXME: What will be the maximum length of companyName?
+    minLength: [3, 'Company name is too short!'],
+    manLength: [50, 'Company name is too long!'],
     trim: true,
   },
-  // FIXME: Why location and address, separately? Is there any difference?
   location: {
     type: String,
     required: [true, 'Location is required!'],
-    minLength: [3, 'Location is too short!'], // FIXME: What will be the minimum length of location?
-    manLength: [50, 'Location is too long!'], // FIXME: What will be the maximum length of location?
+    minLength: [3, 'Location is too short!'],
+    manLength: [50, 'Location is too long!'],
     trim: true,
   },
   address: {
     type: String,
     required: [true, 'Address is required!'],
-    minLength: [3, 'Address is too short!'], // FIXME: What will be the minimum length of address?
-    manLength: [50, 'Address is too long!'], // FIXME: What will be the maximum length of address?
+    minLength: [3, 'Address is too short!'],
+    manLength: [50, 'Address is too long!'],
     trim: true,
   },
   paymentMethod: {
-    // FIXME: What is payment method?
     type: String,
     required: [true, 'Payment is required!'],
     minLength: [3, 'Payment is too short!'],
@@ -105,24 +99,24 @@ const UserSchema = new mongoose.Schema({
   bankName: {
     type: String,
     required: [true, 'Bank name is required!'],
-    minLength: [3, 'Bank name is too short!'], // FIXME: What will be the minimum length of bankName?
-    manLength: [50, 'Bank name is too long!'], // FIXME: What will be the maximum length of bankName?
+    minLength: [3, 'Bank name is too short!'],
+    manLength: [50, 'Bank name is too long!'],
     trim: true,
     match: [/^[a-zA-Z\s]+$/, 'Bank name should only contains alphabets!'],
   },
   bankBranchCode: {
     type: String,
     required: [true, 'Bank branch code is required!'],
-    minLength: [4, 'Bank branch code is too short!'], // FIXME: What will be the minimum length of bankBranchCode?
-    manLength: [7, 'Bank branch code is too long!'],  // FIXME: What will be the maximum length of bankBranchCode?
+    minLength: [4, 'Bank branch code is too short!'],
+    manLength: [7, 'Bank branch code is too long!'],
     trim: true,
     match: [/^[0-9]+$/, 'Bank branch code should only contains digits!'],
   },
   bankAccountNumber: {
     type: String,
     required: [true, 'Bank account number is required!'],
-    minLength: [10, 'Bank account number is too short!'], // FIXME: What will be the minimum length of bankAccountNumber?
-    manLength: [15, 'Bank account number is too long!'],  // FIXME: What will be the maximum length of bankAccountNumber?
+    minLength: [10, 'Bank account number is too short!'],
+    manLength: [15, 'Bank account number is too long!'],
     trim: true,
     match: [/^[0-9]+$/, 'Bank account number should only contains digits!'],
   },
@@ -138,10 +132,9 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 UserSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
-  const doc = await this.model.findOne(this.getFilter())
-  console.log(doc)
-  await Item.deleteMany({ userId: doc._id })
-  next();
+  const userDocument = await this.model.findOne(this.getFilter())
+  await Item.deleteMany({ userId: userDocument._id })
+  next()
 })
 
 UserSchema.methods.ComparePassword = async function (candidatePassword) {

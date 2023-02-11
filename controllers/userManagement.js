@@ -8,14 +8,17 @@ const CreateUser = async (request, response, next) => {
 
 const UpdateUser = async (request, response, next) => {
   const userId = request.params.userId
-  if (!userId) throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+  if (!userId)
+    throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+
   request.updateUserId = userId
   await Update(request, response, next)
 }
 
 const DeleteUser = async (request, response, next) => {
   const userId = request.params.userId
-  if (!userId) throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+  if (!userId)
+    throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
   const output = await User.deleteOne({ _id: userId })
   if (output.deletedCount > 0)
@@ -26,10 +29,13 @@ const DeleteUser = async (request, response, next) => {
 
 const GetUser = async (request, response, next) => {
   const userId = request.params.userId
-  if (!userId) throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+  if (!userId)
+    throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
   const user = await User.findOne({ _id: userId })
-  if (!user) throw { status: StatusCodes.BAD_REQUEST, message: 'User Not Found!' }
+  if (!user)
+    throw { status: StatusCodes.BAD_REQUEST, message: 'User Not Found!' }
+
   user.password = undefined
   response.status(StatusCodes.OK).json(user)
 }
@@ -53,10 +59,15 @@ const GetAllUsers = async (request, response, next) => {
   if (request.query.branchCode) options.branchCode = { '$regex': `${request.query.branchCode}`, '$options': 'i' }
   if (request.query.bankAccountNumber) options.bankAccountNumber = { '$regex': `${request.query.bankAccountNumber}`, '$options': 'i' }
 
-  const users = (await User.find(options).limit(limit).skip((page - 1) * limit)).filter(user => {
+  const __users = await User.find(options)
+    .limit(limit)
+    .skip((page - 1) * limit)
+
+  const users = __users.forEach(user => {
     user.password = undefined
     return user
   })
+
   response.status(StatusCodes.OK).json({ page, limit, count: users.length, users })
 }
 

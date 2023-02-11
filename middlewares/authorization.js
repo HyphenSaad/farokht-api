@@ -14,29 +14,37 @@ const TokenAuthorization = (request, response, next) => {
     request.user = { userId: payload.userId }
 
     return next()
-  } catch (error) { throw { status: StatusCodes.UNAUTHORIZED, message: 'Invalid Authorization Token!' } }
+  } catch (error) {
+    throw { status: StatusCodes.UNAUTHORIZED, message: 'Invalid Authorization Token!' }
+  }
 }
 
 const AdminAuthorization = async (request, response, next) => {
   const user = await User.findOne({ _id: request.user.userId })
+
   if (user.role !== 'admin')
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
+
   request.user = user
   return next()
 }
 
 const VendorAuthorization = async (request, response, next) => {
   const user = await User.findOne({ _id: request.user.userId })
+
   if (user.role !== 'vendor')
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
+
   request.user = user
   return next()
 }
 
 const RetailerAuthorization = async (request, response, next) => {
   const user = await User.findOne({ _id: request.user.userId })
+
   if (user.role !== 'retailer')
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
+
   request.user = user
   return next()
 }

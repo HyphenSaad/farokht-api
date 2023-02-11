@@ -5,12 +5,7 @@ import ItemPrepare from './item/itemPrepare.js'
 import UploadImages from './item/uploadImage.js'
 
 export {
-  NotFoundMiddleware,
-  ErrorHandlerMiddleware,
-  TokenAuthorization,
-  AdminAuthorization,
-  VendorAuthorization,
-  RetailerAuthorization,
-  ItemPrepare,
-  UploadImages
+  NotFoundMiddleware, ErrorHandlerMiddleware,
+  TokenAuthorization, AdminAuthorization, VendorAuthorization, RetailerAuthorization,
+  ItemPrepare, UploadImages
 }

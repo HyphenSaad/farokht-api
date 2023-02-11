@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 
-// This Will Ensure That Only The Specified Fields Inside Our Schema Will Be Saved To The Database
 mongoose.set('strictQuery', true)
 mongoose.set('strictPopulate', false)
 
