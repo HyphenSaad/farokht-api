@@ -33,7 +33,6 @@ app.get('/', (request, response) => {
     <style>body{ margin: 0; padding: 0; background-color: #fcfcfc }</style>
     <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; height: 100vh">
       <h1>Welcome To <span style="color:red">Farokht</span> API</h1>
-      <h2>Developed By: <span style="color:blue">Saadin</span></h2>
     </div>
   `)
 })
