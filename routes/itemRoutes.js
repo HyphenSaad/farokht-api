@@ -1,8 +1,5 @@
 import express from 'express'
-import {
-  CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems,
-  GetAllUnitOfMeasures, UpdateUnitOfMeasure
-} from '../controllers/index.js'
+import { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems } from '../controllers/index.js'
 import { AdminAuthorization, VendorAuthorization, RetailerAuthorization, ItemPrepare, TokenAuthorization } from '../middlewares/index.js'
 
 const router = express.Router()
@@ -32,9 +29,5 @@ router.route('/retailer/getAll/:userId').get(RetailerAuthorization, GetAllVendor
 router.route('/admin/getAll').get(AdminAuthorization, GetAllItems)
 router.route('/vendor/getAll').get(VendorAuthorization, GetAllItems)
 router.route('/retailer/getAll').get(RetailerAuthorization, GetAllItems)
-
-// UNIT-OF-MEASURE
-router.route('/unitOfMeasure/get').get(GetAllUnitOfMeasures)
-router.route('/unitOfMeasure/update/:id').get(AdminAuthorization, UpdateUnitOfMeasure)
 
 export default router

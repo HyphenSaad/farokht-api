@@ -181,29 +181,4 @@ const GetAllItems = async (request, response, next) => {
   response.status(StatusCodes.OK).json({ page, limit, count: filteredItems.length, filteredItems })
 }
 
-const GetAllUnitOfMeasures = async (request, response, next) => {
-  const unitOfMeasure = await UnitOfMeasure.find()
-  response.status(StatusCodes.OK).json(unitOfMeasure)
-}
-
-const UpdateUnitOfMeasure = async (request, response, next) => {
-  if (!request.params.id)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure ID is Required!' }
-
-  if (!request.body.name)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure Name is Required!' }
-
-  const options = { _id: request.params.id }
-  const unitOfMeasure = await UnitOfMeasure.findOne(options)
-
-  if (!unitOfMeasure)
-    response.status(StatusCodes.NOT_FOUND).json({ message: `Unit Of Measure ${request.params.id} Not Found!` })
-
-  unitOfMeasure.name = request.body.name
-
-  await unitOfMeasure.save().then(() => {
-    response.status(StatusCodes.OK).json(unitOfMeasure)
-  }).catch(error => next(error))
-}
-
-export { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems, GetAllUnitOfMeasures, UpdateUnitOfMeasure }
+export { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems }
