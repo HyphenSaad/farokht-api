@@ -25,7 +25,7 @@ const AdminAuthorization = async (request, response, next) => {
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
 
   if (user.status === 'suspended')
-    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Suspended!' }
+    throw { status: StatusCodes.NOT_FOUND, message: 'You\'r Account is Suspended!' }
   else if (user.status === 'pending')
     throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Not Approved Yet!' }
 
@@ -39,7 +39,7 @@ const VendorAuthorization = async (request, response, next) => {
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
 
   if (user.status === 'suspended')
-    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Suspended!' }
+    throw { status: StatusCodes.NOT_FOUND, message: 'You\'r Account is Suspended!' }
   else if (user.status === 'pending')
     throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Not Approved Yet!' }
 
@@ -53,7 +53,7 @@ const RetailerAuthorization = async (request, response, next) => {
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
 
   if (user.status === 'suspended')
-    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Suspended!' }
+    throw { status: StatusCodes.NOT_FOUND, message: 'You\'r Account is Suspended!' }
   else if (user.status === 'pending')
     throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Not Approved Yet!' }
 

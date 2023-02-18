@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import { Item, UnitOfMeasure, User } from '../models/index.js'
+import { Item, User } from '../models/index.js'
 
 const CreateItem = async (request, response, next) => {
   const user = await User.findOne({ _id: request.item.userId })
@@ -14,7 +14,7 @@ const CreateItem = async (request, response, next) => {
 
   const item = await Item.create(request.item)
   await item.populate('tags unitOfMeasure attributes._id')
-  response.status(StatusCodes.OK).json(item)
+  response.status(StatusCodes.CREATED).json(item)
 }
 
 const UpdateItem = async (request, response, next) => {
@@ -28,7 +28,7 @@ const UpdateItem = async (request, response, next) => {
   await item.populate('userId')
 
   if (!request.item.userId || !item.userId)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Item Vendor Not Found!' }
+    throw { status: StatusCodes.NOT_FOUND, message: 'Item Vendor Not Found!' }
 
   if (request.user.role !== 'admin')
     if (item.userId._id.toString() !== request.item.userId)
@@ -114,7 +114,7 @@ const GetItem = async (request, response, next) => {
 
   const item = await Item.findOne(options)
   if (!item)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Item Not Found!' }
+    throw { status: StatusCodes.NOT_FOUND, message: 'Item Not Found!' }
 
   await item.populate('tags unitOfMeasure attributes._id')
   response.status(StatusCodes.OK).json(item)

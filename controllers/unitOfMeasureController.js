@@ -7,7 +7,7 @@ const AddUnitOfMeasure = async (request, response, next) => {
 
   try {
     const unitOfMeasure = await UnitOfMeasure.create({ name: request.body.name })
-    response.status(StatusCodes.OK).json(unitOfMeasure)
+    response.status(StatusCodes.CREATED).json(unitOfMeasure)
   } catch (error) {
     return next(error)
   }

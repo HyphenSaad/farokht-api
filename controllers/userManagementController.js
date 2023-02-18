@@ -44,7 +44,7 @@ const GetUser = async (request, response, next) => {
 
   const user = await User.findOne({ _id: userId })
   if (!user)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'User Not Found!' }
+    throw { status: StatusCodes.NOT_FOUND, message: 'User Not Found!' }
 
   user.password = undefined
   response.status(StatusCodes.OK).json(user)

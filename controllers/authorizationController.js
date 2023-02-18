@@ -53,11 +53,11 @@ const Login = async (request, response, next) => {
 
   const user = await User.findOne({ phoneNumber1: phoneNumber }).select('+password')
   if (!user)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Login Credentials!' }
+    throw { status: StatusCodes.FORBIDDEN, message: 'Invalid Login Credentials!' }
 
   const isValidPassword = await user.ComparePassword(password)
   if (!isValidPassword || user.role !== role.toLowerCase())
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Login Credentials!' }
+    throw { status: StatusCodes.FORBIDDEN, message: 'Invalid Login Credentials!' }
 
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME })
   user.password = undefined
@@ -85,7 +85,7 @@ const Update = async (request, response, next) => {
 
   const user = await User.findOne(options)
   if (!user)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'User Not Found!' }
+    throw { status: StatusCodes.NOT_FOUND, message: 'User Not Found!' }
 
   user.firstName = firstName
   user.lastName = lastName
