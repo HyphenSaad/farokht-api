@@ -1,8 +1,8 @@
 import express from 'express'
 import { AdminAuthorization, TokenAuthorization } from '../middlewares/index.js'
-import AuthRouter from './authorization.js'
-import ItemRouter from './item.js'
-import UserManagementRouter from './userManagement.js'
+import AuthRouter from './authorizationRoutes.js'
+import ItemRouter from './itemRoutes.js'
+import UserManagementRouter from './userManagementRoutes.js'
 
 const router = express.Router()
 router.use('/auth/', AuthRouter)

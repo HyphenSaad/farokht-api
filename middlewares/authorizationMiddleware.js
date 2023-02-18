@@ -13,7 +13,6 @@ const TokenAuthorization = (request, response, next) => {
     const payload = jwt.verify(token, process.env.JWT_SECRET)
     request.user = { userId: payload.userId }
 
-    return next()
   } catch (error) {
     throw { status: StatusCodes.UNAUTHORIZED, message: 'Invalid Authorization Token!' }
   }
@@ -25,8 +24,12 @@ const AdminAuthorization = async (request, response, next) => {
   if (user.role !== 'admin')
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
 
+  if (user.status === 'suspended')
+    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Suspended!' }
+  else if (user.status === 'pending')
+    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Not Approved Yet!' }
+
   request.user = user
-  return next()
 }
 
 const VendorAuthorization = async (request, response, next) => {
@@ -35,8 +38,12 @@ const VendorAuthorization = async (request, response, next) => {
   if (user.role !== 'vendor')
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
 
+  if (user.status === 'suspended')
+    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Suspended!' }
+  else if (user.status === 'pending')
+    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Not Approved Yet!' }
+
   request.user = user
-  return next()
 }
 
 const RetailerAuthorization = async (request, response, next) => {
@@ -45,8 +52,12 @@ const RetailerAuthorization = async (request, response, next) => {
   if (user.role !== 'retailer')
     throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Not Authorized To Access This Resource!' }
 
+  if (user.status === 'suspended')
+    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Suspended!' }
+  else if (user.status === 'pending')
+    throw { status: StatusCodes.BAD_REQUEST, message: 'You\'r Account is Not Approved Yet!' }
+
   request.user = user
-  return next()
 }
 
 export { TokenAuthorization, AdminAuthorization, VendorAuthorization, RetailerAuthorization }

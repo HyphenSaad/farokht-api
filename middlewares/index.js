@@ -1,8 +1,8 @@
-import NotFoundMiddleware from './misc/notFound.js'
-import ErrorHandlerMiddleware from './misc/errorHandler.js'
-import { TokenAuthorization, AdminAuthorization, VendorAuthorization, RetailerAuthorization } from './authorization.js'
-import ItemPrepare from './item/itemPrepare.js'
-import UploadImages from './item/uploadImage.js'
+import NotFoundMiddleware from './misc/notFoundMiddleware.js'
+import ErrorHandlerMiddleware from './misc/errorHandlerMiddleware.js'
+import { TokenAuthorization, AdminAuthorization, VendorAuthorization, RetailerAuthorization } from './authorizationMiddleware.js'
+import ItemPrepare from './item/itemPrepareMiddleware.js'
+import UploadImages from './item/uploadImageMiddleware.js'
 
 export {
   NotFoundMiddleware, ErrorHandlerMiddleware,

@@ -64,7 +64,7 @@ const ItemSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: {
-      values: ['disabled', 'enabled'],
+      values: ['disabled', 'enabled', 'suspended'],
       message: '{VALUE} is an invalid status!'
     },
     default: 'enabled',

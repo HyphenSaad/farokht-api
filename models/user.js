@@ -131,11 +131,11 @@ const UserSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-UserSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
-  const userDocument = await this.model.findOne(this.getFilter())
-  await Item.deleteMany({ userId: userDocument._id })
-  next()
-})
+// UserSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+//   const userDocument = await this.model.findOne(this.getFilter())
+//   await Item.deleteMany({ userId: userDocument._id })
+//   next()
+// })
 
 UserSchema.methods.ComparePassword = async function (candidatePassword) {
   const isMatched = await bcrypt.compare(candidatePassword, this.password)

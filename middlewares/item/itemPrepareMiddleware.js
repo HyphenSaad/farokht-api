@@ -103,8 +103,6 @@ const ItemPrepare = async (request, response, next) => {
   if (request.user.role === 'admin')
     if (!status) throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status!' }
     else request.item.status = status
-
-  return next()
 }
 
 export default ItemPrepare

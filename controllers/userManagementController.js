@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import { Register, Update } from "./authorization.js"
+import { Register, Update } from "./authorizationController.js"
 import { User } from '../models/index.js'
 
 const CreateUser = async (request, response, next) => {
@@ -20,11 +20,21 @@ const DeleteUser = async (request, response, next) => {
   if (!userId)
     throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
-  const output = await User.deleteOne({ _id: userId })
-  if (output.deletedCount > 0)
-    response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
-  else
+  const user = await User.findOne({ _id: userId })
+  if (!user)
     response.status(StatusCodes.NOT_FOUND).json({ message: `User ${userId} Not Found!` })
+
+  user.status = 'suspended'
+
+  await user.save().then(() => {
+    response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
+  }).catch(error => next(error))
+
+  // const output = await User.deleteOne({ _id: userId })
+  // if (output.deletedCount > 0)
+  //   response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
+  // else
+  //   response.status(StatusCodes.NOT_FOUND).json({ message: `User ${userId} Not Found!` })
 }
 
 const GetUser = async (request, response, next) => {

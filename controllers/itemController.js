@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import { Item, User } from '../models/index.js'
+import { Item, UnitOfMeasure, User } from '../models/index.js'
 
 const CreateItem = async (request, response, next) => {
   const user = await User.findOne({ _id: request.item.userId })
@@ -9,8 +9,8 @@ const CreateItem = async (request, response, next) => {
   if (request.user.role !== 'admin')
     if (request.user._id.toString() !== request.item.userId)
       throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
-    else if (request.user.status.toString().toLowerCase() !== 'approved')
-      throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
+  // else if (request.user.status.toString().toLowerCase() !== 'approved')
+  //   throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
 
   const item = await Item.create(request.item)
   await item.populate('tags unitOfMeasure attributes._id')
@@ -33,8 +33,8 @@ const UpdateItem = async (request, response, next) => {
   if (request.user.role !== 'admin')
     if (item.userId._id.toString() !== request.item.userId)
       throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
-    else if (request.user.status.toString().toLowerCase() !== 'approved')
-      throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
+  // else if (request.user.status.toString().toLowerCase() !== 'approved')
+  //   throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
 
   if (request.user.role === 'admin') {
     const user = await User.findOne({ _id: request.item.userId })
@@ -82,16 +82,26 @@ const DeleteItem = async (request, response, next) => {
 
   const options = { _id: request.params.itemId }
   if (request.user.role === 'vendor') {
-    if (request.user.status.toString().toLowerCase() !== 'approved')
-      throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
+    // if (request.user.status.toString().toLowerCase() !== 'approved')
+    //   throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
     options.userId = request.user._id.toString()
   }
 
-  const output = await Item.deleteOne(options)
-  if (output.deletedCount > 0)
-    response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
-  else
+  const item = await Item.findOne(options)
+  if (!item)
     response.status(StatusCodes.NOT_FOUND).json({ message: `Item ${request.params.itemId} Not Found!` })
+
+  item.status = 'suspended'
+
+  await item.save().then(() => {
+    response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
+  }).catch(error => next(error))
+
+  // const output = await Item.deleteOne(options)
+  // if (output.deletedCount > 0)
+  //   response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
+  // else
+  //   response.status(StatusCodes.NOT_FOUND).json({ message: `Item ${request.params.itemId} Not Found!` })
 }
 
 const GetItem = async (request, response, next) => {
@@ -118,6 +128,9 @@ const GetAllVendorItems = async (request, response, next) => {
   const limit = request.query.limit || 10
   const options = { userId: request.params.userId }
 
+  if (request.query.status === 'suspended' && request.user.role !== 'admin')
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
+
   if (request.user.role === 'retailer') {
     options.status = 'enabled'
   } else if (request.user.role === 'admin' && request.query.status) {
@@ -140,6 +153,9 @@ const GetAllItems = async (request, response, next) => {
   const limit = request.query.limit || 10
   const tag = request.query.tag || ''
   const options = {}
+
+  if (request.query.status === 'suspended' && request.user.role !== 'admin')
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
 
   if (request.query.minOrderNumber)
     if (isNaN(request.query.minOrderNumber))
@@ -165,4 +181,29 @@ const GetAllItems = async (request, response, next) => {
   response.status(StatusCodes.OK).json({ page, limit, count: filteredItems.length, filteredItems })
 }
 
-export { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems }
+const GetAllUnitOfMeasures = async (request, response, next) => {
+  const unitOfMeasure = await UnitOfMeasure.find()
+  response.status(StatusCodes.OK).json(unitOfMeasure)
+}
+
+const UpdateUnitOfMeasure = async (request, response, next) => {
+  if (!request.params.id)
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure ID is Required!' }
+
+  if (!request.body.name)
+    throw { status: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure Name is Required!' }
+
+  const options = { _id: request.params.id }
+  const unitOfMeasure = await UnitOfMeasure.findOne(options)
+
+  if (!unitOfMeasure)
+    response.status(StatusCodes.NOT_FOUND).json({ message: `Unit Of Measure ${request.params.id} Not Found!` })
+
+  unitOfMeasure.name = request.body.name
+
+  await unitOfMeasure.save().then(() => {
+    response.status(StatusCodes.OK).json(unitOfMeasure)
+  }).catch(error => next(error))
+}
+
+export { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems, GetAllUnitOfMeasures, UpdateUnitOfMeasure }
