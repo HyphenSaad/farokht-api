@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import { Order } from '../index'
 
 const OrderChatSchema = new mongoose.Schema({
@@ -7,23 +7,20 @@ const OrderChatSchema = new mongoose.Schema({
     ref: Order,
     required: [true, 'Order ID is required!'],
   },
-  vendorComment: {
-    type: String,
-    trim: true,
-    min: [1, 'Vendor Comment is too short!']
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: User,
+    required: [true, 'User ID is required!'],
   },
-  retailerComment: {
+  comment: {
     type: String,
     trim: true,
-    min: [1, 'Vendor Comment is too short!']
+    min: [1, 'Comment is too short!']
   },
-  vendorVoiceNote: {
+  voiceNote: {
     type: String,
     trim: true,
-  },
-  retailerVoiceNote: {
-    type: String,
-    trim: true,
+    min: [1, 'Voice Note is too short!']
   },
 }, { timestamps: true })
 

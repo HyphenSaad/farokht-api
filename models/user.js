@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
-import { Item } from './index.js'
 
 const UserSchema = new mongoose.Schema({
   firstName: {
