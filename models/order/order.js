@@ -1,6 +1,8 @@
 import mongoose, { Schema } from 'mongoose'
 import { User, Item, AttributeOfItem } from '../index.js'
 
+const notEmpty = (array) => array.length !== 0
+
 const OrderSchema = new mongoose.Schema({
   vendorId: {
     type: Schema.Types.ObjectId,
