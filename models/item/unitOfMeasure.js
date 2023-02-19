@@ -1,5 +1,5 @@
-import mongoose from 'mongoose'
-import { User } from '../index'
+import mongoose, { Schema } from 'mongoose'
+import { User } from '../index.js'
 
 const UnitOfMeasureSchema = new mongoose.Schema({
   name: {

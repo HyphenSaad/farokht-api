@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { Order } from './index'
+import { Order } from './index.js'
 
 const PaymentSchema = new mongoose.Schema({
   orderId: {

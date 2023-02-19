@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { User, AttributeOfItem, UnitOfMeasure, Tag } from '../index'
+import { User, AttributeOfItem, UnitOfMeasure, Tag } from '../index.js'
 
 const notEmpty = (array) => array.length !== 0
 

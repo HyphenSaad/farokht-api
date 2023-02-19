@@ -1,5 +1,5 @@
-import mongoose from 'mongoose'
-import { User, Item, AttributeOfItem } from '../index'
+import mongoose, { Schema } from 'mongoose'
+import { User, Item, AttributeOfItem } from '../index.js'
 
 const OrderSchema = new mongoose.Schema({
   vendorId: {
