@@ -8,7 +8,8 @@ import UserManagementRouter from './userManagementRoutes.js'
 const router = express.Router()
 router.use('/auth/', AuthRouter)
 router.use('/item/', TokenAuthorization, ItemRouter)
-router.use('/unitOfMeasure/', TokenAuthorization, UnitOfMeasureRouter)
+router.use('/uom/', TokenAuthorization, UnitOfMeasureRouter)
 router.use('/user/', TokenAuthorization, AdminAuthorization, UserManagementRouter)
+// router.use('/unitOfMeasure/', TokenAuthorization, UnitOfMeasureRouter)
 
 export default router

@@ -9,7 +9,7 @@ const CreateUser = async (request, response, next) => {
 const UpdateUser = async (request, response, next) => {
   const userId = request.params.userId
   if (!userId)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
   request.updateUserId = userId
   await Update(request, response, next)
@@ -18,7 +18,7 @@ const UpdateUser = async (request, response, next) => {
 const DeleteUser = async (request, response, next) => {
   const userId = request.params.userId
   if (!userId)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
   const user = await User.findOne({ _id: userId })
   if (!user)
@@ -40,11 +40,11 @@ const DeleteUser = async (request, response, next) => {
 const GetUser = async (request, response, next) => {
   const userId = request.params.userId
   if (!userId)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
   const user = await User.findOne({ _id: userId })
   if (!user)
-    throw { status: StatusCodes.NOT_FOUND, message: 'User Not Found!' }
+    throw { statusCode: StatusCodes.NOT_FOUND, message: 'User Not Found!' }
 
   user.password = undefined
   response.status(StatusCodes.OK).json(user)
@@ -73,12 +73,13 @@ const GetAllUsers = async (request, response, next) => {
     .limit(limit)
     .skip((page - 1) * limit)
 
-  const users = __users.forEach(user => {
+  const users = __users.filter(user => {
+    if (user.role === 'admin') return
     user.password = undefined
     return user
   })
 
-  response.status(StatusCodes.OK).json({ page, limit, count: users.length, users })
+  response.status(StatusCodes.OK).json({ page, limit, count: users.length || 0, users })
 }
 
 export { CreateUser, UpdateUser, DeleteUser, GetUser, GetAllUsers }

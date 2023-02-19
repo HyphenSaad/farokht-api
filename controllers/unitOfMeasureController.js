@@ -3,7 +3,7 @@ import { UnitOfMeasure } from '../models/index.js'
 
 const AddUnitOfMeasure = async (request, response, next) => {
   if (!request.body.name)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure Name is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure Name is Required!' }
 
   try {
     const unitOfMeasure = await UnitOfMeasure.create({ name: request.body.name })
@@ -15,10 +15,10 @@ const AddUnitOfMeasure = async (request, response, next) => {
 
 const UpdateUnitOfMeasure = async (request, response, next) => {
   if (!request.params.id)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure ID is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure ID is Required!' }
 
   if (!request.body.name)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure Name is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure Name is Required!' }
 
   const options = { _id: request.params.id }
   const unitOfMeasure = await UnitOfMeasure.findOne(options)

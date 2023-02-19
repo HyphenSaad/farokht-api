@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import { User, AttributeOfItem, UnitOfMeasure, Tag } from '../index'
 
 const notEmpty = (array) => array.length !== 0
 
@@ -34,23 +35,23 @@ const ItemSchema = new mongoose.Schema({
   tags: {
     type: [{
       type: Schema.Types.ObjectId,
-      ref: 'tag',
+      ref: Tag,
     }],
     validate: [notEmpty, 'Tags are required!'],
   },
   unitOfMeasure: {
     type: Schema.Types.ObjectId,
-    ref: 'unitOfMeasure',
+    ref: UnitOfMeasure,
     required: [true, 'Unit of measure is required!'],
   },
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'user',
+    ref: User,
     required: [true, 'User ID is required!'],
   },
   attributes: {
     type: [{
-      _id: { type: Schema.Types.ObjectId, ref: 'attributeOfItem', },
+      _id: { type: Schema.Types.ObjectId, ref: AttributeOfItem, },
       value: {
         type: String,
         required: [true, 'Attribute value is required!'],
@@ -84,6 +85,38 @@ const ItemSchema = new mongoose.Schema({
       }
     }],
     validate: [notEmpty, 'Price slabs are required!'],
+  },
+  vendorPayoutPercentage: {
+    type: Number,
+    required: [true, 'Vendor Payout Percentage is required!'],
+    min: [1, 'Vendor Payout Percentage is too short!'],
+  },
+  completionDays: {
+    type: Number,
+    required: [true, 'Completion Days are required!'],
+    min: [1, 'Completion Days are too short!'],
+  },
+  shipmentCost: {
+    type: [{
+      location: {
+        type: String,
+        required: [true, 'Shipment Location is required!'],
+        minLength: [3, 'Shipment Location is too short!'],
+        maxLength: [75, 'Shipment Location is too long!'],
+        trim: true,
+      },
+      price: {
+        type: Number,
+        required: [true, 'Shipment Price is required!'],
+        min: [1, 'Shipment Price is too short!'],
+      },
+      days: {
+        type: Number,
+        required: [true, 'Shipment Days are required!'],
+        min: [1, 'Shipment Days are too short!'],
+      }
+    }],
+    validate: [notEmpty, 'Shipment Cost is required!'],
   }
 }, { timestamps: true })
 

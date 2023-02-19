@@ -4,13 +4,13 @@ import { Item, User } from '../models/index.js'
 const CreateItem = async (request, response, next) => {
   const user = await User.findOne({ _id: request.item.userId })
   if (!user)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Vendor ID!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Vendor ID!' }
 
   if (request.user.role !== 'admin')
     if (request.user._id.toString() !== request.item.userId)
-      throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
+      throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
   // else if (request.user.status.toString().toLowerCase() !== 'approved')
-  //   throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
+  //   throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
 
   const item = await Item.create(request.item)
   await item.populate('tags unitOfMeasure attributes._id')
@@ -19,27 +19,27 @@ const CreateItem = async (request, response, next) => {
 
 const UpdateItem = async (request, response, next) => {
   if (!request.params.itemId)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
 
   const item = await Item.findOne({ _id: request.params.itemId })
   if (!item)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item ID!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item ID!' }
 
   await item.populate('userId')
 
   if (!request.item.userId || !item.userId)
-    throw { status: StatusCodes.NOT_FOUND, message: 'Item Vendor Not Found!' }
+    throw { statusCode: StatusCodes.NOT_FOUND, message: 'Item Vendor Not Found!' }
 
   if (request.user.role !== 'admin')
     if (item.userId._id.toString() !== request.item.userId)
-      throw { status: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
+      throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
   // else if (request.user.status.toString().toLowerCase() !== 'approved')
-  //   throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
+  //   throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
 
   if (request.user.role === 'admin') {
     const user = await User.findOne({ _id: request.item.userId })
     if (user.role !== 'vendor')
-      throw { status: StatusCodes.BAD_REQUEST, message: 'Item Owner Can Only Be Vendor' }
+      throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item Owner Can Only Be Vendor' }
     else
       item.userId = request.item.userId
   }
@@ -78,12 +78,12 @@ const UpdateItem = async (request, response, next) => {
 
 const DeleteItem = async (request, response, next) => {
   if (!request.params.itemId)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
 
   const options = { _id: request.params.itemId }
   if (request.user.role === 'vendor') {
     // if (request.user.status.toString().toLowerCase() !== 'approved')
-    //   throw { status: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
+    //   throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
     options.userId = request.user._id.toString()
   }
 
@@ -106,7 +106,7 @@ const DeleteItem = async (request, response, next) => {
 
 const GetItem = async (request, response, next) => {
   if (!request.params.itemId)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
 
   const options = { _id: request.params.itemId }
   if (request.user.role === 'retailer')
@@ -114,7 +114,7 @@ const GetItem = async (request, response, next) => {
 
   const item = await Item.findOne(options)
   if (!item)
-    throw { status: StatusCodes.NOT_FOUND, message: 'Item Not Found!' }
+    throw { statusCode: StatusCodes.NOT_FOUND, message: 'Item Not Found!' }
 
   await item.populate('tags unitOfMeasure attributes._id')
   response.status(StatusCodes.OK).json(item)
@@ -122,14 +122,14 @@ const GetItem = async (request, response, next) => {
 
 const GetAllVendorItems = async (request, response, next) => {
   if (!request.params.userId)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
   const page = request.query.page || 1
   const limit = request.query.limit || 10
   const options = { userId: request.params.userId }
 
   if (request.query.status === 'suspended' && request.user.role !== 'admin')
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
 
   if (request.user.role === 'retailer') {
     options.status = 'enabled'
@@ -155,11 +155,11 @@ const GetAllItems = async (request, response, next) => {
   const options = {}
 
   if (request.query.status === 'suspended' && request.user.role !== 'admin')
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
 
   if (request.query.minOrderNumber)
     if (isNaN(request.query.minOrderNumber))
-      throw { status: StatusCodes.BAD_REQUEST, message: 'MinOrderNumber Should Be Numeric Only!' }
+      throw { statusCode: StatusCodes.BAD_REQUEST, message: 'MinOrderNumber Should Be Numeric Only!' }
     else if (request.query.minOrderNumber)
       options.minOrderNumber = { '$lte': `${request.query.minOrderNumber}` }
 

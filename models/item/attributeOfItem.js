@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { User } from '../index'
 
 const AttributeOfItemSchema = new mongoose.Schema({
   name: {
@@ -8,6 +9,10 @@ const AttributeOfItemSchema = new mongoose.Schema({
     maxLength: [25, 'Name is too long!'],
     trim: true,
   },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: User
+  }
 }, { timestamps: true })
 
 export default mongoose.model('attributeOfItem', AttributeOfItemSchema)

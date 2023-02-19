@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css?family=Rubik:400,700');
+
+body{
+  font-family: 'Rubik', sans-serif;
+  background: #dddddd;
+}
+
+#rps-menu-item:hover {
+  background-color: #282828 !important;
+}
+
+#menu-toggle-button,
+#logout-button {
+  background: none;
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
+
+#menu-toggle-button {
+  display: none;
+  margin-right: 1rem;
+}
+
+@media (max-width: 768px) {
+  #menu-toggle-button {
+    display: inline-block;
+  }
+}

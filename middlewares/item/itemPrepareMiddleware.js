@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 
 const ProcessTags = async (tags) => {
   if (tags.length < 1)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Tags are Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tags are Required!' }
 
   const itemTags = []
   for (const _tag of tags) {
@@ -23,12 +23,12 @@ const ProcessTags = async (tags) => {
 
 const ProcessAttributes = async (attributes) => {
   if (attributes.length < 1)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Attributes are Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attributes are Required!' }
 
   const itemAttributes = []
   for (const _attribute of attributes) {
     if (!_attribute.name || !_attribute.value)
-      throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Attribute Data-Shape!' }
+      throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Attribute Data-Shape!' }
 
     const attributeOfItem = await AttributeOfItem.findOne({ name: _attribute.name.trim() })
     if (!attributeOfItem) {
@@ -44,11 +44,11 @@ const ProcessAttributes = async (attributes) => {
 
 const ProcessPriceSlabs = (priceSlabs) => {
   if (priceSlabs.length < 1)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Price Slabs are Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Price Slabs are Required!' }
 
   priceSlabs.forEach(priceSlab => {
     if (!priceSlab.slab || !priceSlab.price)
-      throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Price Slab Data-Shape!' }
+      throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Price Slab Data-Shape!' }
   })
 
   return priceSlabs
@@ -69,7 +69,7 @@ const ProcessUnitOfMeasure = async (unitOfMeasure) => {
 // FIXME: Remove Karna Hai, Jab Hum Image Store Finalize Kar Lain Gye!
 const ProcessPictureURLs = (pictures) => {
   if (pictures.length < 1)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Pictures are Required!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Pictures are Required!' }
 
   const pictureURLs = []
   for (let i = 0; i < 5; ++i)
@@ -83,10 +83,10 @@ const ItemPrepare = async (request, response, next) => {
     pictures, status, priceSlabs } = JSON.parse(request.body.data)
 
   if (!name || !minOrderNumber || !description || !pictures || !tags || !unitOfMeasure || !attributes || !userId || !priceSlabs)
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   if (!Array.isArray(pictures) || !Array.isArray(tags) || !Array.isArray(attributes) || !Array.isArray(priceSlabs))
-    throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Request Data-Shape!' }
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Request Data-Shape!' }
 
   const itemTags = await ProcessTags(tags)
   const itemAttributes = await ProcessAttributes(attributes)
@@ -101,7 +101,7 @@ const ItemPrepare = async (request, response, next) => {
   }
 
   if (request.user.role === 'admin')
-    if (!status) throw { status: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status!' }
+    if (!status) throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status!' }
     else request.item.status = status
 }
 

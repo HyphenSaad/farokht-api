@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit'
 import morgan from 'morgan'
 import multer from 'multer'
 import dotenv from 'dotenv'
+import cors from 'cors'
 dotenv.config()
 
 import { CreateAdmin } from './seed.js'
@@ -25,6 +26,7 @@ const API_RATE_LIMITER = rateLimit({
 if (process.env.ENVIRONMENT.toLowerCase() === 'dev')
   app.use(morgan('dev'))
 
+app.use(cors())
 app.use(express.json())
 app.use(multer().array())
 
