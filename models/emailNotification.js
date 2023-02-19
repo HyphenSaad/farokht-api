@@ -17,4 +17,4 @@ const EmailNotificationSchema = new mongoose.Schema({
   },
 }, { timestamps: true })
 
-export default mongoose.model('payment', EmailNotificationSchema)
+export default mongoose.model('emailNotification', EmailNotificationSchema)
