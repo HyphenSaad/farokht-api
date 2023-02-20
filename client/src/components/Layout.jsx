@@ -44,9 +44,9 @@ const SidebarHead = () => {
 const SideBarSeparator = ({ title }) => {
   return (
     <p style={{
-      margin: 0, padding: '0.5rem 1.25rem', textTransform: 'uppercase',
+      margin: 0, padding: '0.25rem 1.25rem', textTransform: 'uppercase',
       fontSize: '0.8rem', letterSpacing: 2.5, background: '#4d4d4d',
-      color: '#cfcfcf'
+      color: '#cfcfcf', lineHeight: '1.25rem'
     }}>{title}</p>
   )
 }
@@ -86,13 +86,19 @@ const Layout = () => {
       color: '#fff',
       '&:hover': { backgroundColor: '#363636', }
     },
+    ['.' + menuClasses.button]: {
+      height: 42,
+    },
+    ['.' + menuClasses.icon + ' *']: {
+      height: 20,
+    },
   }
 
   const { toggleSidebar } = useProSidebar()
   const navigate = useNavigate()
 
   return (
-    <div style={{ display: 'flex', height: '100%', }}>
+    <div style={{ display: 'flex', height: '100vh', }}>
       <Sidebar rootStyles={SideBarRootStyles} breakPoint="md">
         <SidebarHead />
         <Menu rootStyles={MenuRootStyles}>

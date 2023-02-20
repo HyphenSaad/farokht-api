@@ -31,3 +31,12 @@ body{
 .MuiPaper-root{
   box-shadow: none !important;
 }
+
+.ps-sidebar-container::-webkit-scrollbar {
+  display: none;
+}
+
+.ps-sidebar-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
