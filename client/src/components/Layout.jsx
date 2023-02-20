@@ -98,28 +98,30 @@ const Layout = () => {
   const navigate = useNavigate()
 
   return (
-    <div style={{ display: 'flex', height: '100vh', }}>
-      <Sidebar rootStyles={SideBarRootStyles} breakPoint="md">
-        <SidebarHead />
-        <Menu rootStyles={MenuRootStyles}>
-          <CustomMenuItem title='Dashboard' path='/' icon={<Dashboard />} />
-          <SideBarSeparator title='Transactions' />
-          <CustomMenuItem title='Orders' path='/Orders' icon={<AddBusinessRounded />} />
-          <CustomMenuItem title='Items' path='/Items' icon={<ViewListRounded />} />
-          <SideBarSeparator title='Setups' />
-          <CustomMenuItem title='Unit of Measures' path='/UnitOfMeasures' icon={<StraightenOutlined />} />
-          <CustomMenuItem title='Attributes' path='/Attributes' icon={<AppRegistrationRounded />} />
-          <CustomMenuItem title='Tags' path='/Tags' icon={<SellRounded />} />
-          <SideBarSeparator title='Reports' />
-          <CustomMenuItem title='Downloadable Data' path='/DownloadbleData' icon={<CloudDownloadRounded />} />
-          <SideBarSeparator title='User Management' />
-          <CustomMenuItem title='Users' path='/Users' icon={<PeopleRounded />} />
-          <CustomMenuItem title='Email Notification' path='/EmailNotification' icon={<MarkEmailReadRounded />} />
-          <SideBarSeparator title='Payment Management' />
-          <CustomMenuItem title='Payments' path='/Payments' icon={<PaidRounded />} />
-        </Menu>
-      </Sidebar>
-      <div style={{ width: '100%' }}>
+    <div className='row m-0' style={{ height: '100vh' }}>
+      <div className='col-auto m-0 p-0'>
+        <Sidebar rootStyles={SideBarRootStyles} breakPoint="md">
+          <SidebarHead />
+          <Menu rootStyles={MenuRootStyles}>
+            <CustomMenuItem title='Dashboard' path='/' icon={<Dashboard />} />
+            <SideBarSeparator title='Transactions' />
+            <CustomMenuItem title='Orders' path='/Orders' icon={<AddBusinessRounded />} />
+            <CustomMenuItem title='Items' path='/Items' icon={<ViewListRounded />} />
+            <SideBarSeparator title='Setups' />
+            <CustomMenuItem title='Unit of Measures' path='/UnitOfMeasures' icon={<StraightenOutlined />} />
+            <CustomMenuItem title='Attributes' path='/Attributes' icon={<AppRegistrationRounded />} />
+            <CustomMenuItem title='Tags' path='/Tags' icon={<SellRounded />} />
+            <SideBarSeparator title='Reports' />
+            <CustomMenuItem title='Downloadable Data' path='/DownloadbleData' icon={<CloudDownloadRounded />} />
+            <SideBarSeparator title='User Management' />
+            <CustomMenuItem title='Users' path='/Users' icon={<PeopleRounded />} />
+            <CustomMenuItem title='Email Notification' path='/EmailNotification' icon={<MarkEmailReadRounded />} />
+            <SideBarSeparator title='Payment Management' />
+            <CustomMenuItem title='Payments' path='/Payments' icon={<PaidRounded />} />
+          </Menu>
+        </Sidebar>
+      </div>
+      <div style={{ width: '100%' }} className='col m-0 p-0 pb-5'>
         <div style={{ display: 'flex', backgroundColor: '#fff', padding: '1rem', }}>
           <button id='menu-toggle-button' onClick={() => toggleSidebar()}>
             <MenuIcon />

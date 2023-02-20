@@ -40,3 +40,7 @@ body{
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.ps-sidebar-root{
+  height: 100%;
+}
