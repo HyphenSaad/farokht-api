@@ -7,7 +7,7 @@ const Register = async (request, response, next) => {
   const { firstName, lastName, phoneNumber1, phoneNumber2, landline, email, password, companyName,
     location, address, paymentMethod, bankName, bankBranchCode, bankAccountNumber, role } = request.body
 
-  if (!firstName || !lastName || !phoneNumber1 || !password || !role || !companyName ||
+  if (!firstName || !lastName || !phoneNumber1 || !email || !password || !role || !companyName ||
     !location || !address || !paymentMethod || !bankName || !bankBranchCode || !bankAccountNumber)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
@@ -75,13 +75,17 @@ const Update = async (request, response, next) => {
   const { firstName, lastName, phoneNumber1, phoneNumber2, landline, email, password, companyName,
     location, address, paymentMethod, bankName, bankBranchCode, bankAccountNumber, role, status } = request.body
 
-  if (!firstName || !lastName || !phoneNumber1 || !companyName || !location ||
+  if (!firstName || !lastName || !phoneNumber1 || !companyName || !location || !email ||
     ((request.user.role && request.user.role !== 'admin') && !password)
     || !address || !paymentMethod || !bankName || !bankBranchCode || !bankAccountNumber)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
-  if (!password.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/))
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 digit!' }
+  if (request.user.role && request.user.role !== 'admin')
+    if (!password.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/))
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 digit!'
+      }
 
   if (phoneNumber2 && (phoneNumber1.trim() === phoneNumber2.trim()))
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Phone Number 1 and 2 Can\'t Be Same!' }
@@ -96,8 +100,8 @@ const Update = async (request, response, next) => {
   user.firstName = firstName
   user.lastName = lastName
   user.phoneNumber1 = phoneNumber1
-  user.phoneNumber2 = phoneNumber2
-  user.landline = landline
+  user.phoneNumber2 = phoneNumber2 || undefined
+  user.landline = landline || undefined
   user.email = email
   user.companyName = companyName
   user.location = location
@@ -107,7 +111,7 @@ const Update = async (request, response, next) => {
   user.bankBranchCode = bankBranchCode
   user.bankAccountNumber = bankAccountNumber
 
-  if (password)
+  if (request.user.role && request.user.role !== 'admin')
     user.password = await bcrypt.hash(password, await bcrypt.genSalt(10))
 
   if (request.user.role && request.user.role === 'admin' && role !== 'admin') {

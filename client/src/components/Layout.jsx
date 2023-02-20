@@ -61,11 +61,14 @@ const GetTitle = () => {
     case '/Tags': return { path: '/Tags', title: 'Tags' }
     case '/DownloadbleData': return { path: '/DownloadbleData', title: 'Reports' }
     case '/Users': return { path: '/Users', title: 'Users' }
-    case '/AddUser': return { path: '/Users', title: 'Users' }
     case '/EmailNotification': return { path: '/Payments', title: 'Email Notification' }
     case '/Payments': return { path: '/Payments', title: 'Payments' }
-    default: return 'Error'
+    default: { }
   }
+
+  if (window.location.pathname.includes('/UserInfo'))
+    return { path: window.location.pathname, title: 'User Info' }
+  return 'Error'
 }
 
 const Layout = () => {

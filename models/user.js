@@ -37,8 +37,8 @@ const UserSchema = new mongoose.Schema({
   },
   landline: {
     type: String,
-    minLength: [10, 'Invalid landline number!'],
-    maxLength: [10, 'Invalid landline number!'],
+    minLength: [9, 'Invalid landline number!'],
+    maxLength: [11, 'Invalid landline number!'],
     trim: true,
     match: [/^[0-9]+$/, 'Landline number should only contains digits!'],
   },
@@ -46,6 +46,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     minLength: [5, 'Email is too short!'],
     maxLength: [50, 'Email is too long!'],
+    required: [true, 'Email is required!'],
     trim: true,
     validate: {
       validator: validator.isEmail,

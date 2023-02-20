@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import './styles/App.css'
 
 import ProtectedRoute from './components/ProtectedRoute'
@@ -7,7 +7,7 @@ import Layout from './components/Layout'
 
 import {
   Login, Dashboard, PageNotFound,
-  Payments, EmailNotification, Users, AddUser, DownloadbleData,
+  Payments, EmailNotification, Users, UserInfo, DownloadbleData,
   UnitOfMeasures, Tags, Attributes, Items, Orders
 } from './pages/index'
 
@@ -29,7 +29,8 @@ const App = () => {
         <Route path='DownloadbleData' element={<DownloadbleData />} />
         {/* USER MANAGEMENT */}
         <Route path='Users' element={<Users />} />
-        <Route path='AddUser' element={<AddUser />} />
+        <Route path='UserInfo' element={<UserInfo />} />
+        <Route path='UserInfo/:id' element={<UserInfo />} />
         <Route path='EmailNotification' element={<EmailNotification />} />
         {/* PAYMENT MANAGEMENT */}
         <Route path='Payments' element={<Payments />} />

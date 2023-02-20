@@ -72,6 +72,7 @@ const GetAllUsers = async (request, response, next) => {
   const __users = await User.find(options)
     .limit(limit)
     .skip((page - 1) * limit)
+    .sort({ status: 'asc' })
 
   const users = __users.filter(user => {
     if (user.role === 'admin') return

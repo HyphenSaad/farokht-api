@@ -4,7 +4,7 @@ import PageNotFound from './PageNotFound'
 import Payments from './paymentManagement/Payments'
 import EmailNotification from './userManagement/EmailNotification'
 import Users from './userManagement/Users'
-import AddUser from './userManagement/AddUser'
+import UserInfo from './userManagement/UserInfo'
 import DownloadbleData from './reports/DownloadableData'
 import Attributes from './setups/Attributes'
 import Tags from './setups/Tags'
@@ -14,6 +14,6 @@ import Orders from './transactions/Orders'
 
 export {
   Login, Dashboard, PageNotFound,
-  Payments, EmailNotification, Users, AddUser, DownloadbleData,
+  Payments, EmailNotification, Users, UserInfo, DownloadbleData,
   UnitOfMeasures, Tags, Attributes, Items, Orders
 }
