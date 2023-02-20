@@ -8,6 +8,8 @@ const UnitOfMeasureSchema = new mongoose.Schema({
     minLength: [1, 'Name is too short!'],
     maxLength: [25, 'Name is too long!'],
     trim: true,
+    unique: true,
+    lowercase: true,
   },
   createdBy: {
     type: Schema.Types.ObjectId,

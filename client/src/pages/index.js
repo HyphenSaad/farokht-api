@@ -6,14 +6,18 @@ import EmailNotification from './userManagement/EmailNotification'
 import Users from './userManagement/Users'
 import UserInfo from './userManagement/UserInfo'
 import DownloadbleData from './reports/DownloadableData'
-import Attributes from './setups/Attributes'
-import Tags from './setups/Tags'
 import UnitOfMeasures from './setups/UnitOfMeasures'
+import UnitOfMeasureInfo from './setups/UnitOfMeasureInfo'
+import Attributes from './setups/Attributes'
+import AttributeInfo from './setups/AttributeInfo'
+import Tags from './setups/Tags'
+import TagInfo from './setups/TagInfo'
 import Items from './transactions/Items'
 import Orders from './transactions/Orders'
 
 export {
   Login, Dashboard, PageNotFound,
   Payments, EmailNotification, Users, UserInfo, DownloadbleData,
-  UnitOfMeasures, Tags, Attributes, Items, Orders
+  UnitOfMeasures, UnitOfMeasureInfo, Attributes, AttributeInfo, Tags, TagInfo,
+  Items, Orders
 }

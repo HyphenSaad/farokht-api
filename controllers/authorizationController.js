@@ -5,7 +5,7 @@ import { User } from '../models/index.js'
 
 const Register = async (request, response, next) => {
   const { firstName, lastName, phoneNumber1, phoneNumber2, landline, email, password, companyName,
-    location, address, paymentMethod, bankName, bankBranchCode, bankAccountNumber, role } = request.body
+    location, address, paymentMethod, bankName, bankBranchCode, bankAccountNumber, role, status } = request.body
 
   if (!firstName || !lastName || !phoneNumber1 || !email || !password || !role || !companyName ||
     !location || !address || !paymentMethod || !bankName || !bankBranchCode || !bankAccountNumber)
@@ -27,7 +27,8 @@ const Register = async (request, response, next) => {
   const data = {
     firstName, lastName, phoneNumber1, phoneNumber2, landline, email, companyName, location,
     address, paymentMethod, bankName, bankBranchCode, bankAccountNumber, role,
-    password: await bcrypt.hash(password, await bcrypt.genSalt(10))
+    password: await bcrypt.hash(password, await bcrypt.genSalt(10)),
+    status: request.user.role === 'admin' ? status : 'pending'
   }
 
   if (phoneNumber2.length < 1) data.phoneNumber2 = undefined

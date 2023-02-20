@@ -24,8 +24,8 @@ const Users = () => {
         autoClose: 4000,
         hideProgressBar: false,
         closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
+        pauseOnHover: false,
+        draggable: false,
         progress: undefined,
         theme: 'light',
         toastId: 'xyz',
@@ -48,16 +48,19 @@ const Users = () => {
       })
 
       const data = result.data.users
-      data.forEach(user => {
-        user.fullName = `${user.firstName} ${user.lastName}`
-        user.phoneNumber1 = `+92${user.phoneNumber1}`
-        user.phoneNumber2 = `+92${user.phoneNumber2}`
-        user.status = user.status.charAt(0).toUpperCase() + user.status.slice(1)
-        user.role = user.role.charAt(0).toUpperCase() + user.role.slice(1)
-      })
+
+      if (data.length > 0) {
+        data.forEach(user => {
+          user.fullName = `${user.firstName} ${user.lastName}`
+          user.phoneNumber1 = `+92${user.phoneNumber1}`
+          user.phoneNumber2 = `+92${user.phoneNumber2}`
+          user.status = user.status.charAt(0).toUpperCase() + user.status.slice(1)
+          user.role = user.role.charAt(0).toUpperCase() + user.role.slice(1)
+        })
+        setData(result.data.users)
+      }
 
       setError('')
-      setData(result.data.users)
       setIsLoading(false)
     })()
   }, [error, state, navigate])
@@ -101,7 +104,7 @@ const Users = () => {
               <Button variant='primary'
                 onClick={() => navigate('/UserInfo')}
                 className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'>
-                <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add User
+                <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
               </Button>
             )}
             renderRowActions={({ row, table }) => (

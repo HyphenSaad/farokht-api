@@ -1,5 +1,5 @@
 import express from 'express'
-import { AddUnitOfMeasure, UpdateUnitOfMeasure, GetAllUnitOfMeasures } from '../controllers/index.js'
+import { AddUnitOfMeasure, UpdateUnitOfMeasure, GetAllUnitOfMeasures, GetUnitOfMeasure } from '../controllers/index.js'
 import { AdminAuthorization } from '../middlewares/index.js'
 
 const router = express.Router()
@@ -10,6 +10,7 @@ const router = express.Router()
 
 router.route('/').post(AdminAuthorization, AddUnitOfMeasure)
 router.route('/').get(GetAllUnitOfMeasures)
+router.route('/:id').get(GetUnitOfMeasure)
 router.route('/:id').patch(AdminAuthorization, UpdateUnitOfMeasure)
 
 export default router

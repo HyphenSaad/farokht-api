@@ -8,7 +8,8 @@ import Layout from './components/Layout'
 import {
   Login, Dashboard, PageNotFound,
   Payments, EmailNotification, Users, UserInfo, DownloadbleData,
-  UnitOfMeasures, Tags, Attributes, Items, Orders
+  UnitOfMeasures, UnitOfMeasureInfo, Attributes, AttributeInfo, Tags, TagInfo,
+  Items, Orders
 } from './pages/index'
 
 const App = () => {
@@ -23,8 +24,14 @@ const App = () => {
         <Route path='Items' element={<Items />} />
         {/* SETUPS */}
         <Route path='UnitOfMeasures' element={<UnitOfMeasures />} />
+        <Route path='UnitOfMeasureInfo' element={<UnitOfMeasureInfo />} />
+        <Route path='UnitOfMeasureInfo/:id' element={<UnitOfMeasureInfo />} />
         <Route path='Attributes' element={<Attributes />} />
+        <Route path='AttributeInfo' element={<AttributeInfo />} />
+        <Route path='AttributeInfo/:id' element={<AttributeInfo />} />
         <Route path='Tags' element={<Tags />} />
+        <Route path='TagInfo' element={<TagInfo />} />
+        <Route path='TagInfo/:id' element={<TagInfo />} />
         {/* REPORTS */}
         <Route path='DownloadbleData' element={<DownloadbleData />} />
         {/* USER MANAGEMENT */}
