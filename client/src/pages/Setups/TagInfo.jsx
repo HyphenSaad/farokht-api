@@ -8,6 +8,7 @@ import GoBackButton from '../../components/GoBackButton'
 import { useParams, useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../../config.js'
 import { AuthContext } from '../../components/ProtectedRoute.jsx'
+import TextField from '../../components/TextField'
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -103,22 +104,12 @@ const TagInfo = () => {
               <Form onSubmit={formik.handleSubmit} className='mt-3'>
                 <Row>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Tag Title</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Tag Title" name='name'
-                        onChange={formik.handleChange} value={formik.values.name} />
-                      {formik.errors.name && formik.touched.name
-                        ? <Form.Text className='text-danger'>{formik.errors.name}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='name' formik={formik}
+                      label='Tag Title' placeholder='Enter Tag Title' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Created By</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Created By" name='createdBy'
-                        onChange={formik.handleChange} value={formik.values.createdBy} disabled />
-                      {formik.errors.createdBy && formik.touched.createdBy
-                        ? <Form.Text className='text-danger'>{formik.errors.createdBy}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='createdBy' formik={formik} disable={true}
+                      label='Created By' placeholder='Enter Created By' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}
                     className='d-flex justify-content-end align-items-end mt-1 pb-3'>

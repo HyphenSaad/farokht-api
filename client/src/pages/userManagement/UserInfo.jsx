@@ -8,6 +8,7 @@ import GoBackButton from '../../components/GoBackButton'
 import { useParams, useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../../config.js'
 import { AuthContext } from '../../components/ProtectedRoute.jsx'
+import TextField from '../../components/TextField'
 
 const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -124,35 +125,17 @@ const UserInfo = () => {
               <Form onSubmit={formik.handleSubmit} className='mt-3'>
                 <Row>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>First Name</Form.Label>
-                      <Form.Control type="text" placeholder="Enter First Name" name='firstName'
-                        onChange={formik.handleChange} value={formik.values.firstName} />
-                      {formik.errors.firstName && formik.touched.firstName
-                        ? <Form.Text className='text-danger'>{formik.errors.firstName}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='firstName' formik={formik}
+                      label='First Name' placeholder='Enter First Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Last Name</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Last Name" name='lastName'
-                        onChange={formik.handleChange} value={formik.values.lastName} />
-                      {formik.errors.lastName && formik.touched.lastName
-                        ? <Form.Text className='text-danger'>{formik.errors.lastName}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='lastName' formik={formik}
+                      label='Last Name' placeholder='Enter Last Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Password</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Password" name='password'
-                        onChange={formik.handleChange} value={formik.values.password} />
-                      {formik.errors.password && formik.touched.password
-                        ? <Form.Text className='text-danger'>{formik.errors.password}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='password' formik={formik}
+                      label='Password' placeholder='Enter Password' />
                   </Col>
-                  {/* </Row> */}
-
-                  {/* <Row> */}
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className="mb-3">
                       <Form.Label>Phone # 1</Form.Label>
@@ -178,17 +161,9 @@ const UserInfo = () => {
                     </Form.Group>
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Landline #</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Landline #" name='landline'
-                        onChange={formik.handleChange} value={formik.values.landline} />
-                      {formik.errors.landline && formik.touched.landline
-                        ? <Form.Text className='text-danger'>{formik.errors.landline}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='landline' formik={formik}
+                      label='Landline' placeholder='Enter Landline' />
                   </Col>
-                  {/* </Row> */}
-
-                  {/* <Row> */}
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className="mb-3">
                       <Form.Label>Role</Form.Label>
@@ -202,86 +177,37 @@ const UserInfo = () => {
                     </Form.Group>
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Email</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Email" name='email'
-                        onChange={formik.handleChange} value={formik.values.email} />
-                      {formik.errors.email && formik.touched.email
-                        ? <Form.Text className='text-danger'>{formik.errors.email}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='email' formik={formik}
+                      label='Email Address' placeholder='Enter Email Address' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Company Name</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Company Name" name='companyName'
-                        onChange={formik.handleChange} value={formik.values.companyName} />
-                      {formik.errors.companyName && formik.touched.companyName
-                        ? <Form.Text className='text-danger'>{formik.errors.companyName}</Form.Text> : null}
-                    </Form.Group>
-                  </Col>
-                  {/* </Row> */}
-
-                  {/* <Row> */}
-                  <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Location</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Location" name='location'
-                        onChange={formik.handleChange} value={formik.values.location} />
-                      {formik.errors.location && formik.touched.location
-                        ? <Form.Text className='text-danger'>{formik.errors.location}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='companyName' formik={formik}
+                      label='Company Name' placeholder='Enter Company Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Address</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Address" name='address'
-                        onChange={formik.handleChange} value={formik.values.address} />
-                      {formik.errors.address && formik.touched.address
-                        ? <Form.Text className='text-danger'>{formik.errors.address}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='location' formik={formik}
+                      label='Location' placeholder='Enter Location' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Payment Method</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Payment Method" name='paymentMethod'
-                        onChange={formik.handleChange} value={formik.values.paymentMethod} />
-                      {formik.errors.paymentMethod && formik.touched.paymentMethod
-                        ? <Form.Text className='text-danger'>{formik.errors.paymentMethod}</Form.Text> : null}
-                    </Form.Group>
-                  </Col>
-                  {/* </Row> */}
-
-                  {/* <Row> */}
-                  <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Bank Title</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Bank Title" name='bankName'
-                        onChange={formik.handleChange} value={formik.values.bankName} />
-                      {formik.errors.bankName && formik.touched.bankName
-                        ? <Form.Text className='text-danger'>{formik.errors.bankName}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='address' formik={formik}
+                      label='Address' placeholder='Enter Address' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Bank Branch Code</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Bank Branch Code" name='bankBranchCode'
-                        onChange={formik.handleChange} value={formik.values.bankBranchCode} />
-                      {formik.errors.bankBranchCode && formik.touched.bankBranchCode
-                        ? <Form.Text className='text-danger'>{formik.errors.bankBranchCode}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='paymentMethod' formik={formik}
+                      label='Payment Method' placeholder='Enter Payment Method' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Bank Account No.</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Bank Account No." name='bankAccountNumber'
-                        onChange={formik.handleChange} value={formik.values.bankAccountNumber} />
-                      {formik.errors.bankAccountNumber && formik.touched.bankAccountNumber
-                        ? <Form.Text className='text-danger'>{formik.errors.bankAccountNumber}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='bankName' formik={formik}
+                      label='Bank Title' placeholder='Enter Bank Title' />
                   </Col>
-                  {/* </Row> */}
-
-                  {/* <Row> */}
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='bankBranchCode' formik={formik}
+                      label='Bank Branch Code' placeholder='Enter Bank Branch Code' />
+                  </Col>
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='bankAccountNumber' formik={formik}
+                      label='Bank Account No.' placeholder='Enter Bank Account No.' />
+                  </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className="mb-3">
                       <Form.Label>Status</Form.Label>
@@ -298,14 +224,16 @@ const UserInfo = () => {
                   <Col></Col>
                   <Col sm={12} md={6} lg={4} xl={3}
                     className='d-flex justify-content-end align-items-end mt-1 pb-3'>
-                    <Button variant='danger' type='reset' className='w-100 me-3 text-uppercase' onClick={e => {
-                      setInitialValues({
-                        firstName: '', lastName: '', password: '', phoneNumber1: '', phoneNumber2: '', landline: '', role: '', location: '',
-                        address: '', email: '', companyName: '', paymentMethod: '', bankName: '', bankBranchCode: '', bankAccountNumber: '', status: '',
-                      })
-                      formik.resetForm(formik.initialValues)
-                      setError('')
-                    }}>Clear</Button>
+                    <Button variant='danger' type='reset' className='w-100 me-3 text-uppercase'
+                      onClick={e => {
+                        setInitialValues({
+                          firstName: '', lastName: '', password: '', phoneNumber1: '', phoneNumber2: '',
+                          landline: '', role: '', location: '', address: '', email: '', companyName: '',
+                          paymentMethod: '', bankName: '', bankBranchCode: '', bankAccountNumber: '', status: '',
+                        })
+                        formik.resetForm(formik.initialValues)
+                        setError('')
+                      }}>Clear</Button>
                     <Button variant='success' type='submit' className='w-100 text-uppercase'>
                       {isLoading
                         ? <BeatLoader color="#fff" size={8} />

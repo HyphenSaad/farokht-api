@@ -8,6 +8,7 @@ import GoBackButton from '../../components/GoBackButton'
 import { useParams, useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../../config.js'
 import { AuthContext } from '../../components/ProtectedRoute.jsx'
+import TextField from '../../components/TextField'
 
 const AttributeInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -36,7 +37,8 @@ const AttributeInfo = () => {
 
     axios.get(`${API_BASE_URL}attribute/${parameters.id}`, {
       headers: {
-        'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
         'Authorization': `Bearer ${authContext.token}`
       },
     }).then((response) => {
@@ -103,30 +105,22 @@ const AttributeInfo = () => {
               <Form onSubmit={formik.handleSubmit} className='mt-3'>
                 <Row>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Attribute Name</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Attribute Name" name='name'
-                        onChange={formik.handleChange} value={formik.values.name} />
-                      {formik.errors.name && formik.touched.name
-                        ? <Form.Text className='text-danger'>{formik.errors.name}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='name' formik={formik}
+                      label='Attribute Name' placeholder='Enter Attribute Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Created By</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Created By" name='createdBy'
-                        onChange={formik.handleChange} value={formik.values.createdBy} disabled />
-                      {formik.errors.createdBy && formik.touched.createdBy
-                        ? <Form.Text className='text-danger'>{formik.errors.createdBy}</Form.Text> : null}
-                    </Form.Group>
+                    <TextField name='createdBy' formik={formik} disable={true}
+                      label='Created By' placeholder='Enter Created By' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}
                     className='d-flex justify-content-end align-items-end mt-1 pb-3'>
-                    <Button variant='danger' type='reset' className='w-100 me-3 text-uppercase' onClick={e => {
-                      setInitialValues({ name: '', createdBy: `${currentUser.firstName} ${currentUser.lastName}` })
-                      formik.resetForm(formik.initialValues)
-                      setError('')
-                    }}>Clear</Button>
+                    <Button variant='danger' type='reset'
+                      className='w-100 me-3 text-uppercase'
+                      onClick={e => {
+                        setInitialValues({ name: '', createdBy: `${currentUser.firstName} ${currentUser.lastName}` })
+                        formik.resetForm(formik.initialValues)
+                        setError('')
+                      }}>Clear</Button>
                     <Button variant='success' type='submit' className='w-100 text-uppercase'>
                       {isLoading
                         ? <BeatLoader color="#fff" size={8} />
