@@ -1,4 +1,4 @@
-import Login from './Login'
+import Login from './login/Login'
 import Dashboard from './Dashboard'
 import PageNotFound from './PageNotFound'
 import Payments from './paymentManagement/Payments'

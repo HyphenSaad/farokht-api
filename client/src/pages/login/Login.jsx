@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { BeatLoader } from 'react-spinners'
 import axios from "axios"
 
-import '../styles/Login.css'
+import './Login.css'
 
 const LoginPage = ({ theme }) => {
   const [phoneNumber, setPhoneNumber] = useState('')
