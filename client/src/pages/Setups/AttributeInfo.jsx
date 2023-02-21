@@ -24,7 +24,7 @@ const AttributeInfo = () => {
     name: Yup.string().min(3, 'Too Short!').max(25, 'Too Long!').required('Required!'),
   })
 
-  const currentUser = JSON.parse(localStorage.getItem('userData')).user
+  const currentUser = authContext.user
   const [initialValues, setInitialValues] = useState({
     name: '', createdBy: `${currentUser.firstName} ${currentUser.lastName}`
   })
@@ -48,7 +48,7 @@ const AttributeInfo = () => {
         setIsGettingData(false)
       }
     }).catch(error => setFetchError(error.response.data.message))
-  }, [parameters, setInitialValues])
+  }, [parameters, setInitialValues, authContext])
 
   const formik = useFormik({
     enableReinitialize: true,

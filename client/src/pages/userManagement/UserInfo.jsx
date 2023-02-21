@@ -69,7 +69,7 @@ const UserInfo = () => {
         setIsGettingData(false)
       }
     }).catch(error => setFetchError(error.response.data.message))
-  }, [parameters, setInitialValues])
+  }, [parameters, setInitialValues, authContext])
 
   const formik = useFormik({
     enableReinitialize: true,

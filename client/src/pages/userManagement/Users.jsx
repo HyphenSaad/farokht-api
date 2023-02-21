@@ -66,7 +66,7 @@ const Users = () => {
       setError('')
       setIsLoading(false)
     })()
-  }, [error, state, navigate])
+  }, [error, state, navigate, authContext])
 
   const columns = useMemo(
     () => [

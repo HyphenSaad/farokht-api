@@ -55,7 +55,7 @@ const UnitOfMeasures = () => {
       setData(result.data)
       setIsLoading(false)
     })()
-  }, [error, state, navigate])
+  }, [error, state, navigate, authContext])
 
   const columns = useMemo(
     () => [
