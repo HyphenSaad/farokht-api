@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
 import axios from 'axios'
@@ -9,6 +9,7 @@ import { BeatLoader } from 'react-spinners'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { API_BASE_URL } from '../../config.js'
+import { AuthContext } from '../../components/ProtectedRoute.jsx'
 
 const UnitOfMeasures = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -16,6 +17,8 @@ const UnitOfMeasures = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { state } = useLocation()
+
+  const authContext = useContext(AuthContext)
 
   useEffect(() => {
     if (state?.message && !toast.isActive('xyz')) {
@@ -41,7 +44,7 @@ const UnitOfMeasures = () => {
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache',
-          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('userData')).token}`
+          'Authorization': `Bearer ${authContext.token}`
         },
       }).catch(error => {
         console.log(error)

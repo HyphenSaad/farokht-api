@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Container, Form, Button, Col, Row, InputGroup } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -7,6 +7,7 @@ import { BeatLoader } from 'react-spinners'
 import GoBackButton from '../../components/GoBackButton'
 import { useParams, useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../../config.js'
+import { AuthContext } from '../../components/ProtectedRoute.jsx'
 
 const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -16,6 +17,8 @@ const UserInfo = () => {
   const [fetchError, setFetchError] = useState('')
   const parameters = useParams()
   const navigate = useNavigate()
+
+  const authContext = useContext(AuthContext)
 
   const UserSchema = Yup.object().shape({
     firstName: Yup.string().matches(/^[a-zA-Z\s]+$/, 'Only Alphabets Allowed!').min(3, 'Too Short!').max(20, 'Too Long!').required('Required!'),
@@ -48,7 +51,7 @@ const UserInfo = () => {
     axios.get(`${API_BASE_URL}user/${parameters.id}`, {
       headers: {
         'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-        'Authorization': `Bearer ${JSON.parse(localStorage.getItem('userData')).token}`
+        'Authorization': `Bearer ${authContext.token}`
       },
     }).then((response) => {
       if (response.status === 200) {
@@ -78,7 +81,7 @@ const UserInfo = () => {
         await axios.patch(`${API_BASE_URL}user/${parameters.id}`, JSON.stringify(values), {
           headers: {
             'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('userData')).token}`
+            'Authorization': `Bearer ${authContext.token}`
           },
         }).then((response) => {
           if (response.status === 200)
@@ -88,7 +91,7 @@ const UserInfo = () => {
         await axios.post(`${API_BASE_URL}user/`, JSON.stringify(values), {
           headers: {
             'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('userData')).token}`
+            'Authorization': `Bearer ${authContext.token}`
           },
         }).then((response) => {
           if (response.status === 201)
