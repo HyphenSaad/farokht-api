@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import './styles/App.css'
+import './App.css'
 
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'

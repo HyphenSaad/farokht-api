@@ -35,7 +35,15 @@ const UpdateTag = async (request, response, next) => {
 }
 
 const GetAllTags = async (request, response, next) => {
+  const page = request.query.page || 1
+  const limit = request.query.limit || 10
+
   const tags = await Tag.find().populate('createdBy')
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ name: 'asc' })
+
+  const tagCount = await Tag.count()
 
   const data = []
   tags.forEach(tag => {
@@ -45,7 +53,10 @@ const GetAllTags = async (request, response, next) => {
     })
   })
 
-  response.status(StatusCodes.OK).json(data)
+  response.status(StatusCodes.OK).json({
+    totalTags: tagCount, page, limit,
+    count: data.length || 0, tags: data
+  })
 }
 
 const GetTag = async (request, response, next) => {

@@ -60,7 +60,6 @@ const GetAllUsers = async (request, response, next) => {
   if (request.query.lastName) options.lastName = { '$regex': `${request.query.lastName}`, '$options': 'i' }
   if (request.query.phoneNumber1) options.phoneNumber1 = { '$regex': `${request.query.phoneNumber1}`, '$options': 'i' }
   if (request.query.phoneNumber2) options.phoneNumber2 = { '$regex': `${request.query.phoneNumber2}`, '$options': 'i' }
-  if (request.query.role) options.role = { '$regex': `${request.query.role}`, '$options': 'i' }
   if (request.query.companyName) options.companyName = { '$regex': `${request.query.companyName}`, '$options': 'i' }
   if (request.query.location) options.location = { '$regex': `${request.query.location}`, '$options': 'i' }
   if (request.query.address) options.address = { '$regex': `${request.query.address}`, '$options': 'i' }
@@ -69,18 +68,21 @@ const GetAllUsers = async (request, response, next) => {
   if (request.query.branchCode) options.branchCode = { '$regex': `${request.query.branchCode}`, '$options': 'i' }
   if (request.query.bankAccountNumber) options.bankAccountNumber = { '$regex': `${request.query.bankAccountNumber}`, '$options': 'i' }
 
-  const __users = await User.find(options)
+  options.role = request.query.role && request.query.role !== 'admin'
+    ? { '$regex': `${request.query.role}`, '$options': 'i' }
+    : options.role = { '$ne': 'admin' }
+
+  const userCount = await User.count(options)
+
+  const users = await User.find(options)
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ status: 'asc' })
 
-  const users = __users.filter(user => {
-    if (user.role === 'admin') return
-    user.password = undefined
-    return user
+  response.status(StatusCodes.OK).json({
+    totalUsers: userCount, page, limit,
+    count: users.length || 0, users
   })
-
-  response.status(StatusCodes.OK).json({ page, limit, count: users.length || 0, users })
 }
 
 export { CreateUser, UpdateUser, DeleteUser, GetUser, GetAllUsers }

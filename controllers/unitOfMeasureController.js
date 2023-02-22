@@ -35,7 +35,15 @@ const UpdateUnitOfMeasure = async (request, response, next) => {
 }
 
 const GetAllUnitOfMeasures = async (request, response, next) => {
+  const page = request.query.page || 1
+  const limit = request.query.limit || 10
+
   const unitOfMeasure = await UnitOfMeasure.find().populate('createdBy')
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ name: 'asc' })
+
+  const unitOfMeasureCount = await UnitOfMeasure.count()
 
   const data = []
   unitOfMeasure.forEach(uom => {
@@ -45,7 +53,10 @@ const GetAllUnitOfMeasures = async (request, response, next) => {
     })
   })
 
-  response.status(StatusCodes.OK).json(data)
+  response.status(StatusCodes.OK).json({
+    totalUnitOfMeasures: unitOfMeasureCount, page, limit,
+    count: data.length || 0, unitOfMeasures: data
+  })
 }
 
 const GetUnitOfMeasure = async (request, response, next) => {

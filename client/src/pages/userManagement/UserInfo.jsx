@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { Container, Form, Button, Col, Row, InputGroup } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
 import * as Yup from 'yup'
 import axios from 'axios'
 import { BeatLoader } from 'react-spinners'
-import GoBackButton from '../../components/GoBackButton'
 import { useParams, useNavigate } from 'react-router-dom'
+import Select from 'react-select'
+
+import GoBackButton from '../../components/GoBackButton'
 import { API_BASE_URL } from '../../config.js'
 import { AuthContext } from '../../components/ProtectedRoute.jsx'
 import TextField from '../../components/TextField'
@@ -29,7 +31,11 @@ const UserInfo = () => {
     landline: Yup.string().matches(/^[0-9]+$/, 'Only Digits Allowed!').min(9, 'Too Short!').max(11, 'Too Long!'),
     email: Yup.string().email('Invalid Email!').min(5, 'Too Short!').max(50, 'Too Long!').required('Required!'),
     password: isEditMode ? Yup.string().min(8, 'Too Short!') : Yup.string().min(8, 'Too Short!').required('Required!'),
-    role: Yup.mixed().oneOf(['retailer', 'vendor'], 'Invalid Role!').required('Required!'),
+    // role: Yup.mixed().oneOf(['retailer', 'vendor'], 'Invalid Role!').required('Required!'),
+    role: Yup.object().shape({
+      value: Yup.string().required('Required!'),
+      label: Yup.string().required('Required!')
+    }).required('Required!'),
     companyName: Yup.string().min(3, 'Too Short!').max(50, 'Too Long!').required('Required!'),
     location: Yup.string().min(3, 'Too Short!').max(50, 'Too Long!').required('Required!'),
     address: Yup.string().min(3, 'Too Short!').max(50, 'Too Long!').required('Required!'),
@@ -40,9 +46,23 @@ const UserInfo = () => {
   })
 
   const [initialValues, setInitialValues] = useState({
-    firstName: '', lastName: '', password: '', phoneNumber1: '', phoneNumber2: '', landline: '', role: '', location: '',
-    address: '', email: '', companyName: '', paymentMethod: '', bankName: '', bankBranchCode: '', bankAccountNumber: '', status: '',
+    firstName: '', lastName: '', password: '', phoneNumber1: '', phoneNumber2: '',
+    landline: '', location: '', address: '', email: '', companyName: '',
+    paymentMethod: '', bankName: '', bankBranchCode: '', bankAccountNumber: '',
+    role: { value: '', label: 'Choose Role' },
+    status: { value: '', label: 'Choose Status' },
   })
+
+  const statusOptions = useMemo(() => [
+    { value: 'pending', label: 'Pending' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'suspended', label: 'Suspended' }
+  ], [])
+
+  const roleOptions = useMemo(() => [
+    { value: 'retailer', label: 'Retailer' },
+    { value: 'vendor', label: 'Vendor' },
+  ], [])
 
   useEffect(() => {
     if (parameters.id === undefined) return
@@ -58,19 +78,27 @@ const UserInfo = () => {
       if (response.status === 200) {
         setFetchError('')
         setInitialValues({
-          firstName: response.data.firstName || '', lastName: response.data.lastName || '',
-          password: response.data.password || '', phoneNumber1: response.data.phoneNumber1 || '',
-          phoneNumber2: response.data.phoneNumber2 || '', landline: response.data.landline || '',
-          role: response.data.role || '', location: response.data.location || '',
-          address: response.data.address || '', email: response.data.email || '',
-          companyName: response.data.companyName || '', paymentMethod: response.data.paymentMethod || '',
-          bankName: response.data.bankName || '', bankBranchCode: response.data.bankBranchCode || '',
-          bankAccountNumber: response.data.bankAccountNumber || '', status: response.data.status || '',
+          firstName: response.data.firstName || '',
+          lastName: response.data.lastName || '',
+          password: response.data.password || '',
+          phoneNumber1: response.data.phoneNumber1 || '',
+          phoneNumber2: response.data.phoneNumber2 || '',
+          landline: response.data.landline || '',
+          location: response.data.location || '',
+          address: response.data.address || '',
+          email: response.data.email || '',
+          companyName: response.data.companyName || '',
+          paymentMethod: response.data.paymentMethod || '',
+          bankName: response.data.bankName || '',
+          bankBranchCode: response.data.bankBranchCode || '',
+          bankAccountNumber: response.data.bankAccountNumber || '',
+          role: roleOptions.filter(role => role.value === response.data.role),
+          status: statusOptions.filter(status => status.value === response.data.status),
         })
         setIsGettingData(false)
       }
     }).catch(error => setFetchError(error.response.data.message))
-  }, [parameters, setInitialValues, authContext])
+  }, [parameters, setInitialValues, authContext, roleOptions, statusOptions])
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -167,11 +195,20 @@ const UserInfo = () => {
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className="mb-3">
                       <Form.Label>Role</Form.Label>
-                      <Form.Select name='role' onChange={formik.handleChange} value={formik.values.role} >
+                      {/* <Form.Select name='role' onChange={formik.handleChange} value={formik.values.role} >
                         <option>Select Role</option>
                         <option value="vendor">Vendor</option>
                         <option value="retailer">Retailer</option>
-                      </Form.Select>
+                      </Form.Select> */}
+                      <Select
+                        key='role'
+                        name="role"
+                        instanceId='role'
+                        placeholder='Choose Role'
+                        onChange={(data) => formik.setFieldValue('role', data)}
+                        options={roleOptions}
+                        value={formik.values.role}
+                      />
                       {formik.errors.role && formik.touched.role
                         ? <Form.Text className='text-danger'>{formik.errors.role}</Form.Text> : null}
                     </Form.Group>
@@ -211,14 +248,21 @@ const UserInfo = () => {
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className="mb-3">
                       <Form.Label>Status</Form.Label>
-                      <Form.Select name='status' onChange={formik.handleChange} value={formik.values.status} >
+                      {/* <Form.Select name='status' onChange={formik.handleChange} value={formik.values.status} >
                         <option>Select Status</option>
                         <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
                         <option value="suspended">Suspended</option>
-                      </Form.Select>
-                      {formik.errors.status && formik.touched.status
-                        ? <Form.Text className='text-danger'>{formik.errors.status}</Form.Text> : null}
+                      </Form.Select> */}
+                      <Select
+                        key='status'
+                        name="status"
+                        instanceId='status'
+                        placeholder='Choose Status'
+                        onChange={(data) => formik.setFieldValue('status', data)}
+                        options={statusOptions}
+                        value={formik.values.status}
+                      />
                     </Form.Group>
                   </Col>
                   <Col></Col>
@@ -228,9 +272,12 @@ const UserInfo = () => {
                       onClick={e => {
                         setInitialValues({
                           firstName: '', lastName: '', password: '', phoneNumber1: '', phoneNumber2: '',
-                          landline: '', role: '', location: '', address: '', email: '', companyName: '',
-                          paymentMethod: '', bankName: '', bankBranchCode: '', bankAccountNumber: '', status: '',
+                          landline: '', location: '', address: '', email: '', companyName: '',
+                          paymentMethod: '', bankName: '', bankBranchCode: '', bankAccountNumber: '',
+                          role: { value: '', label: 'Choose Role' },
+                          status: { value: '', label: 'Choose Status' },
                         })
+
                         formik.resetForm(formik.initialValues)
                         setError('')
                       }}>Clear</Button>

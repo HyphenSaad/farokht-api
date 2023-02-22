@@ -35,7 +35,15 @@ const UpdateAttribute = async (request, response, next) => {
 }
 
 const GetAllAttributes = async (request, response, next) => {
+  const page = request.query.page || 1
+  const limit = request.query.limit || 10
+
   const attributes = await AttributeOfItem.find().populate('createdBy')
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ name: 'asc' })
+
+  const attributeCount = await AttributeOfItem.count()
 
   const data = []
   attributes.forEach(attribute => {
@@ -45,7 +53,10 @@ const GetAllAttributes = async (request, response, next) => {
     })
   })
 
-  response.status(StatusCodes.OK).json(data)
+  response.status(StatusCodes.OK).json({
+    totalAttributes: attributeCount, page, limit,
+    count: data.length || 0, attributes: data
+  })
 }
 
 const GetAttribute = async (request, response, next) => {

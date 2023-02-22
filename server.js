@@ -39,7 +39,8 @@ app.get('/', (request, response) => {
   `)
 })
 
-app.use('/api/v1/', API_RATE_LIMITER, Router)
+// app.use('/api/v1/', API_RATE_LIMITER, Router)
+app.use('/api/v1/', Router)
 
 app.use(NotFoundMiddleware)
 app.use(ErrorHandlerMiddleware)

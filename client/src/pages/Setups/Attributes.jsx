@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
 import axios from 'axios'
-import MaterialReactTable from 'material-react-table'
 import { Box, Tooltip, IconButton } from '@mui/material'
 import { Add, Edit } from '@mui/icons-material'
 import { BeatLoader } from 'react-spinners'
@@ -10,6 +9,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { API_BASE_URL } from '../../config.js'
 import { AuthContext } from '../../components/ProtectedRoute.jsx'
+import CustomDataTable from '../../components/CustomDataTable.jsx'
 
 const Attributes = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -19,6 +19,8 @@ const Attributes = () => {
   const { state } = useLocation()
 
   const authContext = useContext(AuthContext)
+
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
 
   useEffect(() => {
     if (state?.message && !toast.isActive('xyz')) {
@@ -40,7 +42,7 @@ const Attributes = () => {
     (async () => {
       if (error.length > 1) return
 
-      const result = await axios.get(`${API_BASE_URL}attribute/`, {
+      const result = await axios.get(`${API_BASE_URL}attribute?limit=${pagination.pageSize}&page=${pagination.pageIndex + 1}`, {
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache',
@@ -55,7 +57,7 @@ const Attributes = () => {
       setData(result.data)
       setIsLoading(false)
     })()
-  }, [error, state, navigate, authContext])
+  }, [error, state, navigate, authContext, pagination])
 
   const columns = useMemo(
     () => [
@@ -63,7 +65,7 @@ const Attributes = () => {
       { accessorKey: 'createdBy', header: 'Created By' },
     ],
     [],
-  );
+  )
 
   return (
     <Container style={{ padding: '1.25rem' }} >
@@ -78,18 +80,12 @@ const Attributes = () => {
             {error.length > 0 ? '' : <BeatLoader color='#333333' size={12} />}
           </div>
           :
-          <MaterialReactTable
+          <CustomDataTable
+            rowCount={data.totalAttributes}
+            onPaginationChange={setPagination}
+            state={{ isLoading, pagination }}
             columns={columns}
-            data={data}
-            initialState={{ density: 'compact' }}
-            enableColumnFilters={true}
-            enablePagination={true}
-            enableSorting={true}
-            enableBottomToolbar={true}
-            enableTopToolbar={true}
-            muiTableBodyRowProps={{ hover: false }}
-            enableEditing={true}
-            positionActionsColumn='last'
+            data={data.attributes}
             renderTopToolbarCustomActions={() => (
               <Button variant='primary'
                 onClick={() => navigate('/AttributeInfo')}

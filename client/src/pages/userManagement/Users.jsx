@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
 import axios from 'axios'
-import MaterialReactTable from 'material-react-table'
 import { Box, Tooltip, IconButton } from '@mui/material'
 import { Add, Delete, Edit } from '@mui/icons-material'
 import { BeatLoader } from 'react-spinners'
@@ -10,6 +9,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { API_BASE_URL } from '../../config.js'
 import { AuthContext } from '../../components/ProtectedRoute.jsx'
+import CustomDataTable from '../../components/CustomDataTable.jsx'
 
 const Users = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -19,6 +19,8 @@ const Users = () => {
   const { state } = useLocation()
 
   const authContext = useContext(AuthContext)
+
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
 
   useEffect(() => {
     if (state?.message && !toast.isActive('xyz')) {
@@ -40,7 +42,7 @@ const Users = () => {
     (async () => {
       if (error.length > 1) return
 
-      const result = await axios.get(`${API_BASE_URL}user/`, {
+      const result = await axios.get(`${API_BASE_URL}user?limit=${pagination.pageSize}&page=${pagination.pageIndex + 1}`, {
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache',
@@ -50,23 +52,23 @@ const Users = () => {
         setError(error.response.statusText)
       })
 
-      const data = result.data.users
+      const data = result.data
 
-      if (data.length > 0) {
-        data.forEach(user => {
+      if (data.users.length > 0) {
+        data.users.forEach(user => {
           user.fullName = `${user.firstName} ${user.lastName}`
           user.phoneNumber1 = `+92${user.phoneNumber1}`
           user.phoneNumber2 = `+92${user.phoneNumber2}`
           user.status = user.status.charAt(0).toUpperCase() + user.status.slice(1)
           user.role = user.role.charAt(0).toUpperCase() + user.role.slice(1)
         })
-        setData(result.data.users)
+        setData(result.data)
       }
 
       setError('')
       setIsLoading(false)
     })()
-  }, [error, state, navigate, authContext])
+  }, [error, state, navigate, authContext, pagination])
 
   const columns = useMemo(
     () => [
@@ -76,7 +78,7 @@ const Users = () => {
       { accessorKey: 'status', header: 'Status', size: 60 },
     ],
     [],
-  );
+  )
 
   return (
     <Container style={{ padding: '1.25rem' }} >
@@ -91,18 +93,12 @@ const Users = () => {
             {error.length > 0 ? '' : <BeatLoader color='#333333' size={12} />}
           </div>
           :
-          <MaterialReactTable
+          <CustomDataTable
+            rowCount={data.totalUsers}
+            onPaginationChange={setPagination}
+            state={{ isLoading, pagination }}
             columns={columns}
-            data={data}
-            initialState={{ density: 'compact' }}
-            enableColumnFilters={true}
-            enablePagination={true}
-            enableSorting={true}
-            enableBottomToolbar={true}
-            enableTopToolbar={true}
-            muiTableBodyRowProps={{ hover: false }}
-            enableEditing={true}
-            positionActionsColumn='last'
+            data={data.users}
             renderTopToolbarCustomActions={() => (
               <Button variant='primary'
                 onClick={() => navigate('/UserInfo')}

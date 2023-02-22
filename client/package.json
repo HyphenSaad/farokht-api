@@ -13,6 +13,8 @@
     "react-dom": "^18.2.0",
     "react-pro-sidebar": "^1.0.0",
     "react-router-dom": "^6.8.1",
+    "react-scripts": "^5.0.1",
+    "react-select": "^5.7.0",
     "react-spinners": "^0.13.8",
     "react-toastify": "^9.1.1",
     "yup": "^1.0.0"
