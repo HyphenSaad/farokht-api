@@ -9,7 +9,7 @@ import {
   Login, Dashboard, PageNotFound,
   Payments, EmailNotification, Users, UserInfo, DownloadbleData,
   UnitOfMeasures, UnitOfMeasureInfo, Attributes, AttributeInfo, Tags, TagInfo,
-  Items, Orders
+  Items, ItemInfo, Orders
 } from './pages/index'
 
 const App = () => {
@@ -22,6 +22,8 @@ const App = () => {
         {/* TRANSACTIONS */}
         <Route path='Orders' element={<Orders />} />
         <Route path='Items' element={<Items />} />
+        <Route path='ItemInfo' element={<ItemInfo />} />
+        <Route path='ItemInfo/:id' element={<ItemInfo />} />
         {/* SETUPS */}
         <Route path='UnitOfMeasures' element={<UnitOfMeasures />} />
         <Route path='UnitOfMeasureInfo' element={<UnitOfMeasureInfo />} />

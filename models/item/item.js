@@ -89,7 +89,7 @@ const ItemSchema = new mongoose.Schema({
   vendorPayoutPercentage: {
     type: Number,
     required: [true, 'Vendor Payout Percentage is required!'],
-    min: [1, 'Vendor Payout Percentage is too short!'],
+    min: [0, 'Vendor Payout Percentage is too short!'],
   },
   completionDays: {
     type: Number,

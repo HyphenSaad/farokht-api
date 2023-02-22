@@ -13,11 +13,12 @@ import AttributeInfo from './setups/AttributeInfo'
 import Tags from './setups/Tags'
 import TagInfo from './setups/TagInfo'
 import Items from './transactions/Items'
+import ItemInfo from './transactions/ItemInfo'
 import Orders from './transactions/Orders'
 
 export {
   Login, Dashboard, PageNotFound,
   Payments, EmailNotification, Users, UserInfo, DownloadbleData,
   UnitOfMeasures, UnitOfMeasureInfo, Attributes, AttributeInfo, Tags, TagInfo,
-  Items, Orders
+  Items, ItemInfo, Orders
 }

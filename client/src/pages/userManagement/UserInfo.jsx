@@ -204,13 +204,14 @@ const UserInfo = () => {
                         key='role'
                         name="role"
                         instanceId='role'
+                        isSearchable={false}
                         placeholder='Choose Role'
                         onChange={(data) => formik.setFieldValue('role', data)}
                         options={roleOptions}
                         value={formik.values.role}
                       />
                       {formik.errors.role && formik.touched.role
-                        ? <Form.Text className='text-danger'>{formik.errors.role}</Form.Text> : null}
+                        ? <Form.Text className='text-danger'>{formik.errors.role.value}</Form.Text> : null}
                     </Form.Group>
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
@@ -259,6 +260,7 @@ const UserInfo = () => {
                         name="status"
                         instanceId='status'
                         placeholder='Choose Status'
+                        isSearchable={false}
                         onChange={(data) => formik.setFieldValue('status', data)}
                         options={statusOptions}
                         value={formik.values.status}
