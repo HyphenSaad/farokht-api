@@ -6,11 +6,15 @@ const AddAttribute = async (request, response, next) => {
   if (request.user.role !== 'admin')
     throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
 
-  if (!request.body.name)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attribute Name is Required!' }
+  if (!request.body.name || request.body.status)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   try {
-    const attribute = await AttributeOfItem.create({ name: request.body.name, createdBy: request.user._id })
+    const attribute = await AttributeOfItem.create({
+      name: request.body.name,
+      status: request.body.status,
+      createdBy: request.user._id,
+    })
     response.status(StatusCodes.CREATED).json(attribute)
   } catch (error) {
     return next(error)
@@ -24,8 +28,8 @@ const UpdateAttribute = async (request, response, next) => {
   if (!request.params.id)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attribute ID is Required!' }
 
-  if (!request.body.name)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attribute Name is Required!' }
+  if (!request.body.name || request.body.status)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   const options = { _id: request.params.id }
   const attribute = await AttributeOfItem.findOne(options)

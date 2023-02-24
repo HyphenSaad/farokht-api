@@ -6,11 +6,15 @@ const AddUnitOfMeasure = async (request, response, next) => {
   if (request.user.role !== 'admin')
     throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
 
-  if (!request.body.name)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure Name is Required!' }
+  if (!request.body.name || request.body.status)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   try {
-    const unitOfMeasure = await UnitOfMeasure.create({ name: request.body.name, createdBy: request.user._id })
+    const unitOfMeasure = await UnitOfMeasure.create({
+      name: request.body.name,
+      status: request.body.status,
+      createdBy: request.user._id,
+    })
     response.status(StatusCodes.CREATED).json(unitOfMeasure)
   } catch (error) {
     return next(error)
@@ -24,8 +28,8 @@ const UpdateUnitOfMeasure = async (request, response, next) => {
   if (!request.params.id)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure ID is Required!' }
 
-  if (!request.body.name)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure Name is Required!' }
+  if (!request.body.name || request.body.status)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   const options = { _id: request.params.id }
   const unitOfMeasure = await UnitOfMeasure.findOne(options)
@@ -34,6 +38,7 @@ const UpdateUnitOfMeasure = async (request, response, next) => {
     response.status(StatusCodes.NOT_FOUND).json({ message: `Unit Of Measure ${request.params.id} Not Found!` })
 
   unitOfMeasure.name = request.body.name
+  unitOfMeasure.status = request.body.status
 
   await unitOfMeasure.save().then(() => {
     response.status(StatusCodes.OK).json(unitOfMeasure)

@@ -6,11 +6,16 @@ const AddTag = async (request, response, next) => {
   if (request.user.role !== 'admin')
     throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
 
-  if (!request.body.name)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag Name is Required!' }
+  if (!request.body.name || request.body.status)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   try {
-    const tag = await Tag.create({ name: request.body.name, createdBy: request.user._id })
+    const tag = await Tag.create({
+      name: request.body.name,
+      status: request.body.status,
+      createdBy: request.user._id,
+    })
+
     response.status(StatusCodes.CREATED).json(tag)
   } catch (error) {
     return next(error)
@@ -24,8 +29,8 @@ const UpdateTag = async (request, response, next) => {
   if (!request.params.id)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag ID is Required!' }
 
-  if (!request.body.name)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag Name is Required!' }
+  if (!request.body.name || request.body.status)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   const options = { _id: request.params.id }
   const tag = await Tag.findOne(options)
@@ -34,6 +39,7 @@ const UpdateTag = async (request, response, next) => {
     response.status(StatusCodes.NOT_FOUND).json({ message: `Tag ${request.params.id} Not Found!` })
 
   tag.name = request.body.name
+  tag.status = request.body.status
 
   await tag.save().then(() => {
     response.status(StatusCodes.OK).json(tag)

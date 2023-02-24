@@ -11,10 +11,19 @@ const UnitOfMeasureSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
+  status: {
+    type: String,
+    enum: {
+      values: ['disabled', 'enabled'],
+      message: '{VALUE} is an invalid status!'
+    },
+    default: 'enabled',
+    lowercase: true,
+  },
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: User
-  }
+  },
 }, { timestamps: true })
 
 export default mongoose.model('unitOfMeasure', UnitOfMeasureSchema)

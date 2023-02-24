@@ -3,9 +3,11 @@ import { Container, Form, Button, Col, Row } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
 import { BeatLoader } from 'react-spinners'
 import { useParams, useNavigate } from 'react-router-dom'
+import Select from 'react-select'
 
 import { AuthContext, GoBackButton, TextField } from '../../../components'
 import AttributeInfoSchema from './AttributeInfoYupSchema'
+import { StatusOptions } from './AttributeInfoValues'
 import { FetchAttributeData, SubmitAttributeData } from './AttributeInfoAxios'
 
 const AttributeInfo = () => {
@@ -24,6 +26,7 @@ const AttributeInfo = () => {
 
   const [initialValues, setInitialValues] = useState({
     name: '',
+    status: { value: '', label: 'Choose Status' },
     createdBy: `${currentUser.firstName} ${currentUser.lastName}`
   })
 
@@ -84,16 +87,32 @@ const AttributeInfo = () => {
                     <TextField name='name' formik={formik}
                       label='Attribute Name' placeholder='Enter Attribute Name' />
                   </Col>
-
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Status</Form.Label>
+                      <Select
+                        key='status'
+                        name="status"
+                        instanceId='status'
+                        placeholder='Choose Status'
+                        isSearchable={false}
+                        onChange={(data) => formik.setFieldValue('status', data)}
+                        options={StatusOptions}
+                        value={formik.values.status}
+                      />
+                      {formik.errors.status && formik.touched.status
+                        ? <Form.Text className='text-danger'>{formik.errors.status.value}</Form.Text> : null}
+                    </Form.Group>
+                  </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <TextField name='createdBy' formik={formik} disable={true}
                       label='Created By' placeholder='Enter Created By' />
                   </Col>
-
                   <Col sm={12} md={6} lg={4} xl={3} className='d-flex justify-content-end align-items-end mt-1 pb-3'>
                     <Button variant='danger' type='reset' className='w-100 me-3 text-uppercase' onClick={e => {
                       setInitialValues({
                         name: '',
+                        status: { value: '', label: 'Choose Status' },
                         createdBy: `${currentUser.firstName} ${currentUser.lastName}`
                       })
                       formik.resetForm(formik.initialValues)

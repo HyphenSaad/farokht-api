@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Container, Form, Button, Col, Row, InputGroup } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
-import axios from 'axios'
 import { BeatLoader } from 'react-spinners'
 import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'

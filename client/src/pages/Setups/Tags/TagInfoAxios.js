@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { API_BASE_URL } from '../../../config'
+import { StatusOptions } from './TagInfoValues'
 
 export const FetchTagData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues }) => {
   setIsGettingData(true)
@@ -18,6 +19,7 @@ export const FetchTagData = async ({ token, id, setFetchError, setIsGettingData,
       setFetchError('')
       setInitialValues({
         name: response.data.name || '',
+        status: StatusOptions.filter(status => status.value === response.data.status)[0],
         createdBy: response.data.createdBy || '',
       })
       setIsGettingData(false)
@@ -39,16 +41,19 @@ export const SubmitTagData = async ({ values, isEditMode, token, id, navigate, s
     },
   }
 
+  const _values = { ...values }
+  _values.status = values.status.value
+
   const addRedirect = { state: { message: 'Tag Created Successfully!' }, replace: true, }
   const editRedirect = { state: { message: 'Tag Updated Successfully!' }, replace: true, }
 
   if (isEditMode) {
-    await axios.patch(editEndpoint, JSON.stringify(values), headers).then(response => {
+    await axios.patch(editEndpoint, JSON.stringify(_values), headers).then(response => {
       if (response.status === 200) { navigate('/Tags', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
   } else {
-    await axios.post(addEndpoint, JSON.stringify(values), headers).then(response => {
+    await axios.post(addEndpoint, JSON.stringify(_values), headers).then(response => {
       if (response.status === 201) { navigate('/Tags', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
