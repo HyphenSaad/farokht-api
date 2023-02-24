@@ -4,7 +4,7 @@ import { BeatLoader } from 'react-spinners'
 import axios from 'axios'
 
 import './Login.css'
-import { APP_TITLE } from '../../config'
+import { API_BASE_URL, APP_TITLE } from '../../config'
 
 const LoginPage = ({ theme }) => {
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -38,8 +38,7 @@ const LoginPage = ({ theme }) => {
     }
 
     setIsLoading(true)
-    await axios.post(
-      'http://localhost:5000/api/v1/auth/login',
+    await axios.post(`${API_BASE_URL}auth/login`,
       JSON.stringify({ phoneNumber, password, role: 'admin' }),
       { headers: { 'Content-Type': 'application/json' }, }
     ).then((response) => {
