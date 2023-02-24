@@ -1,86 +1,56 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Container, Form, Button, Col, Row } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
-import * as Yup from 'yup'
-import axios from 'axios'
 import { BeatLoader } from 'react-spinners'
-import GoBackButton from '../../components/GoBackButton'
 import { useParams, useNavigate } from 'react-router-dom'
-import { API_BASE_URL } from '../../config.js'
-import { AuthContext } from '../../components/ProtectedRoute.jsx'
-import TextField from '../../components/TextField'
+
+import { AuthContext, GoBackButton, TextField } from '../../../components'
+import AttributeInfoSchema from './AttributeInfoYupSchema'
+import { FetchAttributeData, SubmitAttributeData } from './AttributeInfoAxios'
 
 const AttributeInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isGettingData, setIsGettingData] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
+
   const [error, setError] = useState('')
   const [fetchError, setFetchError] = useState('')
+
   const parameters = useParams()
   const navigate = useNavigate()
 
   const authContext = useContext(AuthContext)
-
-  const AttributeSchema = Yup.object().shape({
-    name: Yup.string().min(3, 'Too Short!').max(25, 'Too Long!').required('Required!'),
-  })
-
   const currentUser = authContext.user
+
   const [initialValues, setInitialValues] = useState({
-    name: '', createdBy: `${currentUser.firstName} ${currentUser.lastName}`
+    name: '',
+    createdBy: `${currentUser.firstName} ${currentUser.lastName}`
   })
 
   useEffect(() => {
     if (parameters.id === undefined) return
     setIsEditMode(true)
-    setIsGettingData(true)
 
-    axios.get(`${API_BASE_URL}attribute/${parameters.id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Authorization': `Bearer ${authContext.token}`
-      },
-    }).then((response) => {
-      if (response.status === 200) {
-        setFetchError('')
-        setInitialValues({
-          name: response.data.name || '', createdBy: response.data.createdBy || '',
-        })
-        setIsGettingData(false)
-      }
-    }).catch(error => setFetchError(error.response.data.message))
+    FetchAttributeData({
+      token: authContext.token,
+      id: parameters.id,
+      setFetchError,
+      setInitialValues,
+      setIsGettingData
+    })
   }, [parameters, setInitialValues, authContext])
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: initialValues,
-    validationSchema: AttributeSchema,
+    validationSchema: AttributeInfoSchema,
     onSubmit: async (values) => {
-      setIsLoading(true)
-      if (isEditMode) {
-        await axios.patch(`${API_BASE_URL}attribute/${parameters.id}`, JSON.stringify(values), {
-          headers: {
-            'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-            'Authorization': `Bearer ${authContext.token}`
-          },
-        }).then((response) => {
-          if (response.status === 200)
-            navigate('/Attributes', { state: { message: 'Attribute Updated Successfully!' }, replace: true })
-        }).catch(error => setError(error.response.data.message))
-      } else {
-        await axios.post(`${API_BASE_URL}attribute/`, JSON.stringify(values), {
-          headers: {
-            'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-            'Authorization': `Bearer ${authContext.token}`
-          },
-        }).then((response) => {
-          if (response.status === 201)
-            navigate('/Attributes', { state: { message: 'Attribute Created Successfully!' }, replace: true })
-        }).catch(error => setError(error.response.data.message))
-      }
-
-      setIsLoading(false)
+      SubmitAttributeData({
+        token: authContext.token,
+        id: parameters.id,
+        values, isEditMode, navigate,
+        setError, setIsLoading
+      })
     },
   })
 
@@ -108,19 +78,22 @@ const AttributeInfo = () => {
                     <TextField name='name' formik={formik}
                       label='Attribute Name' placeholder='Enter Attribute Name' />
                   </Col>
+
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <TextField name='createdBy' formik={formik} disable={true}
                       label='Created By' placeholder='Enter Created By' />
                   </Col>
-                  <Col sm={12} md={6} lg={4} xl={3}
-                    className='d-flex justify-content-end align-items-end mt-1 pb-3'>
-                    <Button variant='danger' type='reset'
-                      className='w-100 me-3 text-uppercase'
-                      onClick={e => {
-                        setInitialValues({ name: '', createdBy: `${currentUser.firstName} ${currentUser.lastName}` })
-                        formik.resetForm(formik.initialValues)
-                        setError('')
-                      }}>Clear</Button>
+
+                  <Col sm={12} md={6} lg={4} xl={3} className='d-flex justify-content-end align-items-end mt-1 pb-3'>
+                    <Button variant='danger' type='reset' className='w-100 me-3 text-uppercase' onClick={e => {
+                      setInitialValues({
+                        name: '',
+                        createdBy: `${currentUser.firstName} ${currentUser.lastName}`
+                      })
+                      formik.resetForm(formik.initialValues)
+                      setError('')
+                    }}>Clear</Button>
+
                     <Button variant='success' type='submit' className='w-100 text-uppercase'>
                       {isLoading
                         ? <BeatLoader color="#fff" size={8} />

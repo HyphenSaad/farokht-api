@@ -2,8 +2,7 @@ import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import './App.css'
 
-import ProtectedRoute from './components/ProtectedRoute'
-import Layout from './components/Layout'
+import { ProtectedRoute, Layout } from './components'
 
 import {
   Login, Dashboard, PageNotFound,

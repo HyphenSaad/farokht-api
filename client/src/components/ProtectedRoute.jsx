@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 
 export const AuthContext = createContext()
 
-const ProtectedRoute = (props) => {
+export const ProtectedRoute = (props) => {
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userData, setUserData] = useState({})
@@ -25,4 +25,3 @@ const ProtectedRoute = (props) => {
       {isLoggedIn ? props.children : null}
     </AuthContext.Provider>)
 }
-export default ProtectedRoute

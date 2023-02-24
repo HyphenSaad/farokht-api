@@ -1,26 +1,25 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
-import axios from 'axios'
 import { Box, Tooltip, IconButton } from '@mui/material'
 import { Add, Edit } from '@mui/icons-material'
 import { BeatLoader } from 'react-spinners'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { API_BASE_URL } from '../../config.js'
-import { AuthContext } from '../../components/ProtectedRoute.jsx'
-import CustomDataTable from '../../components/CustomDataTable.jsx'
 
-const UnitOfMeasures = () => {
+import { AuthContext, CustomDataTable } from '../../../components'
+import { FetchTags } from './TagsAxios.js'
+
+const Tags = () => {
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
   const [isLoading, setIsLoading] = useState(true)
   const [data, setData] = useState([])
   const [error, setError] = useState('')
+
   const navigate = useNavigate()
   const { state } = useLocation()
 
   const authContext = useContext(AuthContext)
-
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
 
   useEffect(() => {
     if (state?.message && !toast.isActive('xyz')) {
@@ -36,36 +35,28 @@ const UnitOfMeasures = () => {
         toastId: 'xyz',
       })
 
-      navigate('/UnitOfMeasures', { state: {}, replace: true })
+      navigate('/Tags', { state: {}, replace: true })
     }
 
     (async () => {
       if (error.length > 1) return
 
-      const result = await axios.get(`${API_BASE_URL}uom?limit=${pagination.pageSize}&page=${pagination.pageIndex + 1}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Authorization': `Bearer ${authContext.token}`
-        },
-      }).catch(error => {
-        console.log(error)
-        setError(error.response.statusText)
+      await FetchTags({
+        token: authContext.token,
+        pageSize: pagination.pageSize,
+        pageIndex: pagination.pageIndex + 1,
+        setError,
+        setData,
       })
 
-      setError('')
-      setData(result.data)
       setIsLoading(false)
     })()
   }, [error, state, navigate, authContext, pagination])
 
-  const columns = useMemo(
-    () => [
-      { accessorKey: 'name', header: 'Unit of Measure' },
-      { accessorKey: 'createdBy', header: 'Created By' },
-    ],
-    [],
-  )
+  const columns = useMemo(() => [
+    { accessorKey: 'name', header: 'Tag Title' },
+    { accessorKey: 'createdBy', header: 'Created By' },
+  ], [],)
 
   return (
     <Container style={{ padding: '1.25rem' }} >
@@ -81,14 +72,14 @@ const UnitOfMeasures = () => {
           </div>
           :
           <CustomDataTable
-            rowCount={data.totalUnitOfMeasures}
+            rowCount={data.totalTags}
             onPaginationChange={setPagination}
             state={{ isLoading, pagination }}
             columns={columns}
-            data={data.UnitOfMeasures}
+            data={data.tags}
             renderTopToolbarCustomActions={() => (
               <Button variant='primary'
-                onClick={() => navigate('/UnitOfMeasureInfo')}
+                onClick={() => navigate('/TagInfo')}
                 className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'>
                 <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
               </Button>
@@ -96,7 +87,7 @@ const UnitOfMeasures = () => {
             renderRowActions={({ row, table }) => (
               <Box sx={{ display: 'flex' }}>
                 <Tooltip arrow placement='left' title='Edit'>
-                  <IconButton onClick={() => navigate('/UnitOfMeasureInfo/' + row.original._id)}>
+                  <IconButton onClick={() => navigate('/TagInfo/' + row.original._id)}>
                     <Edit />
                   </IconButton>
                 </Tooltip>
@@ -108,4 +99,4 @@ const UnitOfMeasures = () => {
   )
 }
 
-export default UnitOfMeasures
+export default Tags

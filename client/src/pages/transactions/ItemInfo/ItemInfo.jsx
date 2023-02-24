@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { Container, Form, Button, Col, Row } from 'react-bootstrap'
-import { Formik, useFormik, FieldArray, Field } from 'formik'
-import * as Yup from 'yup'
-import axios from 'axios'
+import { Formik, FieldArray } from 'formik'
 import { BeatLoader } from 'react-spinners'
 import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
 
-import GoBackButton from '../../components/GoBackButton'
-import { API_BASE_URL } from '../../config.js'
-import { AuthContext } from '../../components/ProtectedRoute.jsx'
-import TextField from '../../components/TextField'
+import { AuthContext, GoBackButton, TextField } from '../../../components'
+import ItemInfoSchema from './ItemInfoYupSchema'
+import { FetchItemData } from './ItemInfoAxios'
+import { InitialValues, StatusOptions } from './ItemInfoValues'
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -23,47 +21,8 @@ const TagInfo = () => {
 
   const authContext = useContext(AuthContext)
 
-  const statusOptions = useMemo(() => [
-    { value: 'pending', label: 'Pending' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'suspended', label: 'Suspended' }
-  ], [])
-
-  const TagSchema = Yup.object().shape({
-    name: Yup.string().min(3, 'Too Short!').max(25, 'Too Long!').required('Required!'),
-    minOrderNumber: Yup.number().typeError('Invalid').min(1, 'Too Short!').required('Required!'),
-    description: Yup.string().min(10, 'Too Short!').max(255, 'Too Long!').required('Required!'),
-    unitOfMeasure: Yup.object().shape({
-      value: Yup.string().required('Required!'),
-      label: Yup.string().required('Required!')
-    }).required('Required!'),
-    user: Yup.object().shape({
-      value: Yup.string().required('Required!'),
-      label: Yup.string().required('Required!')
-    }).required('Required!'),
-    tags: Yup.array().min(1, 'At Least 1 Required!'),
-    status: Yup.object().shape({
-      value: Yup.string().required('Required!'),
-      label: Yup.string().required('Required!')
-    }).required('Required!'),
-    vendorPayoutPercentage: Yup.number().typeError('Invalid').min(0, 'Too Short!').required('Required!'),
-    completionDays: Yup.number().typeError('Invalid').min(1, 'Too Short!').required('Required!'),
-  })
-
-  const [initialValues, setInitialValues] = useState({
-    name: '',
-    minOrderNumber: '',
-    description: '',
-    unitOfMeasure: { value: '', label: 'Choose Unit of Measure' },
-    tags: [],
-    status: { value: '', label: 'Choose Status' },
-    vendorPayoutPercentage: '',
-    completionDays: '',
-    user: { value: '', label: 'Choose Vendor' },
-    attributes: [],
-    priceSlabs: [],
-    shipmentCosts: [],
-  })
+  const statusOptions = useMemo(() => StatusOptions, [])
+  const [initialValues, setInitialValues] = useState(InitialValues)
 
   const [users, setUsers] = useState([])
   const [tags, setTags] = useState([])
@@ -73,68 +32,13 @@ const TagInfo = () => {
   useEffect(() => {
     setIsGettingData(true)
 
-    // GET USERS
-    axios.get(`${API_BASE_URL}user?role=vendor&status=approved`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Authorization': `Bearer ${authContext.token}`
-      },
-    }).then(response => {
-      setUsers(response.data.users.map(user => {
-        return { value: user._id, label: `${user.firstName} ${user.lastName}` }
-      }))
-    }).catch(error => {
-      console.log(error)
-      setError(error.response.statusText)
-    })
-
-    // GET TAGS
-    axios.get(`${API_BASE_URL}tag/`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Authorization': `Bearer ${authContext.token}`
-      },
-    }).then(response => {
-      setTags(response.data.tags.map(tag => {
-        return { value: tag._id, label: tag.name }
-      }))
-    }).catch(error => {
-      console.log(error)
-      setError(error.response.statusText)
-    })
-
-    // GET UNIT OF MEASURE
-    axios.get(`${API_BASE_URL}uom/`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Authorization': `Bearer ${authContext.token}`
-      },
-    }).then(response => {
-      setUnitOfMeasures(response.data.unitOfMeasures.map(unitOfMeasure => {
-        return { value: unitOfMeasure._id, label: unitOfMeasure.name }
-      }))
-    }).catch(error => {
-      console.log(error)
-      setError(error.response.statusText)
-    })
-
-    // GET ATTRIBUTES
-    axios.get(`${API_BASE_URL}attribute/`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Authorization': `Bearer ${authContext.token}`
-      },
-    }).then(response => {
-      setAttributes(response.data.attributes.map(attribute => {
-        return { value: attribute._id, label: attribute.name, used: false }
-      }))
-    }).catch(error => {
-      console.log(error)
-      setError(error.response.statusText)
+    FetchItemData({
+      token: authContext.token,
+      setUserData: setUsers,
+      setTagData: setTags,
+      setUnitOfMeasureData: setUnitOfMeasures,
+      setAttributeData: setAttributes,
+      setErrorMessage: setError,
     })
 
     setIsGettingData(false)
@@ -212,23 +116,20 @@ const TagInfo = () => {
             <Formik
               enableReinitialize={true}
               initialValues={initialValues}
-              validationSchema={TagSchema}
+              validationSchema={ItemInfoSchema}
               onSubmit={(values) => { }}
             >
               {(formik) => (
                 <Form onSubmit={formik.handleSubmit} className='mt-3'>
                   <Row>
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField name='name' formik={formik}
-                        label='Title' placeholder='Enter Title' />
+                      <TextField name='name' formik={formik} label='Title' placeholder='Enter Title' />
                     </Col>
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField name='minOrderNumber' formik={formik}
-                        label='Minium Order No.' placeholder='Enter Minium Order No.' />
+                      <TextField name='minOrderNumber' formik={formik} label='Minium Order No.' placeholder='Enter Minium Order No.' />
                     </Col>
                     <Col sm={12} md={6} lg={4} xl={6}>
-                      <TextField name='description' formik={formik}
-                        label='Description' placeholder='Enter Description' />
+                      <TextField name='description' formik={formik} label='Description' placeholder='Enter Description' />
                     </Col>
 
                     <Col sm={12} md={6} lg={6} xl={6}>
@@ -440,20 +341,7 @@ const TagInfo = () => {
                     <Col sm={12} md={6} lg={4} xl={3}
                       className='d-flex justify-content-end align-items-end mt-1 pb-3'>
                       <Button variant='danger' type='reset' className='w-100 me-3 text-uppercase' onClick={e => {
-                        setInitialValues({
-                          name: '',
-                          minOrderNumber: '',
-                          description: '',
-                          unitOfMeasure: { value: '', label: 'Choose Unit of Measure' },
-                          tags: [],
-                          status: { value: '', label: 'Choose Status' },
-                          vendorPayoutPercentage: '',
-                          completionDays: '',
-                          user: { value: '', label: 'Choose Vendor' },
-                          attributes: [],
-                          priceSlabs: [],
-                          shipmentCosts: [],
-                        })
+                        setInitialValues(InitialValues)
                         formik.resetForm(formik.initialValues)
                         setError('')
                       }}>Clear</Button>
@@ -471,7 +359,7 @@ const TagInfo = () => {
         }
       </Container>
       <GoBackButton path='/Tags' />
-    </Container >
+    </Container>
   )
 }
 
