@@ -9,6 +9,7 @@ import { AuthContext, GoBackButton, TextField } from '../../../components'
 import UnitOfMeasureInfoSchema from './UnitOfMeasureInfoYupSchema'
 import { StatusOptions } from './UnitOfMeasureInfoValues'
 import { FetchUnitOfMeasureData, SubmitUnitOfMeasureData } from './UnitOfMeasureInfoAxios'
+import { APP_TITLE } from '../../../config'
 
 const UnitOfMeasureInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -32,6 +33,8 @@ const UnitOfMeasureInfo = () => {
 
   const mounted = useRef(false)
   useEffect(() => {
+    document.title = `Unit of Measure Info | ${APP_TITLE}`
+
     if (!mounted.current) {
       mounted.current = true
       return () => { }
@@ -72,7 +75,7 @@ const UnitOfMeasureInfo = () => {
             <span className='mb-2 fs-5 text-secondary'>
               {fetchError.length > 0 ? fetchError : 'Getting Data'}
             </span>
-            {fetchError.length > 0 ? '' : <BeatLoader color="#333333" size={12} />}
+            {fetchError.length > 0 ? '' : <BeatLoader color='#333333' size={12} />}
           </div>
           :
           <>
@@ -88,11 +91,11 @@ const UnitOfMeasureInfo = () => {
                       label='Unit of Measure' placeholder='Enter Unit of Measure' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className='mb-3'>
                       <Form.Label>Status</Form.Label>
                       <Select
                         key='status'
-                        name="status"
+                        name='status'
                         instanceId='status'
                         placeholder='Choose Status'
                         isSearchable={false}
@@ -121,7 +124,7 @@ const UnitOfMeasureInfo = () => {
                     }}>Clear</Button>
                     <Button variant='success' type='submit' className='w-100 text-uppercase'>
                       {isLoading
-                        ? <BeatLoader color="#fff" size={8} />
+                        ? <BeatLoader color='#fff' size={8} />
                         : isEditMode ? 'Update' : 'Proceed'}
                     </Button>
                   </Col>

@@ -9,6 +9,7 @@ import { AuthContext, GoBackButton, TextField } from '../../../components'
 import ItemInfoSchema from './ItemInfoYupSchema'
 import { FetchItemData } from './ItemInfoAxios'
 import { InitialValues, StatusOptions } from './ItemInfoValues'
+import { APP_TITLE } from '../../../config'
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -29,6 +30,8 @@ const TagInfo = () => {
 
   const mounted = useRef(false)
   useEffect(() => {
+    document.title = `Item Info | ${APP_TITLE}`
+
     if (!mounted.current) {
       mounted.current = true
       return () => { }

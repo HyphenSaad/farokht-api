@@ -9,6 +9,7 @@ import { AuthContext, GoBackButton, TextField } from '../../../components'
 import TagInfoSchema from './TagInfoYupSchema'
 import { StatusOptions } from './TagInfoValues'
 import { FetchTagData, SubmitTagData } from './TagInfoAxios'
+import { APP_TITLE } from '../../../config'
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -32,6 +33,8 @@ const TagInfo = () => {
 
   const mounted = useRef(false)
   useEffect(() => {
+    document.title = `Tag Info | ${APP_TITLE}`
+
     if (!mounted.current) {
       mounted.current = true
       return () => { }
@@ -72,7 +75,7 @@ const TagInfo = () => {
             <span className='mb-2 fs-5 text-secondary'>
               {fetchError.length > 0 ? fetchError : 'Getting Data'}
             </span>
-            {fetchError.length > 0 ? '' : <BeatLoader color="#333333" size={12} />}
+            {fetchError.length > 0 ? '' : <BeatLoader color='#333333' size={12} />}
           </div>
           :
           <>
@@ -88,11 +91,11 @@ const TagInfo = () => {
                       label='Tag Title' placeholder='Enter Tag Title' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className='mb-3'>
                       <Form.Label>Status</Form.Label>
                       <Select
                         key='status'
-                        name="status"
+                        name='status'
                         instanceId='status'
                         placeholder='Choose Status'
                         isSearchable={false}
@@ -121,7 +124,7 @@ const TagInfo = () => {
                     }}>Clear</Button>
                     <Button variant='success' type='submit' className='w-100 text-uppercase'>
                       {isLoading
-                        ? <BeatLoader color="#fff" size={8} />
+                        ? <BeatLoader color='#fff' size={8} />
                         : isEditMode ? 'Update' : 'Proceed'}
                     </Button>
                   </Col>

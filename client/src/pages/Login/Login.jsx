@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BeatLoader } from 'react-spinners'
-import axios from "axios"
+import axios from 'axios'
 
 import './Login.css'
+import { APP_TITLE } from '../../config'
 
 const LoginPage = ({ theme }) => {
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -15,6 +16,8 @@ const LoginPage = ({ theme }) => {
   const navigate = useNavigate()
 
   useEffect(() => {
+    document.title = `Login | ${APP_TITLE}`
+
     const userData = localStorage.getItem('userData')
     if (userData !== null) {
       return navigate('/', { replace: true })
@@ -38,7 +41,7 @@ const LoginPage = ({ theme }) => {
     await axios.post(
       'http://localhost:5000/api/v1/auth/login',
       JSON.stringify({ phoneNumber, password, role: 'admin' }),
-      { headers: { "Content-Type": "application/json" }, }
+      { headers: { 'Content-Type': 'application/json' }, }
     ).then((response) => {
       if (response.status === 200) {
         localStorage.setItem('userData', JSON.stringify(response.data))
@@ -53,14 +56,14 @@ const LoginPage = ({ theme }) => {
 
   return (
     <div id='login-parent'>
-      <div className="login-form">
+      <div className='login-form'>
         <form onSubmit={HandleSubmit}>
           <h1>Farokht</h1>
-          <div className="content">
-            <div className="input-field">
+          <div className='content'>
+            <div className='input-field'>
               <p>Phone Number</p>
-              <input type="number"
-                placeholder="Enter Your Phone Number"
+              <input type='number'
+                placeholder='Enter Your Phone Number'
                 value={phoneNumber}
                 onChange={e => {
                   setPhoneNumberError('')
@@ -69,10 +72,10 @@ const LoginPage = ({ theme }) => {
               />
               <small style={{ color: 'red' }}>{phoneNumberError}</small>
             </div>
-            <div className="input-field">
+            <div className='input-field'>
               <p>Password</p>
-              <input type="password"
-                placeholder="Enter Your Password"
+              <input type='password'
+                placeholder='Enter Your Password'
                 value={password}
                 onChange={e => {
                   setPasswordError('')
@@ -82,7 +85,7 @@ const LoginPage = ({ theme }) => {
               <small style={{ color: 'red' }}>{passwordError}</small>
             </div>
           </div>
-          <button type="submit">{isLoading ? <BeatLoader color="#fff" size={8} /> : 'PROCEED'}</button>
+          <button type='submit'>{isLoading ? <BeatLoader color='#fff' size={8} /> : 'PROCEED'}</button>
         </form>
       </div>
     </div>

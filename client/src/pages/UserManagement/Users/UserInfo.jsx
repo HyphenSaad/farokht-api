@@ -6,7 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
 
 import { AuthContext, GoBackButton, TextField } from '../../../components'
-import { API_BASE_URL } from '../../../config'
+import { API_BASE_URL, APP_TITLE } from '../../../config'
 import { UserInfoAddSchema, UserInfoEditSchema } from './UserInfoYupSchema'
 import { FetchUserData, SubmitUserData } from './UserInfoAxios'
 import { InitialValues, RoleOptions, StatusOptions } from './UserInfoValues'
@@ -28,6 +28,8 @@ const UserInfo = () => {
   const [initialValues, setInitialValues] = useState(InitialValues)
 
   useEffect(() => {
+    document.title = `User Info | ${APP_TITLE}`
+
     if (parameters.id === undefined) return
     setIsEditMode(true)
 
@@ -63,7 +65,7 @@ const UserInfo = () => {
             <span className='mb-2 fs-5 text-secondary'>
               {fetchError.length > 0 ? fetchError : 'Getting Data'}
             </span>
-            {fetchError.length > 0 ? '' : <BeatLoader color="#333333" size={12} />}
+            {fetchError.length > 0 ? '' : <BeatLoader color='#333333' size={12} />}
           </div>
           :
           <>
@@ -84,11 +86,11 @@ const UserInfo = () => {
                     <TextField name='password' formik={formik} label='Password' placeholder='Enter Password' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className='mb-3'>
                       <Form.Label>Phone # 1</Form.Label>
-                      <InputGroup className="mb-3">
+                      <InputGroup className='mb-3'>
                         <InputGroup.Text>+92</InputGroup.Text>
-                        <Form.Control type="text" placeholder="Enter Phone # 1" name='phoneNumber1'
+                        <Form.Control type='text' placeholder='Enter Phone # 1' name='phoneNumber1'
                           onChange={formik.handleChange} value={formik.values.phoneNumber1} />
                       </InputGroup>
                       {formik.errors.phoneNumber1 && formik.touched.phoneNumber1
@@ -96,11 +98,11 @@ const UserInfo = () => {
                     </Form.Group>
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className='mb-3'>
                       <Form.Label>Phone # 2</Form.Label>
-                      <InputGroup className="mb-3">
+                      <InputGroup className='mb-3'>
                         <InputGroup.Text>+92</InputGroup.Text>
-                        <Form.Control type="text" placeholder="Enter Phone # 2" name='phoneNumber2'
+                        <Form.Control type='text' placeholder='Enter Phone # 2' name='phoneNumber2'
                           onChange={formik.handleChange} value={formik.values.phoneNumber2} />
                       </InputGroup>
                       {formik.errors.phoneNumber2 && formik.touched.phoneNumber2
@@ -112,16 +114,16 @@ const UserInfo = () => {
                       label='Landline' placeholder='Enter Landline' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className='mb-3'>
                       <Form.Label>Role</Form.Label>
                       {/* <Form.Select name='role' onChange={formik.handleChange} value={formik.values.role} >
                         <option>Select Role</option>
-                        <option value="vendor">Vendor</option>
-                        <option value="retailer">Retailer</option>
+                        <option value='vendor'>Vendor</option>
+                        <option value='retailer'>Retailer</option>
                       </Form.Select> */}
                       <Select
                         key='role'
-                        name="role"
+                        name='role'
                         instanceId='role'
                         isSearchable={false}
                         placeholder='Choose Role'
@@ -166,17 +168,17 @@ const UserInfo = () => {
                       label='Bank Account No.' placeholder='Enter Bank Account No.' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className='mb-3'>
                       <Form.Label>Status</Form.Label>
                       {/* <Form.Select name='status' onChange={formik.handleChange} value={formik.values.status} >
                         <option>Select Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="suspended">Suspended</option>
+                        <option value='pending'>Pending</option>
+                        <option value='approved'>Approved</option>
+                        <option value='suspended'>Suspended</option>
                       </Form.Select> */}
                       <Select
                         key='status'
-                        name="status"
+                        name='status'
                         instanceId='status'
                         placeholder='Choose Status'
                         isSearchable={false}
@@ -204,7 +206,7 @@ const UserInfo = () => {
                       }}>Clear</Button>
                     <Button variant='success' type='submit' className='w-100 text-uppercase'>
                       {isLoading
-                        ? <BeatLoader color="#fff" size={8} />
+                        ? <BeatLoader color='#fff' size={8} />
                         : isEditMode ? 'Update' : 'Proceed'}
                     </Button>
                   </Col>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react'
+import React, { useState, useEffect, useMemo, useContext, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
 import { Box, Tooltip, IconButton } from '@mui/material'
@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import { AuthContext, CustomDataTable } from '../../../components'
 import { DeleteUser, FetchUsers } from './UsersAxios'
+import { APP_TITLE } from '../../../config'
 
 const Users = () => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
@@ -22,7 +23,15 @@ const Users = () => {
 
   const authContext = useContext(AuthContext)
 
+  const mounted = useRef(false)
   useEffect(() => {
+    document.title = `Users Info | ${APP_TITLE}`
+
+    if (!mounted.current) {
+      mounted.current = true
+      return () => { }
+    }
+
     if (state?.message && !toast.isActive('xyz')) {
       toast.success(state.message, {
         position: 'top-right',

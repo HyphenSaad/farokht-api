@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import { AuthContext, CustomDataTable } from '../../../components'
 import { FetchTags } from './TagsAxios.js'
+import { APP_TITLE } from '../../../config'
 
 const Tags = () => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
@@ -23,6 +24,8 @@ const Tags = () => {
 
   const mounted = useRef(false)
   useEffect(() => {
+    document.title = `Tags | ${APP_TITLE}`
+
     if (!mounted.current) {
       mounted.current = true
       return () => { }

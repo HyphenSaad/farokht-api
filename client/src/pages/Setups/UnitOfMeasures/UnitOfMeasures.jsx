@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import { AuthContext, CustomDataTable } from '../../../components'
 import { FetchUnitOfMeasures } from './UnitOfMeasuresAxios'
+import { APP_TITLE } from '../../../config'
 
 const UnitOfMeasures = () => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
@@ -23,6 +24,8 @@ const UnitOfMeasures = () => {
 
   const mounted = useRef(false)
   useEffect(() => {
+    document.title = `Unit of Measures | ${APP_TITLE}`
+
     if (!mounted.current) {
       mounted.current = true
       return () => { }
