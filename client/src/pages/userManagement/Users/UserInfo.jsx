@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { Container, Form, Button, Col, Row, InputGroup } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
-import * as Yup from 'yup'
 import axios from 'axios'
 import { BeatLoader } from 'react-spinners'
 import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
 
-import GoBackButton from '../../components/GoBackButton'
-import { API_BASE_URL } from '../../config.js'
-import { AuthContext } from '../../components/ProtectedRoute.jsx'
-import TextField from '../../components/TextField'
+import { AuthContext, GoBackButton, TextField } from '../../../components'
+import { API_BASE_URL } from '../../../config'
+import { UserInfoAddSchema, UserInfoEditSchema } from './UserInfoYupSchema'
 
 const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -23,35 +21,9 @@ const UserInfo = () => {
 
   const authContext = useContext(AuthContext)
 
-  const UserSchema = Yup.object().shape({
-    firstName: Yup.string().matches(/^[a-zA-Z\s]+$/, 'Only Alphabets Allowed!').min(3, 'Too Short!').max(20, 'Too Long!').required('Required!'),
-    lastName: Yup.string().matches(/^[a-zA-Z\s]+$/, 'Only Alphabets Allowed!').min(3, 'Too Short!').max(20, 'Too Long!').required('Required!'),
-    phoneNumber1: Yup.string().matches(/^[0-9]+$/, 'Only Digits Allowed!').min(10, 'Too Short!').max(10, 'Too Long!').required('Required!'),
-    phoneNumber2: Yup.string().matches(/^[0-9]+$/, 'Only Digits Allowed!').min(10, 'Too Short!').max(10, 'Too Long!'),
-    landline: Yup.string().matches(/^[0-9]+$/, 'Only Digits Allowed!').min(9, 'Too Short!').max(11, 'Too Long!'),
-    email: Yup.string().email('Invalid Email!').min(5, 'Too Short!').max(50, 'Too Long!').required('Required!'),
-    password: isEditMode ? Yup.string().min(8, 'Too Short!') : Yup.string().min(8, 'Too Short!').required('Required!'),
-    // role: Yup.mixed().oneOf(['retailer', 'vendor'], 'Invalid Role!').required('Required!'),
-    role: Yup.object().shape({
-      value: Yup.string().required('Required!'),
-      label: Yup.string().required('Required!')
-    }).required('Required!'),
-    companyName: Yup.string().min(3, 'Too Short!').max(50, 'Too Long!').required('Required!'),
-    location: Yup.string().min(3, 'Too Short!').max(50, 'Too Long!').required('Required!'),
-    address: Yup.string().min(3, 'Too Short!').max(50, 'Too Long!').required('Required!'),
-    paymentMethod: Yup.string().min(3, 'Too Short!').max(50, 'Too Long!').required('Required!'),
-    bankName: Yup.string().matches(/^[a-zA-Z\s]+$/, 'Only Alphabets Allowed!').min(3, 'Too Short!').max(50, 'Too Long!').required('Required!'),
-    bankBranchCode: Yup.string().matches(/^[0-9]+$/, 'Only Digits Allowed!').min(4, 'Too Short!').max(7, 'Too Long!').required('Required!'),
-    bankAccountNumber: Yup.string().matches(/^[0-9]+$/, 'Only Digits Allowed!').min(10, 'Too Short!').max(15, 'Too Long!').required('Required!'),
-  })
+  const UserSchema = isEditMode ? UserInfoEditSchema : UserInfoAddSchema
 
-  const [initialValues, setInitialValues] = useState({
-    firstName: '', lastName: '', password: '', phoneNumber1: '', phoneNumber2: '',
-    landline: '', location: '', address: '', email: '', companyName: '',
-    paymentMethod: '', bankName: '', bankBranchCode: '', bankAccountNumber: '',
-    role: { value: '', label: 'Choose Role' },
-    status: { value: '', label: 'Choose Status' },
-  })
+  const [initialValues, setInitialValues] = useState()
 
   const statusOptions = useMemo(() => [
     { value: 'pending', label: 'Pending' },

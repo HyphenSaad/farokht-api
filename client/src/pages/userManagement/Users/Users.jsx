@@ -7,9 +7,10 @@ import { Add, Delete, Edit } from '@mui/icons-material'
 import { BeatLoader } from 'react-spinners'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+
+
 import { API_BASE_URL } from '../../config.js'
-import { AuthContext } from '../../components/ProtectedRoute.jsx'
-import CustomDataTable from '../../components/CustomDataTable.jsx'
+import { AuthContext, CustomDataTable } from '../../../components'
 
 const Users = () => {
   const [isLoading, setIsLoading] = useState(true)
