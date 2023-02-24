@@ -16,3 +16,14 @@ export const InitialValues = {
   role: { value: '', label: 'Choose Role' },
   status: { value: '', label: 'Choose Status' },
 }
+
+export const StatusOptions = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'suspended', label: 'Suspended' }
+]
+
+export const RoleOptions = [
+  { value: 'retailer', label: 'Retailer' },
+  { value: 'vendor', label: 'Vendor' },
+]

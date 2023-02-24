@@ -9,98 +9,49 @@ import Select from 'react-select'
 import { AuthContext, GoBackButton, TextField } from '../../../components'
 import { API_BASE_URL } from '../../../config'
 import { UserInfoAddSchema, UserInfoEditSchema } from './UserInfoYupSchema'
+import { FetchUserData, SubmitUserData } from './UserInfoAxios'
+import { InitialValues, RoleOptions, StatusOptions } from './UserInfoValues'
 
 const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isGettingData, setIsGettingData] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
+
   const [error, setError] = useState('')
   const [fetchError, setFetchError] = useState('')
+
   const parameters = useParams()
   const navigate = useNavigate()
 
   const authContext = useContext(AuthContext)
 
   const UserSchema = isEditMode ? UserInfoEditSchema : UserInfoAddSchema
-
-  const [initialValues, setInitialValues] = useState()
-
-  const statusOptions = useMemo(() => [
-    { value: 'pending', label: 'Pending' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'suspended', label: 'Suspended' }
-  ], [])
-
-  const roleOptions = useMemo(() => [
-    { value: 'retailer', label: 'Retailer' },
-    { value: 'vendor', label: 'Vendor' },
-  ], [])
+  const [initialValues, setInitialValues] = useState(InitialValues)
 
   useEffect(() => {
     if (parameters.id === undefined) return
     setIsEditMode(true)
-    setIsGettingData(true)
 
-    axios.get(`${API_BASE_URL}user/${parameters.id}`, {
-      headers: {
-        'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-        'Authorization': `Bearer ${authContext.token}`
-      },
-    }).then((response) => {
-      if (response.status === 200) {
-        setFetchError('')
-        setInitialValues({
-          firstName: response.data.firstName || '',
-          lastName: response.data.lastName || '',
-          password: response.data.password || '',
-          phoneNumber1: response.data.phoneNumber1 || '',
-          phoneNumber2: response.data.phoneNumber2 || '',
-          landline: response.data.landline || '',
-          location: response.data.location || '',
-          address: response.data.address || '',
-          email: response.data.email || '',
-          companyName: response.data.companyName || '',
-          paymentMethod: response.data.paymentMethod || '',
-          bankName: response.data.bankName || '',
-          bankBranchCode: response.data.bankBranchCode || '',
-          bankAccountNumber: response.data.bankAccountNumber || '',
-          role: roleOptions.filter(role => role.value === response.data.role),
-          status: statusOptions.filter(status => status.value === response.data.status),
-        })
-        setIsGettingData(false)
-      }
-    }).catch(error => setFetchError(error.response.data.message))
-  }, [parameters, setInitialValues, authContext, roleOptions, statusOptions])
+    FetchUserData({
+      id: parameters.id,
+      token: authContext.token,
+      setIsGettingData,
+      setInitialValues,
+      setFetchError,
+    })
+  }, [parameters, setInitialValues, authContext])
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: initialValues,
     validationSchema: UserSchema,
     onSubmit: async (values) => {
-      setIsLoading(true)
-      if (isEditMode) {
-        await axios.patch(`${API_BASE_URL}user/${parameters.id}`, JSON.stringify(values), {
-          headers: {
-            'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-            'Authorization': `Bearer ${authContext.token}`
-          },
-        }).then((response) => {
-          if (response.status === 200)
-            navigate('/Users', { state: { message: 'User Updated Successfully!' }, replace: true })
-        }).catch(error => setError(error.response.data.message))
-      } else {
-        await axios.post(`${API_BASE_URL}user/`, JSON.stringify(values), {
-          headers: {
-            'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-            'Authorization': `Bearer ${authContext.token}`
-          },
-        }).then((response) => {
-          if (response.status === 201)
-            navigate('/Users', { state: { message: 'User Created Successfully!' }, replace: true })
-        }).catch(error => setError(error.response.data.message))
-      }
-
-      setIsLoading(false)
+      SubmitUserData({
+        token: authContext.token,
+        id: parameters.id,
+        values, isEditMode, navigate,
+        setError, setIsLoading
+      })
     },
   })
 
@@ -179,7 +130,7 @@ const UserInfo = () => {
                         isSearchable={false}
                         placeholder='Choose Role'
                         onChange={(data) => formik.setFieldValue('role', data)}
-                        options={roleOptions}
+                        options={RoleOptions}
                         value={formik.values.role}
                       />
                       {formik.errors.role && formik.touched.role
@@ -234,7 +185,7 @@ const UserInfo = () => {
                         placeholder='Choose Status'
                         isSearchable={false}
                         onChange={(data) => formik.setFieldValue('status', data)}
-                        options={statusOptions}
+                        options={StatusOptions}
                         value={formik.values.status}
                       />
                     </Form.Group>
