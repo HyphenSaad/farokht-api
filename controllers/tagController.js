@@ -3,6 +3,9 @@ import { Tag } from '../models/index.js'
 import { UpperCaseFirstLetter } from '../utilities.js'
 
 const AddTag = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   if (!request.body.name)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag Name is Required!' }
 
@@ -15,6 +18,9 @@ const AddTag = async (request, response, next) => {
 }
 
 const UpdateTag = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   if (!request.params.id)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag ID is Required!' }
 

@@ -221,7 +221,8 @@ const TagInfo = () => {
                         <>
                           <Col sm={12} md={6} lg={4} xl={3}>
                             <Button variant='success' className='w-100 text-uppercase'
-                              disabled={formik.values.attributes.length >= attributes.length} onClick={e => {
+                              disabled={formik.values.attributes.length >= attributes.length}
+                              onClick={e => {
                                 if (formik.values.attributes.length >= attributes.length) return
                                 for (let i = 0; i < attributes.length; i += 1) {
                                   if (attributes[i].used === true) continue
@@ -232,6 +233,11 @@ const TagInfo = () => {
                                   break
                                 }
                               }}>Add Attribute</Button>
+                            {
+                              formik.errors.attributes && formik.touched.attributes && !Array.isArray(formik.errors.attributes)
+                                ? <Form.Text className='text-danger'>{formik.errors.attributes}</Form.Text>
+                                : null
+                            }
                           </Col>
                           {formik.values.attributes.map((attribute, index) => (
                             <Col sm={12} md={6} lg={4} xl={3} key={`id@${index}`}>
@@ -250,14 +256,18 @@ const TagInfo = () => {
                                   options={attributes.filter(attribute => attribute.used !== true)}
                                   value={formik.values.attributes[index].id}
                                 />
+                                {
+                                  formik.getFieldMeta(`attributes[${index}].id`).error &&
+                                    formik.getFieldMeta(`attributes[${index}].id`).touched
+                                    ? <Form.Text className='text-danger'>
+                                      {formik.getFieldMeta(`attributes[${index}].id`).error.value}
+                                    </Form.Text>
+                                    : null
+                                }
                               </Form.Group>
 
-                              {/* </Col> */}
-                              {/* <Col sm={12} md={6} lg={4} xl={3} key={`value@${index}`}> */}
-                              <TextField name={`attributes[${index}].value`} formik={formik}
-                                label='Value' placeholder='Enter Value' />
-                              {/* </Col> */}
-                              {/* <Col sm={12} md={6} lg={4} xl={3} key={`action@${index}`}> */}
+                              <TextField name={`attributes[${index}].value`} formik={formik} label='Value'
+                                placeholder='Enter Value' hasFieldArrayError={true} />
                               <Form.Group>
                                 <Button variant='danger' className='w-100 text-uppercase'
                                   onClick={e => {
@@ -284,13 +294,18 @@ const TagInfo = () => {
                                 price: { value: '', label: 'Enter Price' },
                               })
                             }}>Add Price Slab</Button>
+                            {
+                              formik.errors.priceSlabs && formik.touched.priceSlabs && !Array.isArray(formik.errors.priceSlabs)
+                                ? <Form.Text className='text-danger'>{formik.errors.priceSlabs}</Form.Text>
+                                : null
+                            }
                           </Col>
                           {formik.values.priceSlabs.map((attribute, index) => (
                             <Col sm={12} md={6} lg={4} xl={3} key={`id@${index}`}>
                               <TextField name={`priceSlabs[${index}].price`} formik={formik}
-                                label={`Slab No. ${index + 1}`} placeholder='Enter Slab' />
+                                label={`Slab No. ${index + 1}`} placeholder='Enter Slab' hasFieldArrayError={true} />
                               <TextField name={`priceSlabs[${index}].slab`} formik={formik}
-                                label='Price' placeholder='Enter Price' />
+                                label='Price' placeholder='Enter Price' hasFieldArrayError={true} />
                               <Form.Group>
                                 <Button variant='danger' className='w-100 text-uppercase'
                                   onClick={e => { array.remove(index) }}>Remove</Button>
@@ -315,15 +330,20 @@ const TagInfo = () => {
                                 days: { value: '', label: 'Enter Delivery Days' },
                               })
                             }}>Add Shipment Cost</Button>
+                            {
+                              formik.errors.shipmentCosts && formik.touched.shipmentCosts && !Array.isArray(formik.errors.shipmentCosts)
+                                ? <Form.Text className='text-danger'>{formik.errors.shipmentCosts}</Form.Text>
+                                : null
+                            }
                           </Col>
                           {formik.values.shipmentCosts.map((attribute, index) => (
                             <Col sm={12} md={6} lg={4} xl={3} key={`id@${index}`}>
                               <TextField name={`shipmentCosts[${index}].location`} formik={formik}
-                                label={`Location ${index + 1}`} placeholder='Enter Location' />
+                                label={`Location ${index + 1}`} placeholder='Enter Location' hasFieldArrayError={true} />
                               <TextField name={`shipmentCosts[${index}].cost`} formik={formik}
-                                label='Cost' placeholder='Enter Cost' />
+                                label='Cost' placeholder='Enter Cost' hasFieldArrayError={true} />
                               <TextField name={`shipmentCosts[${index}].days`} formik={formik}
-                                label='Delivery Days' placeholder='Enter Delivery Days' />
+                                label='Delivery Days' placeholder='Enter Delivery Days' hasFieldArrayError={true} />
                               <Form.Group>
                                 <Button variant='danger' className='w-100 text-uppercase'
                                   onClick={e => { array.remove(index) }}>Remove</Button>

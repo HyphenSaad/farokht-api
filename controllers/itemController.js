@@ -2,6 +2,9 @@ import { StatusCodes } from 'http-status-codes'
 import { Item, User } from '../models/index.js'
 
 const CreateItem = async (request, response, next) => {
+  if (request.user.role === 'retailer')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   const user = await User.findOne({ _id: request.item.userId })
   if (!user)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Vendor ID!' }
@@ -9,8 +12,6 @@ const CreateItem = async (request, response, next) => {
   if (request.user.role !== 'admin')
     if (request.user._id.toString() !== request.item.userId)
       throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
-  // else if (request.user.status.toString().toLowerCase() !== 'approved')
-  //   throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
 
   const item = await Item.create(request.item)
   await item.populate('tags unitOfMeasure attributes._id')
@@ -18,6 +19,9 @@ const CreateItem = async (request, response, next) => {
 }
 
 const UpdateItem = async (request, response, next) => {
+  if (request.user.role === 'retailer')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   if (!request.params.itemId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
 
@@ -33,8 +37,6 @@ const UpdateItem = async (request, response, next) => {
   if (request.user.role !== 'admin')
     if (item.userId._id.toString() !== request.item.userId)
       throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
-  // else if (request.user.status.toString().toLowerCase() !== 'approved')
-  //   throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
 
   if (request.user.role === 'admin') {
     const user = await User.findOne({ _id: request.item.userId })
@@ -77,13 +79,14 @@ const UpdateItem = async (request, response, next) => {
 }
 
 const DeleteItem = async (request, response, next) => {
+  if (request.user.role === 'retailer')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   if (!request.params.itemId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
 
   const options = { _id: request.params.itemId }
   if (request.user.role === 'vendor') {
-    // if (request.user.status.toString().toLowerCase() !== 'approved')
-    //   throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Account Is Not Approved To Perform This Operation!' }
     options.userId = request.user._id.toString()
   }
 
@@ -96,12 +99,6 @@ const DeleteItem = async (request, response, next) => {
   await item.save().then(() => {
     response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
   }).catch(error => next(error))
-
-  // const output = await Item.deleteOne(options)
-  // if (output.deletedCount > 0)
-  //   response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
-  // else
-  //   response.status(StatusCodes.NOT_FOUND).json({ message: `Item ${request.params.itemId} Not Found!` })
 }
 
 const GetItem = async (request, response, next) => {
@@ -120,6 +117,7 @@ const GetItem = async (request, response, next) => {
   response.status(StatusCodes.OK).json(item)
 }
 
+// FIXME: Es Mai One-To-Many Ka Relation Impletment Karna Hai, Tan K User K Items Search Nah Karni Parhain Humain
 const GetAllVendorItems = async (request, response, next) => {
   if (!request.params.userId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }

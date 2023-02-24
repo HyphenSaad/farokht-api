@@ -3,6 +3,9 @@ import { AttributeOfItem } from '../models/index.js'
 import { UpperCaseFirstLetter } from '../utilities.js'
 
 const AddAttribute = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   if (!request.body.name)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attribute Name is Required!' }
 
@@ -15,6 +18,9 @@ const AddAttribute = async (request, response, next) => {
 }
 
 const UpdateAttribute = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   if (!request.params.id)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attribute ID is Required!' }
 

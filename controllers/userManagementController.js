@@ -3,10 +3,16 @@ import { Register, Update } from "./authorizationController.js"
 import { User } from '../models/index.js'
 
 const CreateUser = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   await Register(request, response, next)
 }
 
 const UpdateUser = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   const userId = request.params.userId
   if (!userId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
@@ -16,6 +22,9 @@ const UpdateUser = async (request, response, next) => {
 }
 
 const DeleteUser = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   const userId = request.params.userId
   if (!userId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
@@ -29,15 +38,12 @@ const DeleteUser = async (request, response, next) => {
   await user.save().then(() => {
     response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
   }).catch(error => next(error))
-
-  // const output = await User.deleteOne({ _id: userId })
-  // if (output.deletedCount > 0)
-  //   response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
-  // else
-  //   response.status(StatusCodes.NOT_FOUND).json({ message: `User ${userId} Not Found!` })
 }
 
 const GetUser = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   const userId = request.params.userId
   if (!userId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
@@ -51,6 +57,9 @@ const GetUser = async (request, response, next) => {
 }
 
 const GetAllUsers = async (request, response, next) => {
+  if (request.user.role !== 'admin')
+    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+
   const page = request.query.page || 1
   const limit = request.query.limit || 10
   const options = {}
