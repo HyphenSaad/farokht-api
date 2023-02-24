@@ -76,16 +76,13 @@ const UserInfo = () => {
               <Form onSubmit={formik.handleSubmit} className='mt-3'>
                 <Row>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='firstName' formik={formik}
-                      label='First Name' placeholder='Enter First Name' />
+                    <TextField name='firstName' formik={formik} label='First Name' placeholder='Enter First Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='lastName' formik={formik}
-                      label='Last Name' placeholder='Enter Last Name' />
+                    <TextField name='lastName' formik={formik} label='Last Name' placeholder='Enter Last Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='password' formik={formik}
-                      label='Password' placeholder='Enter Password' />
+                    <TextField name='password' formik={formik} label='Password' placeholder='Enter Password' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className="mb-3">

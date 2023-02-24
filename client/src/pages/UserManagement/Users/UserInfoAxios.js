@@ -33,8 +33,8 @@ export const FetchUserData = async ({ token, id, setFetchError, setIsGettingData
         bankName: response.data.bankName || '',
         bankBranchCode: response.data.bankBranchCode || '',
         bankAccountNumber: response.data.bankAccountNumber || '',
-        role: RoleOptions.filter(role => role.value === response.data.role),
-        status: StatusOptions.filter(status => status.value === response.data.status),
+        role: RoleOptions.filter(role => role.value === response.data.role)[0],
+        status: StatusOptions.filter(status => status.value === response.data.status)[0],
       })
 
       setIsGettingData(false)
@@ -44,7 +44,6 @@ export const FetchUserData = async ({ token, id, setFetchError, setIsGettingData
 
 export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {
   setIsLoading(true)
-  console.log(isEditMode)
 
   const editEndpoint = `${API_BASE_URL}user/${id}`
   const addEndpoint = `${API_BASE_URL}user/`
@@ -57,16 +56,20 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
     },
   }
 
+  const _values = { ...values }
+  _values.role = values.role.value
+  _values.status = values.status.value
+
   const addRedirect = { state: { message: 'User Created Successfully!' }, replace: true, }
   const editRedirect = { state: { message: 'User Updated Successfully!' }, replace: true, }
 
   if (isEditMode) {
-    await axios.patch(editEndpoint, JSON.stringify(values), headers).then(response => {
+    await axios.patch(editEndpoint, JSON.stringify(_values), headers).then(response => {
       if (response.status === 200) { navigate('/Users', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
   } else {
-    await axios.post(addEndpoint, JSON.stringify(values), headers).then(response => {
+    await axios.post(addEndpoint, JSON.stringify(_values), headers).then(response => {
       if (response.status === 201) { navigate('/Users', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
