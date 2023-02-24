@@ -2,7 +2,7 @@ import axios from 'axios'
 import { API_BASE_URL } from '../../../config'
 
 export const FetchItemData = async ({ token, setUserData, setTagData, setUnitOfMeasureData, setAttributeData, setErrorMessage }) => {
-  const usersEndpoint = `${API_BASE_URL}user?role=vendor&status=approved`
+  const usersEndpoint = `${API_BASE_URL}user?role=vendor&status=approved&minified=true`
   const tagsEndpoint = `${API_BASE_URL}tag/`
   const unitOfMeasuresEndpoint = `${API_BASE_URL}uom/`
   const attributesEndpoint = `${API_BASE_URL}attribute/`

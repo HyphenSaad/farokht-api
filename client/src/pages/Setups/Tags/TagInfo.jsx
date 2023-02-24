@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import { Container, Form, Button, Col, Row } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
 import { BeatLoader } from 'react-spinners'
@@ -27,7 +27,13 @@ const TagInfo = () => {
     createdBy: `${currentUser.firstName} ${currentUser.lastName}`
   })
 
+  const mounted = useRef(false)
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return () => { }
+    }
+
     if (parameters.id === undefined) return
     setIsEditMode(true)
 

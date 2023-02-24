@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react'
+import React, { useState, useEffect, useMemo, useContext, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
 import { Box, Tooltip, IconButton } from '@mui/material'
@@ -21,7 +21,13 @@ const Attributes = () => {
 
   const authContext = useContext(AuthContext)
 
+  const mounted = useRef(false)
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return () => { }
+    }
+
     if (state?.message && !toast.isActive('xyz')) {
       toast.success(state.message, {
         position: 'top-right',
@@ -38,19 +44,17 @@ const Attributes = () => {
       navigate('/Attributes', { state: {}, replace: true })
     }
 
-    (async () => {
-      if (error.length > 1) return
+    if (error.length > 1) return
 
-      await FetchAttributes({
-        token: authContext.token,
-        pageSize: pagination.pageSize,
-        pageIndex: pagination.pageIndex + 1,
-        setError,
-        setData,
-      })
+    FetchAttributes({
+      token: authContext.token,
+      pageSize: pagination.pageSize,
+      pageIndex: pagination.pageIndex + 1,
+      setError,
+      setData,
+    })
 
-      setIsLoading(false)
-    })()
+    setIsLoading(false)
   }, [error, state, navigate, authContext, pagination])
 
   const columns = useMemo(() => [

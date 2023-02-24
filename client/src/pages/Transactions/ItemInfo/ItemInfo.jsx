@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import { Container, Form, Button, Col, Row } from 'react-bootstrap'
 import { Formik, FieldArray } from 'formik'
 import { BeatLoader } from 'react-spinners'
@@ -27,9 +27,14 @@ const TagInfo = () => {
   const [unitOfMeasures, setUnitOfMeasures] = useState([])
   const [attributes, setAttributes] = useState([])
 
+  const mounted = useRef(false)
   useEffect(() => {
-    setIsGettingData(true)
+    if (!mounted.current) {
+      mounted.current = true
+      return () => { }
+    }
 
+    setIsGettingData(true)
     FetchItemData({
       token: authContext.token,
       setUserData: setUsers,
@@ -38,7 +43,6 @@ const TagInfo = () => {
       setAttributeData: setAttributes,
       setErrorMessage: setError,
     })
-
     setIsGettingData(false)
 
     // if (parameters.id === undefined) return
