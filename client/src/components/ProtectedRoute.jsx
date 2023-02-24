@@ -1,5 +1,6 @@
 import React, { useEffect, useState, createContext } from "react"
 import { useNavigate } from "react-router-dom"
+import jwt_decode from "jwt-decode"
 
 export const AuthContext = createContext()
 
@@ -16,8 +17,15 @@ export const ProtectedRoute = (props) => {
       return navigate('/Login')
     }
 
-    setUserData(JSON.parse(userData))
-    setIsLoggedIn(true)
+    const userDataJSON = JSON.parse(userData)
+    const decodedJWT = jwt_decode(userDataJSON.token)
+
+    if (decodedJWT.exp * 1000 < Date.now()) {
+      localStorage.clear()
+    } else {
+      setUserData(userDataJSON)
+      setIsLoggedIn(true)
+    }
   }, [isLoggedIn, navigate])
 
   return (
