@@ -59,8 +59,12 @@ const GetAllUnitOfMeasures = async (request, response, next) => {
   const data = []
   unitOfMeasure.forEach(uom => {
     data.push({
-      _id: uom._id, name: UpperCaseFirstLetter(uom.name),
-      createdBy: uom.createdBy.firstName + ' ' + uom.createdBy.lastName
+      _id: uom._id,
+      name: UpperCaseFirstLetter(uom.name),
+      status: uom.status,
+      createdBy: uom.createdBy.firstName + ' ' + uom.createdBy.lastName,
+      createdAt: uom.createdAt,
+      updatedAt: uom.updatedAt,
     })
   })
 
@@ -77,8 +81,12 @@ const GetUnitOfMeasure = async (request, response, next) => {
   const unitOfMeasure = await UnitOfMeasure.findOne({ _id: request.params.id }).populate('createdBy')
 
   response.status(StatusCodes.OK).json({
-    _id: unitOfMeasure._id, name: UpperCaseFirstLetter(unitOfMeasure.name),
-    createdBy: unitOfMeasure.createdBy.firstName + ' ' + unitOfMeasure.createdBy.lastName
+    _id: unitOfMeasure._id,
+    name: UpperCaseFirstLetter(unitOfMeasure.name),
+    status: unitOfMeasure.status,
+    createdBy: unitOfMeasure.createdBy.firstName + ' ' + unitOfMeasure.createdBy.lastName,
+    createdAt: unitOfMeasure.createdAt,
+    updatedAt: unitOfMeasure.updatedAt,
   })
 }
 

@@ -60,8 +60,12 @@ const GetAllTags = async (request, response, next) => {
   const data = []
   tags.forEach(tag => {
     data.push({
-      _id: tag._id, name: UpperCaseFirstLetter(tag.name),
-      createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName
+      _id: tag._id,
+      name: UpperCaseFirstLetter(tag.name),
+      status: tag.status,
+      createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName,
+      createdAt: tag.createdAt,
+      updatedAt: tag.updatedAt,
     })
   })
 
@@ -77,9 +81,14 @@ const GetTag = async (request, response, next) => {
 
   const tag = await Tag.findOne({ _id: request.params.id }).populate('createdBy')
 
+
   response.status(StatusCodes.OK).json({
-    _id: tag._id, name: UpperCaseFirstLetter(tag.name),
-    createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName
+    _id: tag._id,
+    name: UpperCaseFirstLetter(tag.name),
+    status: tag.status,
+    createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName,
+    createdAt: tag.createdAt,
+    updatedAt: tag.updatedAt,
   })
 }
 

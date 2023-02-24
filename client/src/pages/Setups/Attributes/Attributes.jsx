@@ -61,7 +61,10 @@ const Attributes = () => {
 
   const columns = useMemo(() => [
     { accessorKey: 'name', header: 'Attribute Name' },
+    { accessorKey: 'status', header: 'Status' },
     { accessorKey: 'createdBy', header: 'Created By' },
+    { accessorKey: 'createdAt', header: 'Created At' },
+    { accessorKey: 'updatedAt', header: 'Last Modified' },
   ], [],)
 
   return (

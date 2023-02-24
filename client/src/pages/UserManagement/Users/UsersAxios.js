@@ -1,4 +1,5 @@
 import axios from 'axios'
+import moment from 'moment'
 import { API_BASE_URL } from '../../../config'
 
 export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData }) => {
@@ -21,6 +22,8 @@ export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData
           user.phoneNumber2 = `+92${user.phoneNumber2}`
           user.status = user.status.charAt(0).toUpperCase() + user.status.slice(1)
           user.role = user.role.charAt(0).toUpperCase() + user.role.slice(1)
+          user.createdAt = moment.utc(user.createdAt).local().format('h:mm A, L')
+          user.updatedAt = moment.utc(user.updatedAt).local().format('h:mm A, L')
         })
         setData(usersData)
       }

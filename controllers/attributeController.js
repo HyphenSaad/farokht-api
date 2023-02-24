@@ -58,8 +58,12 @@ const GetAllAttributes = async (request, response, next) => {
   const data = []
   attributes.forEach(attribute => {
     data.push({
-      _id: attribute._id, name: UpperCaseFirstLetter(attribute.name),
-      createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName
+      _id: attribute._id,
+      name: UpperCaseFirstLetter(attribute.name),
+      status: attribute.status,
+      createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
+      createdAt: attribute.createdAt,
+      updatedAt: attribute.updatedAt,
     })
   })
 
@@ -76,8 +80,12 @@ const GetAttribute = async (request, response, next) => {
   const attribute = await AttributeOfItem.findOne({ _id: request.params.id }).populate('createdBy')
 
   response.status(StatusCodes.OK).json({
-    _id: attribute._id, name: UpperCaseFirstLetter(attribute.name),
-    createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName
+    _id: attribute._id,
+    name: UpperCaseFirstLetter(attribute.name),
+    status: attribute.status,
+    createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
+    createdAt: attribute.createdAt,
+    updatedAt: attribute.updatedAt,
   })
 }
 

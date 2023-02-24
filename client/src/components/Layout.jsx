@@ -121,7 +121,7 @@ const Layout = () => {
           </Menu>
         </Sidebar>
       </div>
-      <div style={{ width: '100%' }} className='col m-0 p-0 pb-5'>
+      <div style={{ width: '50%' }} className='col m-0 p-0 pb-5'>
         <div style={{ display: 'flex', backgroundColor: '#fff', padding: '1rem', }}>
           <button id='menu-toggle-button' onClick={() => toggleSidebar()}>
             <MenuIcon />

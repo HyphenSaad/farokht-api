@@ -62,7 +62,10 @@ const UnitOfMeasures = () => {
 
   const columns = useMemo(() => [
     { accessorKey: 'name', header: 'Unit of Measure' },
+    { accessorKey: 'status', header: 'Status' },
     { accessorKey: 'createdBy', header: 'Created By' },
+    { accessorKey: 'createdAt', header: 'Created At' },
+    { accessorKey: 'updatedAt', header: 'Last Modified' },
   ], [],)
 
   return (
