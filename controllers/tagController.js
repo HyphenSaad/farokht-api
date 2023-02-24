@@ -6,7 +6,7 @@ const AddTag = async (request, response, next) => {
   if (request.user.role !== 'admin')
     throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
 
-  if (!request.body.name || request.body.status)
+  if (!request.body.name || !request.body.status)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   try {
@@ -29,7 +29,7 @@ const UpdateTag = async (request, response, next) => {
   if (!request.params.id)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag ID is Required!' }
 
-  if (!request.body.name || request.body.status)
+  if (!request.body.name || !request.body.status)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
   const options = { _id: request.params.id }
