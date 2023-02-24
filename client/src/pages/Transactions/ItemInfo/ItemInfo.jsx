@@ -20,8 +20,6 @@ const TagInfo = () => {
   const navigate = useNavigate()
 
   const authContext = useContext(AuthContext)
-
-  const statusOptions = useMemo(() => StatusOptions, [])
   const [initialValues, setInitialValues] = useState(InitialValues)
 
   const [users, setUsers] = useState([])
@@ -197,7 +195,7 @@ const TagInfo = () => {
                           instanceId='status'
                           placeholder='Choose Status'
                           onChange={(data) => formik.setFieldValue('status', data)}
-                          options={statusOptions}
+                          options={StatusOptions}
                           value={formik.values.status}
                         />
                         {formik.errors.status && formik.touched.status

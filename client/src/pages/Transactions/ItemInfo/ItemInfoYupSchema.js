@@ -2,6 +2,7 @@ import * as Yup from 'yup'
 
 const ItemInfoSchema = Yup.object().shape({
   name: Yup.string()
+    .trim()
     .min(3, 'Too Short!')
     .max(25, 'Too Long!')
     .required('Required!'),
@@ -12,6 +13,7 @@ const ItemInfoSchema = Yup.object().shape({
     .required('Required!'),
 
   description: Yup.string()
+    .trim()
     .min(10, 'Too Short!')
     .max(255, 'Too Long!')
     .required('Required!'),
