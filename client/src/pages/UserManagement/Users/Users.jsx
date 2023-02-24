@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
-import axios from 'axios'
 import { Box, Tooltip, IconButton } from '@mui/material'
 import { Add, Delete, Edit } from '@mui/icons-material'
 import { BeatLoader } from 'react-spinners'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-import { API_BASE_URL } from '../../../config'
 import { AuthContext, CustomDataTable } from '../../../components'
 import { DeleteUser, FetchUsers } from './UsersAxios'
 
@@ -44,7 +42,7 @@ const Users = () => {
     (async () => {
       if (error.length > 1) return
 
-      FetchUsers({
+      await FetchUsers({
         pageSize: pagination.pageSize,
         pageIndex: pagination.pageIndex + 1,
         token: authContext.token,

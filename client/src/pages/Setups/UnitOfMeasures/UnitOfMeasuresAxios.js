@@ -12,10 +12,9 @@ export const FetchUnitOfMeasures = async ({ pageSize, pageIndex, token, setError
   }
 
   await axios.get(endpoint, headers).then(response => {
-    setData(response.data)
-    setError('')
-    console.log('AXIOS', response.data)
     if (response.status === 200) {
+      setData(response.data)
+      setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
   }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
 }

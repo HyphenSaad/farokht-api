@@ -13,15 +13,16 @@ export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData
 
   await axios.get(endpoint, headers).then(response => {
     if (response.status === 200) {
-      if (response.data.users.length > 0) {
-        response.data.users.forEach(user => {
+      const usersData = response.data
+      if (usersData.users.length > 0) {
+        usersData.users.forEach(user => {
           user.fullName = `${user.firstName} ${user.lastName}`
           user.phoneNumber1 = `+92${user.phoneNumber1}`
           user.phoneNumber2 = `+92${user.phoneNumber2}`
           user.status = user.status.charAt(0).toUpperCase() + user.status.slice(1)
           user.role = user.role.charAt(0).toUpperCase() + user.role.slice(1)
         })
-        setData(response.data)
+        setData(usersData)
       }
       setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
