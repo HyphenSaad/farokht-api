@@ -44,17 +44,19 @@ const Tags = () => {
       navigate('/Tags', { state: {}, replace: true })
     }
 
-    if (error.length > 1) return
+    (async () => {
+      if (error.length > 1) return
 
-    FetchTags({
-      token: authContext.token,
-      pageSize: pagination.pageSize,
-      pageIndex: pagination.pageIndex + 1,
-      setError,
-      setData,
-    })
+      await FetchTags({
+        token: authContext.token,
+        pageSize: pagination.pageSize,
+        pageIndex: pagination.pageIndex + 1,
+        setError,
+        setData
+      })
 
-    setIsLoading(false)
+      setIsLoading(false)
+    })()
   }, [error, state, navigate, authContext, pagination])
 
   const columns = useMemo(() => [

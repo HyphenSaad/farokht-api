@@ -44,17 +44,19 @@ const Attributes = () => {
       navigate('/Attributes', { state: {}, replace: true })
     }
 
-    if (error.length > 1) return
+    (async () => {
+      if (error.length > 1) return
 
-    FetchAttributes({
-      token: authContext.token,
-      pageSize: pagination.pageSize,
-      pageIndex: pagination.pageIndex + 1,
-      setError,
-      setData,
-    })
+      await FetchAttributes({
+        token: authContext.token,
+        pageSize: pagination.pageSize,
+        pageIndex: pagination.pageIndex + 1,
+        setError,
+        setData,
+      })
 
-    setIsLoading(false)
+      setIsLoading(false)
+    })()
   }, [error, state, navigate, authContext, pagination])
 
   const columns = useMemo(() => [
