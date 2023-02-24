@@ -62,6 +62,7 @@ const GetAllUsers = async (request, response, next) => {
 
   const page = request.query.page || 1
   const limit = request.query.limit || 10
+  const minified = request.query.minified || false
   const options = {}
 
   if (request.query.status) options.status = request.query.status
@@ -87,6 +88,20 @@ const GetAllUsers = async (request, response, next) => {
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ status: 'asc' })
+
+  if (minified) {
+    response.status(StatusCodes.OK).json({
+      totalUsers: userCount, page, limit,
+      count: users.length || 0,
+      users: users.filter(user => {
+        return {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        }
+      })
+    })
+  }
 
   response.status(StatusCodes.OK).json({
     totalUsers: userCount, page, limit,
