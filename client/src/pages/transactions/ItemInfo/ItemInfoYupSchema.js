@@ -33,9 +33,15 @@ const ItemInfoSchema = Yup.object().shape({
     })
     .required('Required!'),
 
-  vendorPayoutPercentage: Yup.number().typeError('Invalid').min(0, 'Too Short!').required('Required!'),
+  vendorPayoutPercentage: Yup.number()
+    .typeError('Invalid')
+    .min(0, 'Too Short!')
+    .required('Required!'),
 
-  completionDays: Yup.number().typeError('Invalid').min(1, 'Too Short!').required('Required!'),
+  completionDays: Yup.number()
+    .typeError('Invalid')
+    .min(1, 'Too Short!')
+    .required('Required!'),
 
   user: Yup.object()
     .shape({
