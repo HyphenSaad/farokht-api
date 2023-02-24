@@ -8,20 +8,21 @@ import { BeatLoader } from 'react-spinners'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-
-import { API_BASE_URL } from '../../../config.js'
+import { API_BASE_URL } from '../../../config'
 import { AuthContext, CustomDataTable } from '../../../components'
+import { DeleteUser, FetchUsers } from './UsersAxios'
 
 const Users = () => {
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
   const [isLoading, setIsLoading] = useState(true)
+
   const [data, setData] = useState([])
   const [error, setError] = useState('')
+
   const navigate = useNavigate()
   const { state } = useLocation()
 
   const authContext = useContext(AuthContext)
-
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
 
   useEffect(() => {
     if (state?.message && !toast.isActive('xyz')) {
@@ -43,43 +44,23 @@ const Users = () => {
     (async () => {
       if (error.length > 1) return
 
-      const result = await axios.get(`${API_BASE_URL}user?limit=${pagination.pageSize}&page=${pagination.pageIndex + 1}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Authorization': `Bearer ${authContext.token}`
-        },
-      }).catch(error => {
-        setError(error.response.statusText)
+      FetchUsers({
+        pageSize: pagination.pageSize,
+        pageIndex: pagination.pageIndex + 1,
+        token: authContext.token,
+        setError, setData
       })
 
-      const data = result.data
-
-      if (data.users.length > 0) {
-        data.users.forEach(user => {
-          user.fullName = `${user.firstName} ${user.lastName}`
-          user.phoneNumber1 = `+92${user.phoneNumber1}`
-          user.phoneNumber2 = `+92${user.phoneNumber2}`
-          user.status = user.status.charAt(0).toUpperCase() + user.status.slice(1)
-          user.role = user.role.charAt(0).toUpperCase() + user.role.slice(1)
-        })
-        setData(result.data)
-      }
-
-      setError('')
       setIsLoading(false)
     })()
   }, [error, state, navigate, authContext, pagination])
 
-  const columns = useMemo(
-    () => [
-      { accessorKey: 'fullName', header: 'Fullname' },
-      { accessorKey: 'phoneNumber1', header: 'Phone #', size: 100 },
-      { accessorKey: 'role', header: 'Role', size: 60 },
-      { accessorKey: 'status', header: 'Status', size: 60 },
-    ],
-    [],
-  )
+  const columns = useMemo(() => [
+    { accessorKey: 'fullName', header: 'Fullname' },
+    { accessorKey: 'phoneNumber1', header: 'Phone #', size: 100 },
+    { accessorKey: 'role', header: 'Role', size: 60 },
+    { accessorKey: 'status', header: 'Status', size: 60 },
+  ], [],)
 
   return (
     <Container style={{ padding: '1.25rem' }} >
@@ -116,18 +97,11 @@ const Users = () => {
                 </Tooltip>
                 <Tooltip arrow placement='right' title='Suspend'>
                   <IconButton color='error' onClick={async () => {
-                    await axios.delete(`${API_BASE_URL}user/${row.original._id}`, {
-                      headers: {
-                        'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-                        'Authorization': `Bearer ${authContext.token}`
-                      },
-                    }).then((response) => {
-                      if (response.status === 200) {
-                        navigate('/Users', { state: { message: 'User Suspended Successfully!' }, replace: true })
-                      }
-                    }).catch(error => {
-                      console.log(error)
-                      setError(error.response.data.message)
+                    await DeleteUser({
+                      id: row.original._id,
+                      token: authContext.token,
+                      setError,
+                      navigate,
                     })
                   }}>
                     <Delete />
