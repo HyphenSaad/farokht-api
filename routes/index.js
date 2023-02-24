@@ -1,5 +1,6 @@
 import express from 'express'
-import AuthorizationMiddleware from '../middlewares/index.js'
+import { AuthorizationMiddleware } from '../middlewares/index.js'
+
 import AuthRouter from './authorizationRoutes.js'
 import ItemRouter from './itemRoutes.js'
 import UnitOfMeasureRouter from './unitOfMeasureRoutes.js'
