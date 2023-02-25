@@ -54,7 +54,7 @@ const GetAllAttributes = async (request, response, next) => {
     .populate('createdBy')
     .limit(limit)
     .skip((page - 1) * limit)
-    .sort({ createdAt: 'desc', updatedAt: 'desc' })
+    .sort({ updatedAt: 'desc' })
     .catch(error => next(error))
 
   const attributeCount = await AttributeOfItem.count(options).catch(error => next(error))
