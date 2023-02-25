@@ -1,4 +1,5 @@
 import { Tag, UnitOfMeasure, AttributeOfItem } from '../../models/index.js'
+import mongoose from 'mongoose'
 import { StatusCodes } from 'http-status-codes'
 
 const ItemPrepare = async (request, response, next) => {
@@ -18,7 +19,7 @@ const ItemPrepare = async (request, response, next) => {
   const itemTags = []
   tags.forEach(async (tag, index) => {
     if (tag.hasOwnProperty('id') && tag.hasOwnProperty('name')) {
-      if (tag.id.length === 24) itemTags.push(tag.id.toString())
+      if (tag.id.length === 24) itemTags.push(mongoose.Types.ObjectId(tag.id.toString()))
       else {
         const object = await Tag.create({ name: tag.name, createdBy: request.user._id }).catch(error => next(error))
         if (object) itemTags.push(object._id)
@@ -29,10 +30,10 @@ const ItemPrepare = async (request, response, next) => {
   const itemAttributes = []
   attributes.forEach(async (attribute, index) => {
     if (attribute.hasOwnProperty('id') && attribute.hasOwnProperty('name') && attribute.hasOwnProperty('value')) {
-      if (attribute.id.length === 24) itemAttributes.push({ _id: attribute.id.toString(), value: attribute.value })
+      if (attribute.id.length === 24) itemAttributes.push({ _id: mongoose.Types.ObjectId(attribute.id.toString()), value: attribute.value })
       else {
         const object = await AttributeOfItem.create({ name: attribute.name, createdBy: request.user._id }).catch(error => next(error))
-        if (object) itemAttributes.push({ _id: object._id.toString(), value: object.name })
+        if (object) itemAttributes.push({ _id: object._id, value: object.name })
       }
     } else throw { statusCode: StatusCodes.BAD_REQUEST, message: `Attribute No. ${index + 1} has Invalid Shape!` }
   })
@@ -40,7 +41,7 @@ const ItemPrepare = async (request, response, next) => {
   if (unitOfMeasure.hasOwnProperty('id') && unitOfMeasure.hasOwnProperty('name')) {
     if (unitOfMeasure.id.length !== 24) {
       const object = await UnitOfMeasure.create({ name: unitOfMeasure.name, createdBy: request.user._id }).catch(error => next(error))
-      if (object) unitOfMeasure.id = object._id.toString()
+      if (object) unitOfMeasure.id = object._id
     }
   } else throw { statusCode: StatusCodes.BAD_REQUEST, message: `Unit of Measure has Invalid Shape!` }
 

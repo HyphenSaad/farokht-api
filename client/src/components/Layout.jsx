@@ -68,6 +68,8 @@ const GetTitle = () => {
 
   if (window.location.pathname.includes('/UserInfo'))
     return { path: window.location.pathname, title: 'User Info' }
+  if (window.location.pathname.includes('/ItemInfo'))
+    return { path: window.location.pathname, title: 'Item Info' }
   return 'Error'
 }
 

@@ -5,18 +5,13 @@ import { BeatLoader } from 'react-spinners'
 import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
 import AsyncSelect from 'react-select/async'
-import CreatableSelect from 'react-select/creatable'
 import AsyncCreatableSelect from 'react-select/async-creatable'
-import makeAnimated from 'react-select/animated'
 
 import { AuthContext, GoBackButton, TextField } from '../../../components'
 import ItemInfoSchema from './ItemInfoYupSchema'
-import { FetchUnitOfMeasures, FetchUsers, FetchAttributes, FetchTags, SubmitUserData } from './ItemInfoAxios'
+import { FetchUnitOfMeasures, FetchUsers, FetchAttributes, FetchTags, SubmitUserData, FetchItemData } from './ItemInfoAxios'
 import { InitialValues, StatusOptions } from './ItemInfoValues'
-import { API_BASE_URL, APP_TITLE } from '../../../config'
-import axios from 'axios'
-
-const animatedComponents = makeAnimated()
+import { APP_TITLE } from '../../../config'
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -39,67 +34,20 @@ const TagInfo = () => {
       return () => { }
     }
 
-    setIsGettingData(true)
+    if (parameters.id === undefined) return
+    setIsEditMode(true)
 
-    setIsGettingData(false)
-
-    // if (parameters.id === undefined) return
-    // setIsEditMode(true)
-
-    // axios.get(`${API_BASE_URL}tag/${parameters.id}`, {
-    //   headers: {
-    //     'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-    //     'Authorization': `Bearer ${authContext.token}`
-    //   },
-    // }).then((response) => {
-    //   if (response.status === 200) {
-    //     setFetchError('')
-    //     setInitialValues({
-    //       name: response.data.name || '', createdBy: response.data.createdBy || '',
-    //     })
-    //     setIsGettingData(false)
-    //   }
-    // }).catch(error => setFetchError(error.response.data.message))
+    FetchItemData({
+      token: authContext.token,
+      id: parameters.id,
+      setFetchError, setIsGettingData, setInitialValues
+    })
   }, [parameters, setInitialValues, authContext])
-
-  // const formik = useFormik({
-  //   enableReinitialize: true,
-  //   initialValues: initialValues,
-  //   validationSchema: TagSchema,
-  //   onSubmit: async (values) => {
-  //     console.log(formik.errors)
-
-  //     setIsLoading(true)
-  //     if (isEditMode) {
-  //       await axios.patch(`${API_BASE_URL}tag/${parameters.id}`, JSON.stringify(values), {
-  //         headers: {
-  //           'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-  //           'Authorization': `Bearer ${authContext.token}`
-  //         },
-  //       }).then((response) => {
-  //         if (response.status === 200)
-  //           navigate('/Tags', { state: { message: 'Tag Updated Successfully!' }, replace: true })
-  //       }).catch(error => setError(error.response.data.message))
-  //     } else {
-  //       await axios.post(`${API_BASE_URL}tag/`, JSON.stringify(values), {
-  //         headers: {
-  //           'Content-Type': 'application/json', 'Cache-Control': 'no-cache',
-  //           'Authorization': `Bearer ${authContext.token}`
-  //         },
-  //       }).then((response) => {
-  //         if (response.status === 201)
-  //           navigate('/Tags', { state: { message: 'Tag Created Successfully!' }, replace: true })
-  //       }).catch(error => setError(error.response.data.message))
-  //     }
-
-  //     setIsLoading(false)
-  //   },
-  // })
 
   return (
     <Container style={{ padding: '1.25rem' }} >
       <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} >
-        {isGettingData
+        {isGettingData && isEditMode
           ?
           <div className='d-flex justify-content-center align-items-center flex-column py-3'>
             <span className='mb-2 fs-5 text-secondary'>
@@ -118,7 +66,7 @@ const TagInfo = () => {
               initialValues={initialValues}
               validationSchema={ItemInfoSchema}
               onSubmit={(values) => {
-                SubmitUserData({ values, isEditMode, token: authContext.token, navigate, setIsLoading, setError })
+                SubmitUserData({ values, isEditMode, token: authContext.token, navigate, setIsLoading, setError, id: parameters.id, })
               }}
             >
               {(formik) => (
@@ -142,8 +90,8 @@ const TagInfo = () => {
                           name='unitOfMeasure'
                           instanceId='unitOfMeasure'
                           placeholder='Choose Unit of Measure'
-                          // cacheOptions={true}
                           value={formik.values.unitOfMeasure}
+                          defaultValue={formik.values.unitOfMeasure}
                           getOptionLabel={e => e.label}
                           getOptionValue={e => e.value}
                           onChange={(data) => formik.setFieldValue('unitOfMeasure', data)}
@@ -168,7 +116,6 @@ const TagInfo = () => {
                           isMulti={true}
                           placeholder='Choose Tags'
                           defaultOptions
-                          // cacheOptions={true}
                           value={formik.values.tags}
                           getOptionLabel={e => e.label}
                           getOptionValue={e => e.value}
@@ -189,8 +136,8 @@ const TagInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Vendor</Form.Label>
                         <AsyncSelect
-                          cacheOptions={true}
                           value={formik.values.user}
+                          defaultValue={formik.values.user}
                           getOptionLabel={e => e.label}
                           getOptionValue={e => e.value}
                           defaultOptions
@@ -211,11 +158,10 @@ const TagInfo = () => {
                           name='status'
                           instanceId='status'
                           placeholder='Choose Status'
+                          isSearchable={false}
                           onChange={(data) => formik.setFieldValue('status', data)}
                           options={StatusOptions}
                           value={formik.values.status}
-                          isClearable={true}
-                          isSearchable={false}
                         />
                         {formik.errors.status && formik.touched.status
                           ? <Form.Text className='text-danger'>{formik.errors.status.value}</Form.Text> : null}
@@ -243,7 +189,7 @@ const TagInfo = () => {
                               onClick={e => {
                                 array.push({
                                   id: { value: '', label: 'Choose Attribute' },
-                                  value: { value: '', label: 'Enter Value' },
+                                  value: '',
                                 })
                               }}>Add Attribute</Button>
                             {
@@ -261,7 +207,6 @@ const TagInfo = () => {
                                   name={`attributes[${index}].id`}
                                   instanceId={`attributes[${index}].id`}
                                   placeholder='Choose Attribute'
-                                  // cacheOptions={true}
                                   value={formik.values.attributes[index].id}
                                   getOptionLabel={e => e.label}
                                   getOptionValue={e => e.value}
@@ -280,14 +225,17 @@ const TagInfo = () => {
                                 }
                               </Form.Group>
 
-                              <TextField name={`attributes[${index}].value`} formik={formik} label='Value'
-                                placeholder='Enter Value' hasFieldArrayError={true} />
+                              <TextField
+                                value={formik.values.attributes[index].value}
+                                name={`attributes[${index}].value`}
+                                formik={formik}
+                                label='Value'
+                                placeholder='Enter Value'
+                                hasFieldArrayError={true}
+                              />
                               <Form.Group>
                                 <Button variant='danger' className='w-100 text-uppercase'
-                                  onClick={e => {
-                                    // attributes.at(attributes.indexOf(attribute.id)).used = false
-                                    array.remove(index)
-                                  }}>Remove</Button>
+                                  onClick={e => array.remove(index)}>Remove</Button>
                               </Form.Group>
                             </Col>
                           ))}
@@ -299,14 +247,11 @@ const TagInfo = () => {
                   <Row className='border border-2 my-3'>
                     <FieldArray
                       name='priceSlabs'
-                      render={(array) => (
-                        <>
+                      render={(array) => {
+                        return (<>
                           <Col sm={12} md={6} lg={4} xl={3} className='my-3'>
                             <Button variant='success' className='w-100 text-uppercase' onClick={e => {
-                              array.push({
-                                slab: { value: '', label: 'Enter Slab' },
-                                price: { value: '', label: 'Enter Price' },
-                              })
+                              array.push({ slab: '', price: '', })
                             }}>Add Price Slab</Button>
                             {
                               formik.errors.priceSlabs && formik.touched.priceSlabs && !Array.isArray(formik.errors.priceSlabs)
@@ -316,18 +261,28 @@ const TagInfo = () => {
                           </Col>
                           {formik.values.priceSlabs.map((attribute, index) => (
                             <Col sm={12} md={6} lg={4} xl={3} className='my-3' key={`id@${index}`}>
-                              <TextField name={`priceSlabs[${index}].price`} formik={formik}
-                                label={`Slab No. ${index + 1}`} placeholder='Enter Slab' hasFieldArrayError={true} />
-                              <TextField name={`priceSlabs[${index}].slab`} formik={formik}
-                                label='Price' placeholder='Enter Price' hasFieldArrayError={true} />
+                              <TextField
+                                value={formik.values.priceSlabs[index].price}
+                                name={`priceSlabs[${index}].price`}
+                                formik={formik}
+                                label={`Slab No. ${index + 1}`}
+                                placeholder='Enter Slab'
+                                hasFieldArrayError={true} />
+                              <TextField
+                                value={formik.values.priceSlabs[index].slab}
+                                name={`priceSlabs[${index}].slab`}
+                                formik={formik}
+                                label='Price'
+                                placeholder='Enter Price'
+                                hasFieldArrayError={true} />
                               <Form.Group>
                                 <Button variant='danger' className='w-100 text-uppercase'
                                   onClick={e => { array.remove(index) }}>Remove</Button>
                               </Form.Group>
                             </Col>
                           ))}
-                        </>
-                      )}
+                        </>)
+                      }}
                     />
                   </Row>
 
@@ -338,11 +293,7 @@ const TagInfo = () => {
                         <>
                           <Col sm={12} md={6} lg={4} xl={3} className='my-3'>
                             <Button variant='success' className='w-100 text-uppercase' onClick={e => {
-                              array.push({
-                                location: { value: '', label: 'Enter Location' },
-                                cost: { value: '', label: 'Enter Cost' },
-                                days: { value: '', label: 'Enter Delivery Days' },
-                              })
+                              array.push({ location: '', cost: '', days: '', })
                             }}>Add Shipment Cost</Button>
                             {
                               formik.errors.shipmentCosts && formik.touched.shipmentCosts && !Array.isArray(formik.errors.shipmentCosts)
@@ -352,12 +303,27 @@ const TagInfo = () => {
                           </Col>
                           {formik.values.shipmentCosts.map((attribute, index) => (
                             <Col sm={12} md={6} lg={4} xl={3} className='my-3' key={`id@${index}`}>
-                              <TextField name={`shipmentCosts[${index}].location`} formik={formik}
-                                label={`Location ${index + 1}`} placeholder='Enter Location' hasFieldArrayError={true} />
-                              <TextField name={`shipmentCosts[${index}].cost`} formik={formik}
-                                label='Cost' placeholder='Enter Cost' hasFieldArrayError={true} />
-                              <TextField name={`shipmentCosts[${index}].days`} formik={formik}
-                                label='Delivery Days' placeholder='Enter Delivery Days' hasFieldArrayError={true} />
+                              <TextField
+                                value={formik.values.shipmentCosts[index].location}
+                                name={`shipmentCosts[${index}].location`}
+                                formik={formik}
+                                label={`Location ${index + 1}`}
+                                placeholder='Enter Location'
+                                hasFieldArrayError={true} />
+                              <TextField
+                                value={formik.values.shipmentCosts[index].cost}
+                                name={`shipmentCosts[${index}].cost`}
+                                formik={formik}
+                                label='Cost'
+                                placeholder='Enter Cost'
+                                hasFieldArrayError={true} />
+                              <TextField
+                                value={formik.values.shipmentCosts[index].days}
+                                name={`shipmentCosts[${index}].days`}
+                                formik={formik}
+                                label='Delivery Days'
+                                placeholder='Enter Delivery Days'
+                                hasFieldArrayError={true} />
                               <Form.Group>
                                 <Button variant='danger' className='w-100 text-uppercase'
                                   onClick={e => { array.remove(index) }}>Remove</Button>

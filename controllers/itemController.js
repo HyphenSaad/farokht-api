@@ -14,7 +14,7 @@ const CreateItem = async (request, response, next) => {
       throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
 
   const item = await Item.create(request.item).catch(error => next(error))
-  await item.populate('tags unitOfMeasure attributes._id').catch(error => next(error))
+  if (item) await item.populate('tags unitOfMeasure attributes._id').catch(error => next(error))
   response.status(StatusCodes.CREATED).json(item)
 }
 
@@ -25,8 +25,8 @@ const UpdateItem = async (request, response, next) => {
   if (!request.params.itemId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
 
-
   const item = await Item.findOne({ _id: request.params.itemId }).catch(error => next(error))
+
   if (!item)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item ID!' }
 
@@ -50,32 +50,18 @@ const UpdateItem = async (request, response, next) => {
   item.name = request.item.name
   item.minOrderNumber = request.item.minOrderNumber
   item.description = request.item.description
-  item.tags = request.item.tags.map(tag => tag._id)
-  item.unitOfMeasure = request.item.unitOfMeasure._id
-  item.pictures = request.item.pictures
+  item.tags = request.item.tags
+  item.unitOfMeasure = request.item.unitOfMeasure
+  item.attributes = request.item.attributes
   item.priceSlabs = request.item.priceSlabs
-
-  item.attributes = request.item.attributes.map(attribute => {
-    return { _id: attribute._id, value: attribute.value }
-  })
+  item.vendorPayoutPercentage = request.item.vendorPayoutPercentage
+  item.shipmentCosts = request.item.shipmentCosts
 
   if (request.user.role === 'admin')
     item.status = request.item.status
 
   await item.save().then(() => {
-    response.status(StatusCodes.OK).json({
-      _id: item._id,
-      userId: item.userId._id,
-      name: item.name,
-      description: item.description,
-      minOrderNumber: item.minOrderNumber,
-      unitOfMeasure: request.item.unitOfMeasure,
-      tags: request.item.tags,
-      attributes: request.item.attributes,
-      pictures: request.item.pictures,
-      priceSlabs: request.item.priceSlabs,
-      status: item.status
-    })
+    response.status(StatusCodes.OK).json(item)
   }).catch(error => next(error))
 }
 
@@ -115,7 +101,23 @@ const GetItem = async (request, response, next) => {
   if (!item)
     throw { statusCode: StatusCodes.NOT_FOUND, message: 'Item Not Found!' }
 
-  await item.populate('tags unitOfMeasure attributes._id').catch(error => next(error))
+  await item.populate('tags unitOfMeasure attributes._id userId').catch(error => next(error))
+
+  item.userId.phoneNumber1 = undefined
+  item.userId.phoneNumber2 = undefined
+  item.userId.landline = undefined
+  item.userId.email = undefined
+  item.userId.companyName = undefined
+  item.userId.location = undefined
+  item.userId.address = undefined
+  item.userId.paymentMethod = undefined
+  item.userId.bankName = undefined
+  item.userId.bankBranchCode = undefined
+  item.userId.bankAccountNumber = undefined
+  item.userId.createdAt = undefined
+  item.userId.updatedAt = undefined
+  item.userId.role = undefined
+
   response.status(StatusCodes.OK).json(item)
 }
 
@@ -173,11 +175,28 @@ const GetAllItems = async (request, response, next) => {
   const items = await Item.find(options)
     .limit(limit)
     .skip((page - 1) * limit)
-    .populate('tags unitOfMeasure attributes._id')
+    .populate('tags unitOfMeasure attributes._id userId')
     .catch(error => next(error))
 
   const filteredItems = items.filter(item => {
     return (!tag) ? item : item.tags.map(tag => tag.name).includes(tag)
+  })
+
+  filteredItems.map(item => {
+    item.userId.phoneNumber1 = undefined
+    item.userId.phoneNumber2 = undefined
+    item.userId.landline = undefined
+    item.userId.email = undefined
+    item.userId.companyName = undefined
+    item.userId.location = undefined
+    item.userId.address = undefined
+    item.userId.paymentMethod = undefined
+    item.userId.bankName = undefined
+    item.userId.bankBranchCode = undefined
+    item.userId.bankAccountNumber = undefined
+    item.userId.createdAt = undefined
+    item.userId.updatedAt = undefined
+    item.userId.role = undefined
   })
 
   response.status(StatusCodes.OK).json({ page, limit, totalItems: filteredItems.length, items: filteredItems })

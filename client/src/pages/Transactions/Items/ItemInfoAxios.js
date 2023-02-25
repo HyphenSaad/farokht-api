@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { API_BASE_URL } from '../../../config'
+import { StatusOptions } from './ItemInfoValues'
 
 export const FetchUsers = ({ token, value, setError, max = 10 }) => {
   const usersEndpoint = `${API_BASE_URL}user?role=vendor&status=approved&minified=yes&firstName=${value}&lastName=${value}&limit=${max}`
@@ -77,7 +78,7 @@ export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
   }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
 }
 
-const ShapeAdjustment = (values) => {
+const SubmitShapeAdjustment = (values) => {
   const _values = { ...values }
   _values.status = values.status.value
 
@@ -118,22 +119,93 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
   }
 
   const data = new FormData()
-  data.append('data', JSON.stringify(ShapeAdjustment(values)))
+  data.append('data', JSON.stringify(SubmitShapeAdjustment(values)))
 
   const addRedirect = { state: { message: 'Item Created Successfully!' }, replace: true, }
   const editRedirect = { state: { message: 'Item Updated Successfully!' }, replace: true, }
 
   if (isEditMode) {
     await axios.patch(editEndpoint, data, headers).then(response => {
-      if (response.status === 200) { navigate('/Items', editRedirect) }
-      else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+      console.log(response.data)
+      // if (response.status === 200) { navigate('/Items', editRedirect) }
+      // else { setError(`${response.status} - ${response.statusText}`) }
+    }).catch(error => {
+      console.log(error)
+      setError(`${error.response.status} - ${error.response.statusText}`)
+    })
   } else {
     await axios.post(addEndpoint, data, headers).then(response => {
       if (response.status === 201) { navigate('/Items', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+    }).catch(error => {
+      console.log(error.response)
+      setError(`${error.response.status} - ${error.response.statusText}`)
+    })
   }
 
   setIsLoading(false)
+}
+
+export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues }) => {
+  setIsGettingData(true)
+
+  const endpoint = `${API_BASE_URL}item/${id}`
+  const headers = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'Authorization': `Bearer ${token}`
+    },
+  }
+
+  await axios.get(endpoint, headers).then(response => {
+    if (response.status === 200) {
+      setFetchError('')
+      setInitialValues({
+        name: response.data.name,
+        minOrderNumber: response.data.minOrderNumber,
+        description: response.data.description,
+        unitOfMeasure: {
+          value: response.data.unitOfMeasure._id,
+          label: response.data.unitOfMeasure.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
+        },
+        tags: response.data.tags.map(tag => {
+          return {
+            value: tag._id,
+            label: tag.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
+          }
+        }),
+        status: StatusOptions.filter(status => status.value === response.data.status)[0],
+        vendorPayoutPercentage: response.data.vendorPayoutPercentage,
+        completionDays: response.data.completionDays,
+        user: {
+          value: response.data.userId._id,
+          label: `${response.data.userId.firstName} ${response.data.userId.lastName}`
+        },
+        attributes: response.data.attributes.map(attribute => {
+          return {
+            id: {
+              value: attribute._id._id,
+              label: attribute._id.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' '),
+            },
+            value: `${attribute.value}`
+          }
+        }),
+        priceSlabs: response.data.priceSlabs.map(priceSlab => {
+          return {
+            slab: `${priceSlab.slab}`,
+            price: `${priceSlab.price}`,
+          }
+        }),
+        shipmentCosts: response.data.shipmentCosts.map(shipmentCost => {
+          return {
+            location: `${shipmentCost.location}`,
+            cost: `${shipmentCost.cost}`,
+            days: `${shipmentCost.days}`
+          }
+        }),
+      })
+      setIsGettingData(false)
+    } else { setFetchError(`${response.status} - ${response.statusText}`) }
+  }).catch(error => setFetchError(`${error.response.status} - ${error.response.statusText}`))
 }

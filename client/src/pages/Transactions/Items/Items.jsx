@@ -63,13 +63,13 @@ const Items = () => {
   }, [error, state, navigate, authContext, pagination])
 
   const columns = useMemo(() => [
-    { accessorKey: 'name', header: 'Title' },
-    { accessorKey: 'unitOfMeasure', header: 'UOM', size: 40 },
-    { accessorKey: 'minOrderNumber', header: 'Minimum Order #', size: 100 },
-    { accessorKey: 'fullName', header: 'Vendor', size: 120 },
-    { accessorKey: 'status', header: 'Status', size: 50 },
-    { accessorKey: 'createdAt', header: 'Created At', size: 100 },
-    { accessorKey: 'updatedAt', header: 'Last Modified', size: 100 },
+    { accessorKey: 'name', header: 'Title', size: 150 },
+    { accessorKey: 'uom', header: 'UOM', size: 100, },
+    { accessorKey: 'minOrderNumber', header: 'Minimum Order #', size: 100, },
+    { accessorKey: 'fullName', header: 'Vendor', size: 100, },
+    { accessorKey: 'status', header: 'Status', size: 100, },
+    { accessorKey: 'createdAt', header: 'Created At', size: 100, },
+    { accessorKey: 'updatedAt', header: 'Last Modified', size: 100, },
   ], [],)
 
   return (

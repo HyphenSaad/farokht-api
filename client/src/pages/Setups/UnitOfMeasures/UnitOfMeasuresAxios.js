@@ -17,7 +17,7 @@ export const FetchUnitOfMeasures = async ({ pageSize, pageIndex, token, setError
       setError('')
       const data = response.data
       data.unitOfMeasures.forEach(uom => {
-        uom.status = uom.status.charAt(0).toUpperCase() + uom.status.slice(1)
+        uom.status = uom.status.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
         uom.createdAt = moment.utc(uom.createdAt).local().format('h:mm A, L')
         uom.updatedAt = moment.utc(uom.updatedAt).local().format('h:mm A, L')
       })

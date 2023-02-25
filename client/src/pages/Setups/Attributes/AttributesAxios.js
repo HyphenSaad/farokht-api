@@ -17,7 +17,7 @@ export const FetchAttributes = async ({ pageSize, pageIndex, token, setError, se
       setError('')
       const data = response.data
       data.attributes.forEach(attribute => {
-        attribute.status = attribute.status.charAt(0).toUpperCase() + attribute.status.slice(1)
+        attribute.status = attribute.status.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
         attribute.createdAt = moment.utc(attribute.createdAt).local().format('h:mm A, L')
         attribute.updatedAt = moment.utc(attribute.updatedAt).local().format('h:mm A, L')
       })

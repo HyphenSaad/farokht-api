@@ -18,7 +18,6 @@ const CustomDataTable = ({ rowCount, onPaginationChange, state, columns, data,
       enableSorting={true}
       enableBottomToolbar={true}
       enableTopToolbar={true}
-      muiTableBodyRowProps={{ hover: false }}
       enableEditing={true}
       enableFullScreenToggle={false}
       enableDensityToggle={false}
