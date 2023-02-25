@@ -126,21 +126,14 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
 
   if (isEditMode) {
     await axios.patch(editEndpoint, data, headers).then(response => {
-      console.log(response.data)
-      // if (response.status === 200) { navigate('/Items', editRedirect) }
-      // else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => {
-      console.log(error)
-      setError(`${error.response.status} - ${error.response.statusText}`)
-    })
+      if (response.status === 200) { navigate('/Items', editRedirect) }
+      else { setError(`${response.status} - ${response.statusText}`) }
+    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
   } else {
     await axios.post(addEndpoint, data, headers).then(response => {
       if (response.status === 201) { navigate('/Items', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => {
-      console.log(error.response)
-      setError(`${error.response.status} - ${error.response.statusText}`)
-    })
+    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
   }
 
   setIsLoading(false)
