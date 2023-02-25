@@ -12,7 +12,7 @@ const TextField = ({ label, placeholder, name, formik, disable = false, hasField
 
       {hasFieldArrayError ?
         formik.getFieldMeta(name).error && formik.getFieldMeta(name).touched
-          ? <Form.Text className='text-danger'>{formik.getFieldMeta(name).error.value}</Form.Text>
+          ? <Form.Text className='text-danger'>{formik.getFieldMeta(name).error}</Form.Text>
           : null
         : ''}
     </Form.Group>

@@ -47,25 +47,39 @@ const UpdateAttribute = async (request, response, next) => {
 const GetAllAttributes = async (request, response, next) => {
   const page = request.query.page || 1
   const limit = request.query.limit || 10
+  const minified = request.query.minified || 'no'
+  const options = {}
 
-  const attributes = await AttributeOfItem.find().populate('createdBy')
+  if (request.query.status) options.status = request.query.status
+  if (request.query.name) options.name = { '$regex': `${request.query.name.split(' ').join('|')}`, '$options': 'i' }
+
+  const attributes = await AttributeOfItem.find(options).populate('createdBy')
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ name: 'asc' })
 
-  const attributeCount = await AttributeOfItem.count()
+  const attributeCount = await AttributeOfItem.count(options)
 
   const data = []
-  attributes.forEach(attribute => {
-    data.push({
-      _id: attribute._id,
-      name: UpperCaseFirstLetter(attribute.name),
-      status: attribute.status,
-      createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
-      createdAt: attribute.createdAt,
-      updatedAt: attribute.updatedAt,
+  if (minified === 'no') {
+    attributes.forEach(attribute => {
+      data.push({
+        _id: attribute._id,
+        name: UpperCaseFirstLetter(attribute.name),
+        status: attribute.status,
+        createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
+        createdAt: attribute.createdAt,
+        updatedAt: attribute.updatedAt,
+      })
     })
-  })
+  } else {
+    attributes.forEach(attribute => {
+      data.push({
+        _id: attribute._id,
+        name: UpperCaseFirstLetter(attribute.name),
+      })
+    })
+  }
 
   response.status(StatusCodes.OK).json({
     totalAttributes: attributeCount, page, limit,

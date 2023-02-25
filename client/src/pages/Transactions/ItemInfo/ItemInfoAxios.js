@@ -1,59 +1,80 @@
 import axios from 'axios'
 import { API_BASE_URL } from '../../../config'
 
-export const FetchItemData = async ({ token, setUserData, setTagData, setUnitOfMeasureData, setAttributeData, setErrorMessage }) => {
-  const usersEndpoint = `${API_BASE_URL}user?role=vendor&status=approved&minified=true`
-  const tagsEndpoint = `${API_BASE_URL}tag/`
-  const unitOfMeasuresEndpoint = `${API_BASE_URL}uom/`
-  const attributesEndpoint = `${API_BASE_URL}attribute/`
-
+export const FetchUsers = ({ token, value, setError, max = 10 }) => {
+  const usersEndpoint = `${API_BASE_URL}user?role=vendor&status=approved&minified=yes&firstName=${value}&lastName=${value}&limit=${max}`
   const headers = {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
     },
   }
 
-  // GET USERS (VENDORS)
-  await axios.get(usersEndpoint, headers).then(response => {
+  return axios.get(usersEndpoint, headers).then(response => {
     if (response.status === 200) {
-      const userData = response.data.users.map(user => {
+      return response.data.users.map(user => {
         return { value: user._id, label: `${user.firstName} ${user.lastName}` }
       })
-      setUserData(userData)
-    } else { setErrorMessage(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setErrorMessage(`${error.response.status} - ${error.response.statusText}`))
+    } else { setError(`${response.status} - ${response.statusText}`) }
+  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+}
 
-  // GET TAGS
-  await axios.get(tagsEndpoint, headers).then(response => {
+export const FetchTags = ({ token, value, setError, max = 10 }) => {
+  const tagsEndpoint = `${API_BASE_URL}tag?minified=yes&name=${value}&limit=${max}`
+  const headers = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'Authorization': `Bearer ${token}`,
+    },
+  }
+
+  return axios.get(tagsEndpoint, headers).then(response => {
     if (response.status === 200) {
-      const tagData = response.data.tags.map(tag => {
+      return response.data.tags.map(tag => {
         return { value: tag._id, label: tag.name }
       })
-      setTagData(tagData)
-    } else { setErrorMessage(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setErrorMessage(`${error.response.status} - ${error.response.statusText}`))
+    } else { setError(`${response.status} - ${response.statusText}`) }
+  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+}
 
-  // GET UNIT OF MEASURE
-  await axios.get(unitOfMeasuresEndpoint, headers).then(response => {
-    if (response.status === 200) {
-      const unitOfMeasureData = response.data.unitOfMeasures.map(unitOfMeasure => {
-        return { value: unitOfMeasure._id, label: unitOfMeasure.name }
-      })
-      setUnitOfMeasureData(unitOfMeasureData)
-    } else { setErrorMessage(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setErrorMessage(`${error.response.status} - ${error.response.statusText}`))
+export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
+  const unitOfMeasuresEndpoint = `${API_BASE_URL}uom?minified=yes&name=${value}&limit=${max}`
+  const headers = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'Authorization': `Bearer ${token}`,
+    },
+  }
 
-  // GET ATTRIBUTES
-  await axios.get(attributesEndpoint, headers).then(response => {
+  return axios.get(unitOfMeasuresEndpoint, headers).then(response => {
     if (response.status === 200) {
-      const attributeData = response.data.attributes.map(attribute => {
-        return { value: attribute._id, label: attribute.name, used: false }
+      return response.data.unitOfMeasures.map(uom => {
+        return { value: uom._id, label: uom.name }
       })
-      setAttributeData(attributeData)
-    } else { setErrorMessage(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setErrorMessage(`${error.response.status} - ${error.response.statusText}`))
+    } else { setError(`${response.status} - ${response.statusText}`) }
+  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+}
+
+export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
+  const attributesEndpoint = `${API_BASE_URL}attribute?minified=yes&name=${value}&limit=${max}`
+  const headers = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'Authorization': `Bearer ${token}`,
+    },
+  }
+
+  return axios.get(attributesEndpoint, headers).then(response => {
+    if (response.status === 200) {
+      return response.data.attributes.map(attribute => {
+        return { value: attribute._id, label: attribute.name }
+      })
+    } else { setError(`${response.status} - ${response.statusText}`) }
+  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
 }
 
 export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {
@@ -72,19 +93,22 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
 
   const _values = { ...values }
   _values.status = values.status.value
+  _values.tags = _values.tags.map(tag => { return { id: tag.hasOwnProperty('__isNew__') ? '' : tag.value, value: tag.label } })
+  _values.unitOfMeasure = { id: _values.unitOfMeasure.hasOwnProperty('__isNew__') ? '' : _values.unitOfMeasure.value, value: _values.unitOfMeasure.label }
+  _values.attributes = _values.attributes.map(attribute => { return { id: attribute.hasOwnProperty('__isNew__') ? '' : attribute.value, value: attribute.label } })
 
   console.log(_values)
 
-  const addRedirect = { state: { message: 'Item Created Successfully!' }, replace: true, }
-  const editRedirect = { state: { message: 'Item Updated Successfully!' }, replace: true, }
+  // const addRedirect = { state: { message: 'Item Created Successfully!' }, replace: true, }
+  // const editRedirect = { state: { message: 'Item Updated Successfully!' }, replace: true, }
 
-  await axios.post(addEndpoint, JSON.stringify(_values), headers).then(response => {
-    if (response.status === 201) { navigate('/Users', addRedirect) }
-    else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => {
-    console.log('Saadin', error)
-    setError(`${error.response.status} - ${error.response.statusText}`)
-  })
+  // await axios.post(addEndpoint, JSON.stringify(_values), headers).then(response => {
+  //   if (response.status === 201) { navigate('/Items', addRedirect) }
+  //   else { setError(`${response.status} - ${response.statusText}`) }
+  // }).catch(error => {
+  //   console.log('Saadin', error)
+  //   setError(`${error.response.status} - ${error.response.statusText}`)
+  // })
 
   // if (isEditMode) {
   //   await axios.patch(editEndpoint, JSON.stringify(_values), headers).then(response => {

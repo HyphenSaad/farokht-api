@@ -48,25 +48,39 @@ const UpdateUnitOfMeasure = async (request, response, next) => {
 const GetAllUnitOfMeasures = async (request, response, next) => {
   const page = request.query.page || 1
   const limit = request.query.limit || 10
+  const minified = request.query.minified || 'no'
+  const options = {}
 
-  const unitOfMeasure = await UnitOfMeasure.find().populate('createdBy')
+  if (request.query.status) options.status = request.query.status
+  if (request.query.name) options.name = { '$regex': `${request.query.name.split(' ').join('|')}`, '$options': 'i' }
+
+  const unitOfMeasure = await UnitOfMeasure.find(options).populate('createdBy')
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ name: 'asc' })
 
-  const unitOfMeasureCount = await UnitOfMeasure.count()
+  const unitOfMeasureCount = await UnitOfMeasure.count(options)
 
   const data = []
-  unitOfMeasure.forEach(uom => {
-    data.push({
-      _id: uom._id,
-      name: UpperCaseFirstLetter(uom.name),
-      status: uom.status,
-      createdBy: uom.createdBy.firstName + ' ' + uom.createdBy.lastName,
-      createdAt: uom.createdAt,
-      updatedAt: uom.updatedAt,
+  if (minified === 'no') {
+    unitOfMeasure.forEach(uom => {
+      data.push({
+        _id: uom._id,
+        name: UpperCaseFirstLetter(uom.name),
+        status: uom.status,
+        createdBy: uom.createdBy.firstName + ' ' + uom.createdBy.lastName,
+        createdAt: uom.createdAt,
+        updatedAt: uom.updatedAt,
+      })
     })
-  })
+  } else {
+    unitOfMeasure.forEach(uom => {
+      data.push({
+        _id: uom._id,
+        name: UpperCaseFirstLetter(uom.name),
+      })
+    })
+  }
 
   response.status(StatusCodes.OK).json({
     totalUnitOfMeasures: unitOfMeasureCount, page, limit,

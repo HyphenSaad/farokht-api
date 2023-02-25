@@ -4,12 +4,19 @@ import { Formik, FieldArray } from 'formik'
 import { BeatLoader } from 'react-spinners'
 import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
+import AsyncSelect from 'react-select/async'
+import CreatableSelect from 'react-select/creatable'
+import AsyncCreatableSelect from 'react-select/async-creatable'
+import makeAnimated from 'react-select/animated'
 
 import { AuthContext, GoBackButton, TextField } from '../../../components'
 import ItemInfoSchema from './ItemInfoYupSchema'
-import { FetchItemData } from './ItemInfoAxios'
+import { FetchUnitOfMeasures, FetchUsers, FetchAttributes, FetchTags, SubmitUserData } from './ItemInfoAxios'
 import { InitialValues, StatusOptions } from './ItemInfoValues'
-import { APP_TITLE } from '../../../config'
+import { API_BASE_URL, APP_TITLE } from '../../../config'
+import axios from 'axios'
+
+const animatedComponents = makeAnimated()
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -23,11 +30,6 @@ const TagInfo = () => {
   const authContext = useContext(AuthContext)
   const [initialValues, setInitialValues] = useState(InitialValues)
 
-  const [users, setUsers] = useState([])
-  const [tags, setTags] = useState([])
-  const [unitOfMeasures, setUnitOfMeasures] = useState([])
-  const [attributes, setAttributes] = useState([])
-
   const mounted = useRef(false)
   useEffect(() => {
     document.title = `Item Info | ${APP_TITLE}`
@@ -38,14 +40,7 @@ const TagInfo = () => {
     }
 
     setIsGettingData(true)
-    FetchItemData({
-      token: authContext.token,
-      setUserData: setUsers,
-      setTagData: setTags,
-      setUnitOfMeasureData: setUnitOfMeasures,
-      setAttributeData: setAttributes,
-      setErrorMessage: setError,
-    })
+
     setIsGettingData(false)
 
     // if (parameters.id === undefined) return
@@ -122,7 +117,12 @@ const TagInfo = () => {
               enableReinitialize={true}
               initialValues={initialValues}
               validationSchema={ItemInfoSchema}
-              onSubmit={(values) => { }}
+              onSubmit={(values) => {
+                // alert('ok')
+                SubmitUserData({
+                  values, isEditMode, token: authContext.token, navigate, setIsLoading, setError
+                })
+              }}
             >
               {(formik) => (
                 <Form onSubmit={formik.handleSubmit} className='mt-3'>
@@ -140,52 +140,66 @@ const TagInfo = () => {
                     <Col sm={12} md={6} lg={6} xl={6}>
                       <Form.Group className='mb-3'>
                         <Form.Label>Unit of Measure</Form.Label>
-                        <Select
+                        <AsyncCreatableSelect
                           key='unitOfMeasure'
                           name='unitOfMeasure'
                           instanceId='unitOfMeasure'
                           placeholder='Choose Unit of Measure'
-                          onChange={(data) => formik.setFieldValue('unitOfMeasure', data)}
-                          options={unitOfMeasures}
+                          // cacheOptions={true}
                           value={formik.values.unitOfMeasure}
+                          getOptionLabel={e => e.label}
+                          getOptionValue={e => e.value}
+                          onChange={(data) => formik.setFieldValue('unitOfMeasure', data)}
+                          isClearable={true}
+                          defaultOptions
+                          loadOptions={(inputValue) => FetchUnitOfMeasures({ token: authContext.token, value: inputValue, setError })}
                         />
                         {formik.errors.unitOfMeasure && formik.touched.unitOfMeasure
                           ? <Form.Text className='text-danger'>{formik.errors.unitOfMeasure.value}</Form.Text> : null}
+                        {formik.errors.unitOfMeasure && formik.touched.unitOfMeasure
+                          ? <Form.Text className='text-danger'>{formik.errors.unitOfMeasure.label}</Form.Text> : null}
                       </Form.Group>
                     </Col>
 
                     <Col sm={12} md={12} lg={6} xl={6}>
                       <Form.Group className='mb-3'>
                         <Form.Label>Tags</Form.Label>
-                        <Select
+                        <AsyncCreatableSelect
                           key='tags'
                           name='tags'
                           instanceId='tags'
                           isMulti={true}
                           placeholder='Choose Tags'
-                          onChange={(data) => {
-                            console.log(data)
-                            formik.setFieldValue('tags', data)
-                          }}
-                          options={tags}
+                          defaultOptions
+                          // cacheOptions={true}
                           value={formik.values.tags}
+                          getOptionLabel={e => e.label}
+                          getOptionValue={e => e.value}
+                          onChange={(data) => formik.setFieldValue('tags', data)}
+                          isClearable={true}
+                          loadOptions={(inputValue) => FetchTags({ token: authContext.token, value: inputValue, setError })}
                         />
                         {formik.errors.tags && formik.touched.tags
                           ? <Form.Text className='text-danger'>{formik.errors.tags}</Form.Text> : null}
+                        {formik.errors.tags && formik.touched.tags && Array.isArray(formik.errors.tags)
+                          ? <Form.Text className='text-danger'>{formik.errors.tags.map((tag, index) => {
+                            return `${formik.getFieldMeta(`tags[${index}]`).value.label} is ${formik.getFieldMeta(`tags[${index}]`).error.label}`
+                          }).join('\n')}</Form.Text> : null}
                       </Form.Group>
                     </Col>
 
                     <Col sm={12} md={6} lg={4} xl={3}>
                       <Form.Group className='mb-3'>
                         <Form.Label>Vendor</Form.Label>
-                        <Select
-                          key='user'
-                          name='user'
-                          instanceId='user'
-                          placeholder='Choose Vendor'
-                          onChange={(data) => formik.setFieldValue('user', data)}
-                          options={users}
+                        <AsyncSelect
+                          cacheOptions={true}
                           value={formik.values.user}
+                          getOptionLabel={e => e.label}
+                          getOptionValue={e => e.value}
+                          defaultOptions
+                          loadOptions={(inputValue) => FetchUsers({ token: authContext.token, value: inputValue, setError })}
+                          onChange={(data) => formik.setFieldValue('user', data)}
+                          isClearable={true}
                         />
                         {formik.errors.user && formik.touched.user
                           ? <Form.Text className='text-danger'>{formik.errors.user.value}</Form.Text> : null}
@@ -198,12 +212,12 @@ const TagInfo = () => {
                         <Select
                           key='status'
                           name='status'
-                          isSearchable={false}
                           instanceId='status'
                           placeholder='Choose Status'
                           onChange={(data) => formik.setFieldValue('status', data)}
                           options={StatusOptions}
                           value={formik.values.status}
+                          isClearable={true}
                         />
                         {formik.errors.status && formik.touched.status
                           ? <Form.Text className='text-danger'>{formik.errors.status.value}</Form.Text> : null}
@@ -221,24 +235,18 @@ const TagInfo = () => {
                     </Col>
                   </Row>
 
-                  <Row className='border border-2 py-3 mb-3'>
+                  <Row className='border border-2'>
                     <FieldArray
                       name='attributes'
                       render={(array) => (
                         <>
-                          <Col sm={12} md={6} lg={4} xl={3}>
+                          <Col sm={12} md={6} lg={4} xl={3} className='my-3'>
                             <Button variant='success' className='w-100 text-uppercase'
-                              disabled={formik.values.attributes.length >= attributes.length}
                               onClick={e => {
-                                if (formik.values.attributes.length >= attributes.length) return
-                                for (let i = 0; i < attributes.length; i += 1) {
-                                  if (attributes[i].used === true) continue
-                                  array.push({
-                                    id: { value: '', label: 'Choose Attribute' },
-                                    value: { value: '', label: 'Enter Value' },
-                                  })
-                                  break
-                                }
+                                array.push({
+                                  id: { value: '', label: 'Choose Attribute' },
+                                  value: { value: '', label: 'Enter Value' },
+                                })
                               }}>Add Attribute</Button>
                             {
                               formik.errors.attributes && formik.touched.attributes && !Array.isArray(formik.errors.attributes)
@@ -247,21 +255,22 @@ const TagInfo = () => {
                             }
                           </Col>
                           {formik.values.attributes.map((attribute, index) => (
-                            <Col sm={12} md={6} lg={4} xl={3} key={`id@${index}`}>
+                            <Col sm={12} md={6} lg={4} xl={3} className='my-3' key={`id@${index}`}>
                               <Form.Group className='mb-3'>
                                 <Form.Label>Attribute No. {index + 1}</Form.Label>
-                                <Select
+                                <AsyncCreatableSelect
                                   key={`attributes[${index}].id`}
                                   name={`attributes[${index}].id`}
                                   instanceId={`attributes[${index}].id`}
                                   placeholder='Choose Attribute'
-                                  onChange={(data, i) => {
-                                    formik.setFieldValue(`attributes[${index}].id`, data)
-                                    attributes.at(attributes.indexOf(attribute.id)).used = false
-                                    attributes.at(attributes.indexOf(data)).used = true
-                                  }}
-                                  options={attributes.filter(attribute => attribute.used !== true)}
+                                  // cacheOptions={true}
                                   value={formik.values.attributes[index].id}
+                                  getOptionLabel={e => e.label}
+                                  getOptionValue={e => e.value}
+                                  onChange={(data) => formik.setFieldValue(`attributes[${index}].id`, data)}
+                                  isClearable={true}
+                                  defaultOptions
+                                  loadOptions={(inputValue) => FetchAttributes({ token: authContext.token, value: inputValue, setError })}
                                 />
                                 {
                                   formik.getFieldMeta(`attributes[${index}].id`).error &&
@@ -278,7 +287,7 @@ const TagInfo = () => {
                               <Form.Group>
                                 <Button variant='danger' className='w-100 text-uppercase'
                                   onClick={e => {
-                                    attributes.at(attributes.indexOf(attribute.id)).used = false
+                                    // attributes.at(attributes.indexOf(attribute.id)).used = false
                                     array.remove(index)
                                   }}>Remove</Button>
                               </Form.Group>
@@ -289,12 +298,12 @@ const TagInfo = () => {
                     />
                   </Row>
 
-                  <Row className='border border-2 py-3 mb-3'>
+                  <Row className='border border-2 my-3'>
                     <FieldArray
                       name='priceSlabs'
                       render={(array) => (
                         <>
-                          <Col sm={12} md={6} lg={4} xl={3}>
+                          <Col sm={12} md={6} lg={4} xl={3} className='my-3'>
                             <Button variant='success' className='w-100 text-uppercase' onClick={e => {
                               array.push({
                                 slab: { value: '', label: 'Enter Slab' },
@@ -308,7 +317,7 @@ const TagInfo = () => {
                             }
                           </Col>
                           {formik.values.priceSlabs.map((attribute, index) => (
-                            <Col sm={12} md={6} lg={4} xl={3} key={`id@${index}`}>
+                            <Col sm={12} md={6} lg={4} xl={3} className='my-3' key={`id@${index}`}>
                               <TextField name={`priceSlabs[${index}].price`} formik={formik}
                                 label={`Slab No. ${index + 1}`} placeholder='Enter Slab' hasFieldArrayError={true} />
                               <TextField name={`priceSlabs[${index}].slab`} formik={formik}
@@ -324,12 +333,12 @@ const TagInfo = () => {
                     />
                   </Row>
 
-                  <Row className='border border-2 py-3 mb-3'>
+                  <Row className='border border-2 mb-3'>
                     <FieldArray
                       name='shipmentCosts'
                       render={(array) => (
                         <>
-                          <Col sm={12} md={6} lg={4} xl={3}>
+                          <Col sm={12} md={6} lg={4} xl={3} className='my-3'>
                             <Button variant='success' className='w-100 text-uppercase' onClick={e => {
                               array.push({
                                 location: { value: '', label: 'Enter Location' },
@@ -344,7 +353,7 @@ const TagInfo = () => {
                             }
                           </Col>
                           {formik.values.shipmentCosts.map((attribute, index) => (
-                            <Col sm={12} md={6} lg={4} xl={3} key={`id@${index}`}>
+                            <Col sm={12} md={6} lg={4} xl={3} className='my-3' key={`id@${index}`}>
                               <TextField name={`shipmentCosts[${index}].location`} formik={formik}
                                 label={`Location ${index + 1}`} placeholder='Enter Location' hasFieldArrayError={true} />
                               <TextField name={`shipmentCosts[${index}].cost`} formik={formik}

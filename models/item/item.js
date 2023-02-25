@@ -36,6 +36,7 @@ const ItemSchema = new mongoose.Schema({
     type: [{
       type: Schema.Types.ObjectId,
       ref: Tag,
+      unique: true,
     }],
     validate: [notEmpty, 'Tags are required!'],
   },
@@ -55,9 +56,10 @@ const ItemSchema = new mongoose.Schema({
       value: {
         type: String,
         required: [true, 'Attribute value is required!'],
-        minLength: [3, 'Attribute value is too short!'],
+        minLength: [1, 'Attribute value is too short!'],
         maxLength: [75, 'Attribute value is too long!'],
         trim: true,
+        unique: true,
       }
     }],
     validate: [notEmpty, 'Attributes are required!'],
@@ -101,7 +103,7 @@ const ItemSchema = new mongoose.Schema({
       location: {
         type: String,
         required: [true, 'Shipment Location is required!'],
-        minLength: [3, 'Shipment Location is too short!'],
+        minLength: [2, 'Shipment Location is too short!'],
         maxLength: [75, 'Shipment Location is too long!'],
         trim: true,
       },

@@ -64,19 +64,23 @@ const GetAllUsers = async (request, response, next) => {
   const limit = request.query.limit || 10
   const minified = request.query.minified || 'no'
   const options = {}
+  options['$or'] = []
 
-  if (request.query.status) options.status = request.query.status
-  if (request.query.firstName) options.firstName = { '$regex': `${request.query.firstName}`, '$options': 'i' }
-  if (request.query.lastName) options.lastName = { '$regex': `${request.query.lastName}`, '$options': 'i' }
-  if (request.query.phoneNumber1) options.phoneNumber1 = { '$regex': `${request.query.phoneNumber1}`, '$options': 'i' }
-  if (request.query.phoneNumber2) options.phoneNumber2 = { '$regex': `${request.query.phoneNumber2}`, '$options': 'i' }
-  if (request.query.companyName) options.companyName = { '$regex': `${request.query.companyName}`, '$options': 'i' }
-  if (request.query.location) options.location = { '$regex': `${request.query.location}`, '$options': 'i' }
-  if (request.query.address) options.address = { '$regex': `${request.query.address}`, '$options': 'i' }
-  if (request.query.paymentMethod) options.paymentMethod = { '$regex': `${request.query.paymentMethod}`, '$options': 'i' }
-  if (request.query.bankName) options.bankName = { '$regex': `${request.query.bankName}`, '$options': 'i' }
-  if (request.query.branchCode) options.branchCode = { '$regex': `${request.query.branchCode}`, '$options': 'i' }
-  if (request.query.bankAccountNumber) options.bankAccountNumber = { '$regex': `${request.query.bankAccountNumber}`, '$options': 'i' }
+  const query = { ...request.query }
+  Object.keys(query).forEach(key => { query[key] = query[key].split(' ').join('|') })
+
+  if (query.status) options.status = query.status
+  if (query.firstName) options['$or'].push({ firstName: { '$regex': `${query.firstName}`, '$options': 'i' } })
+  if (query.lastName) options['$or'].push({ lastName: { '$regex': `${query.lastName}`, '$options': 'i' } })
+  if (query.phoneNumber1) options.phoneNumber1 = { '$regex': `${query.phoneNumber1}`, '$options': 'i' }
+  if (query.phoneNumber2) options.phoneNumber2 = { '$regex': `${query.phoneNumber2}`, '$options': 'i' }
+  if (query.companyName) options.companyName = { '$regex': `${query.companyName}`, '$options': 'i' }
+  if (query.location) options.location = { '$regex': `${query.location}`, '$options': 'i' }
+  if (query.address) options.address = { '$regex': `${query.address}`, '$options': 'i' }
+  if (query.paymentMethod) options.paymentMethod = { '$regex': `${query.paymentMethod}`, '$options': 'i' }
+  if (query.bankName) options.bankName = { '$regex': `${query.bankName}`, '$options': 'i' }
+  if (query.branchCode) options.branchCode = { '$regex': `${query.branchCode}`, '$options': 'i' }
+  if (query.bankAccountNumber) options.bankAccountNumber = { '$regex': `${query.bankAccountNumber}`, '$options': 'i' }
 
   options.role = request.query.role && request.query.role !== 'admin'
     ? { '$regex': `${request.query.role}`, '$options': 'i' }

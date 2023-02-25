@@ -49,25 +49,39 @@ const UpdateTag = async (request, response, next) => {
 const GetAllTags = async (request, response, next) => {
   const page = request.query.page || 1
   const limit = request.query.limit || 10
+  const minified = request.query.minified || 'no'
+  const options = {}
 
-  const tags = await Tag.find().populate('createdBy')
+  if (request.query.status) options.status = request.query.status
+  if (request.query.name) options.name = { '$regex': `${request.query.name.split(' ').join('|')}`, '$options': 'i' }
+
+  const tags = await Tag.find(options).populate('createdBy')
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ name: 'asc' })
 
-  const tagCount = await Tag.count()
+  const tagCount = await Tag.count(options)
 
   const data = []
-  tags.forEach(tag => {
-    data.push({
-      _id: tag._id,
-      name: UpperCaseFirstLetter(tag.name),
-      status: tag.status,
-      createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName,
-      createdAt: tag.createdAt,
-      updatedAt: tag.updatedAt,
+  if (minified === 'no') {
+    tags.forEach(tag => {
+      data.push({
+        _id: tag._id,
+        name: UpperCaseFirstLetter(tag.name),
+        status: tag.status,
+        createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName,
+        createdAt: tag.createdAt,
+        updatedAt: tag.updatedAt,
+      })
     })
-  })
+  } else {
+    tags.forEach(tag => {
+      data.push({
+        _id: tag._id,
+        name: UpperCaseFirstLetter(tag.name),
+      })
+    })
+  }
 
   response.status(StatusCodes.OK).json({
     totalTags: tagCount, page, limit,

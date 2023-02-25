@@ -20,12 +20,24 @@ const ItemInfoSchema = Yup.object().shape({
 
   unitOfMeasure: Yup.object()
     .shape({
-      value: Yup.string().required('Required!'),
-      label: Yup.string().required('Required!')
+      value: Yup.string().trim().required('Required!'),
+      label: Yup.string()
+        .trim()
+        .min(1, 'Too Short!')
+        .max(25, 'Too Long!')
+        .required('Required!')
     })
     .required('Required!'),
 
   tags: Yup.array()
+    .of(Yup.object().shape({
+      value: Yup.string().required('Required!'),
+      label: Yup.string()
+        .trim()
+        .min(1, 'Too Short!')
+        .max(25, 'Too Long!')
+        .required('Required!')
+    }))
     .min(1, 'At Least 1 Required!'),
 
   status: Yup.object()
@@ -38,6 +50,7 @@ const ItemInfoSchema = Yup.object().shape({
   vendorPayoutPercentage: Yup.number()
     .typeError('Invalid')
     .min(0, 'Too Short!')
+    .min(100, 'Not Possible!')
     .required('Required!'),
 
   completionDays: Yup.number()
@@ -58,50 +71,45 @@ const ItemInfoSchema = Yup.object().shape({
         value: Yup.string().required('Required!'),
         label: Yup.string().required('Required!')
       }),
-      value: Yup.object().shape({
-        value: Yup.string().required('Required!'),
-        label: Yup.string().required('Required!')
-      }),
+      value: Yup.string()
+        .typeError('Invalid')
+        .min(1, 'Too Short!')
+        .max(75, 'Too Long!')
+        .required('Required!'),
     }))
     .min(1, 'At Least 1 Required!'),
 
   priceSlabs: Yup.array()
     .of(Yup.object().shape({
-      id: Yup.object().shape({
-        value: Yup.string().required('Required!'),
-        label: Yup.string().required('Required!')
-      }),
-      value: Yup.object().shape({
-        value: Yup.string().required('Required!'),
-        label: Yup.string().required('Required!')
-      }),
+      price: Yup.number()
+        .typeError('Invalid')
+        .min(1, 'Too Short!')
+        .required('Required!'),
+
+      slab: Yup.number()
+        .typeError('Invalid')
+        .min(1, 'Too Short!')
+        .required('Required!'),
     }))
     .min(1, 'At Least 1 Required!'),
 
   shipmentCosts: Yup.array()
     .of(Yup.object().shape({
-      location: Yup.object().shape({
-        value: Yup.string().required('Required!'),
-        label: Yup.string().required('Required!'),
-      }),
+      location: Yup.string()
+        .typeError('Invalid')
+        .min(2, 'Too Short!')
+        .max(75, 'Too Long!')
+        .required('Required!'),
 
-      cost: Yup.object().shape({
-        value: Yup.number()
-          .typeError('Invalid')
-          .min(1, 'Too Short!')
-          .required('Required!'),
+      cost: Yup.number()
+        .typeError('Invalid')
+        .min(1, 'Too Short!')
+        .required('Required!'),
 
-        label: Yup.string().required('Required!')
-      }),
-
-      days: Yup.object().shape({
-        value: Yup.number()
-          .typeError('Invalid')
-          .min(1, 'Too Short!')
-          .required('Required!'),
-
-        label: Yup.string().required('Required!')
-      }),
+      days: Yup.number()
+        .typeError('Invalid')
+        .min(1, 'Too Short!')
+        .required('Required!'),
     }))
     .min(1, 'At Least 1 Required!'),
 })
