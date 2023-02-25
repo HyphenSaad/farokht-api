@@ -9,16 +9,13 @@ const AddAttribute = async (request, response, next) => {
   if (!request.body.name || !request.body.status)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
-  try {
-    const attribute = await AttributeOfItem.create({
-      name: request.body.name,
-      status: request.body.status,
-      createdBy: request.user._id,
-    })
-    response.status(StatusCodes.CREATED).json(attribute)
-  } catch (error) {
-    return next(error)
-  }
+  const attribute = await AttributeOfItem.create({
+    name: request.body.name,
+    status: request.body.status,
+    createdBy: request.user._id,
+  }).catch(error => next(error))
+
+  response.status(StatusCodes.CREATED).json(attribute)
 }
 
 const UpdateAttribute = async (request, response, next) => {
@@ -31,21 +28,17 @@ const UpdateAttribute = async (request, response, next) => {
   if (!request.body.name || !request.body.status)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
-  try {
-    const options = { _id: request.params.id }
-    const attribute = await AttributeOfItem.findOne(options)
+  const options = { _id: request.params.id }
+  const attribute = await AttributeOfItem.findOne(options).catch(error => next(error))
 
-    if (!attribute)
-      response.status(StatusCodes.NOT_FOUND).json({ message: `Attribute ${request.params.id} Not Found!` })
+  if (!attribute)
+    response.status(StatusCodes.NOT_FOUND).json({ message: `Attribute ${request.params.id} Not Found!` })
 
-    attribute.name = request.body.name
+  attribute.name = request.body.name
 
-    await attribute.save().then(() => {
-      response.status(StatusCodes.OK).json(attribute)
-    })
-  } catch (error) {
-    return next(error)
-  }
+  await attribute.save().then(() => {
+    response.status(StatusCodes.OK).json(attribute)
+  }).catch(error => next(error))
 }
 
 const GetAllAttributes = async (request, response, next) => {
@@ -57,58 +50,53 @@ const GetAllAttributes = async (request, response, next) => {
   if (request.query.status) options.status = request.query.status
   if (request.query.name) options.name = { '$regex': `${request.query.name.split(' ').join('|')}`, '$options': 'i' }
 
-  try {
-    const attributes = await AttributeOfItem.find(options).populate('createdBy')
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .sort({ name: 'asc' })
+  const attributes = await AttributeOfItem.find(options).populate('createdBy')
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ name: 'asc' })
+    .catch(error => next(error))
 
-    const attributeCount = await AttributeOfItem.count(options)
+  const attributeCount = await AttributeOfItem.count(options).catch(error => next(error))
 
-    const data = []
-    if (minified === 'no') {
-      attributes.forEach(attribute => data.push({
-        _id: attribute._id,
-        name: UpperCaseFirstLetter(attribute.name),
-        status: attribute.status,
-        createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
-        createdAt: attribute.createdAt,
-        updatedAt: attribute.updatedAt,
-      }))
-    } else {
-      attributes.forEach(attribute => data.push({
-        _id: attribute._id,
-        name: UpperCaseFirstLetter(attribute.name),
-      }))
-    }
-
-    response.status(StatusCodes.OK).json({
-      totalAttributes: attributeCount, page, limit,
-      count: data.length || 0, attributes: data
-    })
-  } catch (error) {
-    return next(error)
-  }
-}
-
-const GetAttribute = async (request, response, next) => {
-  if (!request.params.id)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attribute ID is Required!' }
-
-  try {
-    const attribute = await AttributeOfItem.findOne({ _id: request.params.id }).populate('createdBy')
-
-    response.status(StatusCodes.OK).json({
+  const data = []
+  if (minified === 'no') {
+    attributes.forEach(attribute => data.push({
       _id: attribute._id,
       name: UpperCaseFirstLetter(attribute.name),
       status: attribute.status,
       createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
       createdAt: attribute.createdAt,
       updatedAt: attribute.updatedAt,
-    })
-  } catch (error) {
-    return next(error)
+    }))
+  } else {
+    attributes.forEach(attribute => data.push({
+      _id: attribute._id,
+      name: UpperCaseFirstLetter(attribute.name),
+    }))
   }
+
+  response.status(StatusCodes.OK).json({
+    totalAttributes: attributeCount, page, limit,
+    count: data.length || 0, attributes: data
+  })
+}
+
+const GetAttribute = async (request, response, next) => {
+  if (!request.params.id)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attribute ID is Required!' }
+
+  const attribute = await AttributeOfItem.findOne({ _id: request.params.id })
+    .populate('createdBy')
+    .catch(error => next(error))
+
+  response.status(StatusCodes.OK).json({
+    _id: attribute._id,
+    name: UpperCaseFirstLetter(attribute.name),
+    status: attribute.status,
+    createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
+    createdAt: attribute.createdAt,
+    updatedAt: attribute.updatedAt,
+  })
 }
 
 export { AddAttribute, UpdateAttribute, GetAllAttributes, GetAttribute }

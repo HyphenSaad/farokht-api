@@ -4,10 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 const ItemPrepare = async (request, response, next) => {
   const { name, minOrderNumber, description, userId, tags, attributes, unitOfMeasure,
     shipmentCosts, status, priceSlabs, completionDays, vendorPayoutPercentage } = JSON.parse(request.body.data)
-  console.log({
-    name, minOrderNumber, description, userId, tags, attributes, unitOfMeasure,
-    shipmentCosts, status, priceSlabs, completionDays, vendorPayoutPercentage
-  })
+
   if (!name || !minOrderNumber || !description || !shipmentCosts || !tags || !unitOfMeasure || !attributes
     || !userId || !priceSlabs || !completionDays || !vendorPayoutPercentage)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
@@ -48,12 +45,6 @@ const ItemPrepare = async (request, response, next) => {
     tags: itemTags, attributes: itemAttributes, unitOfMeasure: unitOfMeasure.id,
     shipmentCosts, priceSlabs, completionDays, vendorPayoutPercentage
   }
-
-  console.log({
-    name, minOrderNumber, description, userId,
-    tags: itemTags, attributes: itemAttributes, unitOfMeasure: unitOfMeasure.id,
-    shipmentCosts, priceSlabs, completionDays, vendorPayoutPercentage
-  })
 
   if (request.user.role === 'admin')
     if (!status) throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status!' }
