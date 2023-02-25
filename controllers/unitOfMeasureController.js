@@ -55,7 +55,7 @@ const GetAllUnitOfMeasures = async (request, response, next) => {
     .populate('createdBy')
     .limit(limit)
     .skip((page - 1) * limit)
-    .sort({ createdAt: 'asc' })
+    .sort({ createdAt: 'desc' })
     .catch(error => next(error))
 
   const unitOfMeasureCount = await UnitOfMeasure.count(options).catch(error => next(error))
