@@ -82,20 +82,19 @@ const ShapeAdjustment = (values) => {
   _values.status = values.status.value
 
   _values.tags = _values.tags.map(tag => {
-    return { id: tag.hasOwnProperty('__isNew__') ? '' : tag.value, value: tag.label }
+    return tag.hasOwnProperty('__isNew__')
+      ? { id: '', name: tag.label }
+      : { id: tag.value, name: tag.label }
   })
 
-  _values.unitOfMeasure = {
-    id: _values.unitOfMeasure.hasOwnProperty('__isNew__') ? '' : _values.unitOfMeasure.value,
-    value: _values.unitOfMeasure.label
-  }
+  _values.unitOfMeasure = _values.unitOfMeasure.hasOwnProperty('__isNew__')
+    ? { id: '', name: _values.unitOfMeasure.label }
+    : { id: _values.unitOfMeasure.value, name: _values.unitOfMeasure.label }
 
   _values.attributes = _values.attributes.map(attribute => {
-    if (attribute.id.hasOwnProperty('__isNew__')) {
-      return { name: attribute.id.label, value: attribute.value }
-    } else {
-      return { id: attribute.id.value, value: attribute.value }
-    }
+    return attribute.id.hasOwnProperty('__isNew__')
+      ? { id: '', name: attribute.id.label, value: attribute.value }
+      : { id: attribute.id.value, name: attribute.id.label, value: attribute.value }
   })
 
   _values.userId = _values.user.value
@@ -118,30 +117,22 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
     },
   }
 
-  const _values = ShapeAdjustment(values)
-  console.log('data', _values)
-
   const data = new FormData()
-  data.append('data', JSON.stringify(_values))
+  data.append('data', JSON.stringify(ShapeAdjustment(values)))
 
   const addRedirect = { state: { message: 'Item Created Successfully!' }, replace: true, }
   const editRedirect = { state: { message: 'Item Updated Successfully!' }, replace: true, }
 
   if (isEditMode) {
-    await axios.patch(editEndpoint, JSON.stringify(_values), headers).then(response => {
+    await axios.patch(editEndpoint, data, headers).then(response => {
       if (response.status === 200) { navigate('/Items', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
   } else {
     await axios.post(addEndpoint, data, headers).then(response => {
-      if (response.status === 201) {
-        console.log(response.data)
-      }
+      if (response.status === 201) { navigate('/Items', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => {
-      if (error.response.data.message) setError(`${error.response.status} - ${JSON.stringify(error.response.data.message)}`)
-      else setError(`${error.response.status} - ${error.response.statusText}`)
-    })
+    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
   }
 
   setIsLoading(false)

@@ -12,8 +12,8 @@ import Attributes from './Setups/Attributes/Attributes'
 import AttributeInfo from './Setups/Attributes/AttributeInfo'
 import Tags from './Setups/Tags/Tags'
 import TagInfo from './Setups/Tags/TagInfo'
-import Items from './Transactions/Items'
-import ItemInfo from './Transactions/ItemInfo/ItemInfo'
+import Items from './Transactions/Items/Items'
+import ItemInfo from './Transactions/Items/ItemInfo'
 import Orders from './Transactions/Orders'
 
 export {

@@ -180,7 +180,7 @@ const GetAllItems = async (request, response, next) => {
     return (!tag) ? item : item.tags.map(tag => tag.name).includes(tag)
   })
 
-  response.status(StatusCodes.OK).json({ page, limit, count: filteredItems.length, filteredItems })
+  response.status(StatusCodes.OK).json({ page, limit, totalItems: filteredItems.length, items: filteredItems })
 }
 
 export { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems }

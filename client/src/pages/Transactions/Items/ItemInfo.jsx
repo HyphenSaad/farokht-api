@@ -390,7 +390,7 @@ const TagInfo = () => {
           </>
         }
       </Container>
-      <GoBackButton path='/Tags' />
+      <GoBackButton path='/Items' />
     </Container>
   )
 }
