@@ -52,14 +52,17 @@ const ItemSchema = new mongoose.Schema({
   },
   attributes: {
     type: [{
-      _id: { type: Schema.Types.ObjectId, ref: AttributeOfItem, },
+      _id: {
+        type: Schema.Types.ObjectId,
+        ref: AttributeOfItem,
+        unique: true,
+      },
       value: {
         type: String,
         required: [true, 'Attribute value is required!'],
         minLength: [1, 'Attribute value is too short!'],
         maxLength: [75, 'Attribute value is too long!'],
         trim: true,
-        unique: true,
       }
     }],
     validate: [notEmpty, 'Attributes are required!'],

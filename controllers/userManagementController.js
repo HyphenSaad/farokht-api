@@ -29,15 +29,19 @@ const DeleteUser = async (request, response, next) => {
   if (!userId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
-  const user = await User.findOne({ _id: userId })
-  if (!user)
-    response.status(StatusCodes.NOT_FOUND).json({ message: `User ${userId} Not Found!` })
+  try {
+    const user = await User.findOne({ _id: userId })
+    if (!user)
+      response.status(StatusCodes.NOT_FOUND).json({ message: `User ${userId} Not Found!` })
 
-  user.status = 'suspended'
+    user.status = 'suspended'
 
-  await user.save().then(() => {
-    response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
-  }).catch(error => next(error))
+    await user.save().then(() => {
+      response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
+    })
+  } catch (error) {
+    return next(error)
+  }
 }
 
 const GetUser = async (request, response, next) => {
@@ -48,12 +52,16 @@ const GetUser = async (request, response, next) => {
   if (!userId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
-  const user = await User.findOne({ _id: userId })
-  if (!user)
-    throw { statusCode: StatusCodes.NOT_FOUND, message: 'User Not Found!' }
+  try {
+    const user = await User.findOne({ _id: userId })
+    if (!user)
+      throw { statusCode: StatusCodes.NOT_FOUND, message: 'User Not Found!' }
 
-  user.password = undefined
-  response.status(StatusCodes.OK).json(user)
+    user.password = undefined
+    response.status(StatusCodes.OK).json(user)
+  } catch (error) {
+    return next(error)
+  }
 }
 
 const GetAllUsers = async (request, response, next) => {
@@ -86,30 +94,34 @@ const GetAllUsers = async (request, response, next) => {
     ? { '$regex': `${request.query.role}`, '$options': 'i' }
     : options.role = { '$ne': 'admin' }
 
-  const userCount = await User.count(options)
+  try {
+    const userCount = await User.count(options)
 
-  const users = await User.find(options)
-    .limit(limit)
-    .skip((page - 1) * limit)
-    .sort({ status: 'asc' })
+    const users = await User.find(options)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ status: 'asc' })
 
-  if (minified === 'yes') {
-    response.status(StatusCodes.OK).json({
-      totalUsers: userCount, page, limit,
-      count: users.length || 0,
-      users: users.filter(user => {
-        return {
-          _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        }
+    if (minified === 'yes') {
+      response.status(StatusCodes.OK).json({
+        totalUsers: userCount, page, limit,
+        count: users.length || 0,
+        users: users.filter(user => {
+          return {
+            _id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          }
+        })
       })
-    })
-  } else {
-    response.status(StatusCodes.OK).json({
-      totalUsers: userCount, page, limit,
-      count: users.length || 0, users
-    })
+    } else {
+      response.status(StatusCodes.OK).json({
+        totalUsers: userCount, page, limit,
+        count: users.length || 0, users
+      })
+    }
+  } catch (error) {
+    return next(error)
   }
 }
 

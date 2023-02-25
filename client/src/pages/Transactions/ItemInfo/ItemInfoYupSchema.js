@@ -50,7 +50,7 @@ const ItemInfoSchema = Yup.object().shape({
   vendorPayoutPercentage: Yup.number()
     .typeError('Invalid')
     .min(0, 'Too Short!')
-    .min(100, 'Not Possible!')
+    .max(100, 'Not Possible!')
     .required('Required!'),
 
   completionDays: Yup.number()
@@ -69,8 +69,13 @@ const ItemInfoSchema = Yup.object().shape({
     .of(Yup.object().shape({
       id: Yup.object().shape({
         value: Yup.string().required('Required!'),
-        label: Yup.string().required('Required!')
+        label: Yup.string()
+          .typeError('Invalid')
+          .min(2, 'Too Short!')
+          .max(25, 'Too Long!')
+          .required('Required!'),
       }),
+
       value: Yup.string()
         .typeError('Invalid')
         .min(1, 'Too Short!')

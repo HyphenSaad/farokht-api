@@ -118,10 +118,7 @@ const TagInfo = () => {
               initialValues={initialValues}
               validationSchema={ItemInfoSchema}
               onSubmit={(values) => {
-                // alert('ok')
-                SubmitUserData({
-                  values, isEditMode, token: authContext.token, navigate, setIsLoading, setError
-                })
+                SubmitUserData({ values, isEditMode, token: authContext.token, navigate, setIsLoading, setError })
               }}
             >
               {(formik) => (
@@ -218,6 +215,7 @@ const TagInfo = () => {
                           options={StatusOptions}
                           value={formik.values.status}
                           isClearable={true}
+                          isSearchable={false}
                         />
                         {formik.errors.status && formik.touched.status
                           ? <Form.Text className='text-danger'>{formik.errors.status.value}</Form.Text> : null}

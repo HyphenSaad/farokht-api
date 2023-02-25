@@ -77,6 +77,34 @@ export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
   }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
 }
 
+const ShapeAdjustment = (values) => {
+  const _values = { ...values }
+  _values.status = values.status.value
+
+  _values.tags = _values.tags.map(tag => {
+    return { id: tag.hasOwnProperty('__isNew__') ? '' : tag.value, value: tag.label }
+  })
+
+  _values.unitOfMeasure = {
+    id: _values.unitOfMeasure.hasOwnProperty('__isNew__') ? '' : _values.unitOfMeasure.value,
+    value: _values.unitOfMeasure.label
+  }
+
+  _values.attributes = _values.attributes.map(attribute => {
+    console.log(attribute)
+    if (attribute.id.hasOwnProperty('__isNew__')) {
+      return { name: attribute.id.label, value: attribute.value }
+    } else {
+      return { id: attribute.id.value, value: attribute.value }
+    }
+  })
+
+  _values.userId = _values.user.value
+  delete _values.user
+
+  return _values
+}
+
 export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {
   setIsLoading(true)
 
@@ -91,36 +119,31 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
     },
   }
 
-  const _values = { ...values }
-  _values.status = values.status.value
-  _values.tags = _values.tags.map(tag => { return { id: tag.hasOwnProperty('__isNew__') ? '' : tag.value, value: tag.label } })
-  _values.unitOfMeasure = { id: _values.unitOfMeasure.hasOwnProperty('__isNew__') ? '' : _values.unitOfMeasure.value, value: _values.unitOfMeasure.label }
-  _values.attributes = _values.attributes.map(attribute => { return { id: attribute.hasOwnProperty('__isNew__') ? '' : attribute.value, value: attribute.label } })
+  const _values = ShapeAdjustment(values)
+  console.log('data', _values)
 
-  console.log(_values)
+  const data = new FormData()
+  data.append('data', JSON.stringify(_values))
 
-  // const addRedirect = { state: { message: 'Item Created Successfully!' }, replace: true, }
-  // const editRedirect = { state: { message: 'Item Updated Successfully!' }, replace: true, }
+  const addRedirect = { state: { message: 'Item Created Successfully!' }, replace: true, }
+  const editRedirect = { state: { message: 'Item Updated Successfully!' }, replace: true, }
 
-  // await axios.post(addEndpoint, JSON.stringify(_values), headers).then(response => {
-  //   if (response.status === 201) { navigate('/Items', addRedirect) }
-  //   else { setError(`${response.status} - ${response.statusText}`) }
-  // }).catch(error => {
-  //   console.log('Saadin', error)
-  //   setError(`${error.response.status} - ${error.response.statusText}`)
-  // })
-
-  // if (isEditMode) {
-  //   await axios.patch(editEndpoint, JSON.stringify(_values), headers).then(response => {
-  //     if (response.status === 200) { navigate('/Users', editRedirect) }
-  //     else { setError(`${response.status} - ${response.statusText}`) }
-  //   }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
-  // } else {
-  //   await axios.post(addEndpoint, JSON.stringify(_values), headers).then(response => {
-  //     if (response.status === 201) { navigate('/Users', addRedirect) }
-  //     else { setError(`${response.status} - ${response.statusText}`) }
-  //   }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
-  // }
+  if (isEditMode) {
+    await axios.patch(editEndpoint, JSON.stringify(_values), headers).then(response => {
+      if (response.status === 200) { navigate('/Items', editRedirect) }
+      else { setError(`${response.status} - ${response.statusText}`) }
+    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  } else {
+    await axios.post(addEndpoint, data, headers).then(response => {
+      if (response.status === 201) {
+        console.log(response.data)
+      }
+      else { setError(`${response.status} - ${response.statusText}`) }
+    }).catch(error => {
+      if (error.response.data.message) setError(`${error.response.status} - ${JSON.stringify(error.response.data.message)}`)
+      else setError(`${error.response.status} - ${error.response.statusText}`)
+    })
+  }
 
   setIsLoading(false)
 }
