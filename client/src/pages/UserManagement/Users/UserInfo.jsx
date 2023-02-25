@@ -6,7 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
 
 import { AuthContext, GoBackButton, TextField } from '../../../components'
-import { API_BASE_URL, APP_TITLE } from '../../../config'
+import { APP_TITLE } from '../../../config'
 import { UserInfoAddSchema, UserInfoEditSchema } from './UserInfoYupSchema'
 import { FetchUserData, SubmitUserData } from './UserInfoAxios'
 import { InitialValues, RoleOptions, StatusOptions } from './UserInfoValues'
