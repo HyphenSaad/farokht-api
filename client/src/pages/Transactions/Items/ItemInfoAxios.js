@@ -22,7 +22,7 @@ export const FetchUsers = ({ token, value, setError, max = 10 }) => {
 }
 
 export const FetchTags = ({ token, value, setError, max = 10 }) => {
-  const tagsEndpoint = `${API_BASE_URL}tag?minified=yes&name=${value}&limit=${max}`
+  const tagsEndpoint = `${API_BASE_URL}tag?minified=yes&name=${value}&limit=${max}&status=enabled`
   const headers = {
     headers: {
       'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export const FetchTags = ({ token, value, setError, max = 10 }) => {
 }
 
 export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
-  const unitOfMeasuresEndpoint = `${API_BASE_URL}uom?minified=yes&name=${value}&limit=${max}`
+  const unitOfMeasuresEndpoint = `${API_BASE_URL}uom?minified=yes&name=${value}&limit=${max}&status=enabled`
   const headers = {
     headers: {
       'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
 }
 
 export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
-  const attributesEndpoint = `${API_BASE_URL}attribute?minified=yes&name=${value}&limit=${max}`
+  const attributesEndpoint = `${API_BASE_URL}attribute?minified=yes&name=${value}&limit=${max}&status=enabled`
   const headers = {
     headers: {
       'Content-Type': 'application/json',

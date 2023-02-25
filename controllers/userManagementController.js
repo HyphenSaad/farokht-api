@@ -92,7 +92,7 @@ const GetAllUsers = async (request, response, next) => {
   const users = await User.find(options)
     .limit(limit)
     .skip((page - 1) * limit)
-    .sort({ status: 'asc' })
+    .sort({ createdAt: 'asc' })
     .catch(error => next(error))
 
   if (minified === 'yes') {

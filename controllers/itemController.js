@@ -146,6 +146,7 @@ const GetAllVendorItems = async (request, response, next) => {
     .limit(limit)
     .skip((page - 1) * limit)
     .populate('tags unitOfMeasure attributes._id')
+    .sort({ createdAt: 'asc' })
     .catch(error => next(error))
 
   response.status(StatusCodes.OK).json({ count: items.length, items })
@@ -176,6 +177,7 @@ const GetAllItems = async (request, response, next) => {
     .limit(limit)
     .skip((page - 1) * limit)
     .populate('tags unitOfMeasure attributes._id userId')
+    .sort({ createdAt: 'asc' })
     .catch(error => next(error))
 
   const filteredItems = items.filter(item => {

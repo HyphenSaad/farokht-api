@@ -51,10 +51,11 @@ const GetAllTags = async (request, response, next) => {
   if (request.query.status) options.status = request.query.status
   if (request.query.name) options.name = { '$regex': `${request.query.name.split(' ').join('|')}`, '$options': 'i' }
 
-  const tags = await Tag.find(options).populate('createdBy')
+  const tags = await Tag.find(options)
+    .populate('createdBy')
     .limit(limit)
     .skip((page - 1) * limit)
-    .sort({ name: 'asc' })
+    .sort({ createdAt: 'asc' })
     .catch(error => next(error))
 
   const tagCount = await Tag.count(options).catch(error => next(error))
