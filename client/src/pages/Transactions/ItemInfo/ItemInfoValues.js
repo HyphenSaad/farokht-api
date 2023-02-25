@@ -14,7 +14,7 @@ export const InitialValues = {
 }
 
 export const StatusOptions = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'approved', label: 'Approved' },
+  { value: 'enabled', label: 'Enabled' },
+  { value: 'disabled', label: 'Disabled' },
   { value: 'suspended', label: 'Suspended' }
 ]

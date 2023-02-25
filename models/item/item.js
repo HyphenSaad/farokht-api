@@ -24,14 +24,14 @@ const ItemSchema = new mongoose.Schema({
     maxLength: [255, 'Description is too long!'],
     trim: true,
   },
-  pictures: {
-    type: [{
-      type: String,
-      unique: true,
-      trim: true,
-    }],
-    validate: [notEmpty, 'Pictures are required!'],
-  },
+  // pictures: {
+  //   type: [{
+  //     type: String,
+  //     unique: true,
+  //     trim: true,
+  //   }],
+  //   validate: [notEmpty, 'Pictures are required!'],
+  // },
   tags: {
     type: [{
       type: Schema.Types.ObjectId,
@@ -101,7 +101,7 @@ const ItemSchema = new mongoose.Schema({
     required: [true, 'Completion Days are required!'],
     min: [1, 'Completion Days are too short!'],
   },
-  shipmentCost: {
+  shipmentCosts: {
     type: [{
       location: {
         type: String,
@@ -110,7 +110,7 @@ const ItemSchema = new mongoose.Schema({
         maxLength: [75, 'Shipment Location is too long!'],
         trim: true,
       },
-      price: {
+      cost: {
         type: Number,
         required: [true, 'Shipment Price is required!'],
         min: [1, 'Shipment Price is too short!'],

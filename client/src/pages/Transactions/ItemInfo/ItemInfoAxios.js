@@ -91,7 +91,6 @@ const ShapeAdjustment = (values) => {
   }
 
   _values.attributes = _values.attributes.map(attribute => {
-    console.log(attribute)
     if (attribute.id.hasOwnProperty('__isNew__')) {
       return { name: attribute.id.label, value: attribute.value }
     } else {
