@@ -29,7 +29,6 @@ const DeleteUser = async (request, response, next) => {
   if (!userId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
-
   const user = await User.findOne({ _id: userId }).catch(error => next(error))
   if (!user)
     response.status(StatusCodes.NOT_FOUND).json({ message: `User ${userId} Not Found!` })

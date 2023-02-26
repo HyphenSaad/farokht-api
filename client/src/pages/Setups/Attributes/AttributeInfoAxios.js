@@ -1,20 +1,12 @@
-import axios from 'axios'
-import { API_BASE_URL } from '../../../config'
+import { API_SERVICE } from '../../../services'
 import { StatusOptions } from './AttributeInfoValues'
 
 export const FetchAttributeData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues }) => {
   setIsGettingData(true)
 
-  const endpoint = `${API_BASE_URL}attribute/${id}`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`
-    },
-  }
+  const endpoint = `/attribute/${id}`
 
-  await axios.get(endpoint, headers).then(response => {
+  await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
       setFetchError('')
       setInitialValues({
@@ -30,16 +22,8 @@ export const FetchAttributeData = async ({ token, id, setFetchError, setIsGettin
 export const SubmitAttributeData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {
   setIsLoading(true)
 
-  const editEndpoint = `${API_BASE_URL}attribute/${id}`
-  const addEndpoint = `${API_BASE_URL}attribute/`
-
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`
-    },
-  }
+  const editEndpoint = `/attribute/${id}`
+  const addEndpoint = `/attribute/`
 
   const _values = { ...values }
   _values.status = values.status.value
@@ -48,12 +32,12 @@ export const SubmitAttributeData = async ({ values, isEditMode, token, id, navig
   const editRedirect = { state: { message: 'Attribute Updated Successfully!' }, replace: true, }
 
   if (isEditMode) {
-    await axios.patch(editEndpoint, JSON.stringify(_values), headers).then(response => {
+    await API_SERVICE(token).patch(editEndpoint, JSON.stringify(_values)).then(response => {
       if (response.status === 200) { navigate('/Attributes', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
   } else {
-    await axios.post(addEndpoint, JSON.stringify(_values), headers).then(response => {
+    await API_SERVICE(token).post(addEndpoint, JSON.stringify(_values)).then(response => {
       if (response.status === 201) { navigate('/Attributes', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))

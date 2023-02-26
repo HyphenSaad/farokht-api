@@ -1,18 +1,10 @@
-import axios from 'axios'
+import { API_SERVICE } from '../../../services'
 import moment from 'moment'
-import { API_BASE_URL } from '../../../config'
 
 export const FetchUnitOfMeasures = async ({ pageSize, pageIndex, token, setError, setData }) => {
-  const endpoint = `${API_BASE_URL}uom?limit=${pageSize}&page=${pageIndex}`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`
-    }
-  }
+  const endpoint = `/uom?limit=${pageSize}&page=${pageIndex}`
 
-  await axios.get(endpoint, headers).then(response => {
+  await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
       setError('')
       const data = response.data

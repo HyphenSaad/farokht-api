@@ -1,18 +1,10 @@
-import axios from 'axios'
-import { API_BASE_URL } from '../../../config'
+import { API_SERVICE } from '../../../services'
 import { StatusOptions } from './ItemInfoValues'
 
 export const FetchUsers = ({ token, value, setError, max = 10 }) => {
-  const usersEndpoint = `${API_BASE_URL}user?role=vendor&status=approved&minified=yes&firstName=${value}&lastName=${value}&limit=${max}`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`,
-    },
-  }
+  const usersEndpoint = `/user?role=vendor&status=approved&minified=yes&firstName=${value}&lastName=${value}&limit=${max}`
 
-  return axios.get(usersEndpoint, headers).then(response => {
+  return API_SERVICE(token).get(usersEndpoint).then(response => {
     if (response.status === 200) {
       return response.data.users.map(user => {
         return { value: user._id, label: `${user.firstName} ${user.lastName}` }
@@ -22,16 +14,9 @@ export const FetchUsers = ({ token, value, setError, max = 10 }) => {
 }
 
 export const FetchTags = ({ token, value, setError, max = 10 }) => {
-  const tagsEndpoint = `${API_BASE_URL}tag?minified=yes&name=${value}&limit=${max}&status=enabled`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`,
-    },
-  }
+  const tagsEndpoint = `/tag?minified=yes&name=${value}&limit=${max}&status=enabled`
 
-  return axios.get(tagsEndpoint, headers).then(response => {
+  return API_SERVICE(token).get(tagsEndpoint).then(response => {
     if (response.status === 200) {
       return response.data.tags.map(tag => {
         return { value: tag._id, label: tag.name }
@@ -41,16 +26,9 @@ export const FetchTags = ({ token, value, setError, max = 10 }) => {
 }
 
 export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
-  const unitOfMeasuresEndpoint = `${API_BASE_URL}uom?minified=yes&name=${value}&limit=${max}&status=enabled`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`,
-    },
-  }
+  const unitOfMeasuresEndpoint = `/uom?minified=yes&name=${value}&limit=${max}&status=enabled`
 
-  return axios.get(unitOfMeasuresEndpoint, headers).then(response => {
+  return API_SERVICE(token).get(unitOfMeasuresEndpoint).then(response => {
     if (response.status === 200) {
       return response.data.unitOfMeasures.map(uom => {
         return { value: uom._id, label: uom.name }
@@ -60,16 +38,9 @@ export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
 }
 
 export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
-  const attributesEndpoint = `${API_BASE_URL}attribute?minified=yes&name=${value}&limit=${max}&status=enabled`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`,
-    },
-  }
+  const attributesEndpoint = `/attribute?minified=yes&name=${value}&limit=${max}&status=enabled`
 
-  return axios.get(attributesEndpoint, headers).then(response => {
+  return API_SERVICE(token).get(attributesEndpoint).then(response => {
     if (response.status === 200) {
       return response.data.attributes.map(attribute => {
         return { value: attribute._id, label: attribute.name }
@@ -107,16 +78,8 @@ const SubmitShapeAdjustment = (values) => {
 export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {
   setIsLoading(true)
 
-  const editEndpoint = `${API_BASE_URL}item/${id}`
-  const addEndpoint = `${API_BASE_URL}item/`
-
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`
-    },
-  }
+  const editEndpoint = `/item/${id}`
+  const addEndpoint = `/item/`
 
   const data = new FormData()
   data.append('data', JSON.stringify(SubmitShapeAdjustment(values)))
@@ -125,12 +88,12 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
   const editRedirect = { state: { message: 'Item Updated Successfully!' }, replace: true, }
 
   if (isEditMode) {
-    await axios.patch(editEndpoint, data, headers).then(response => {
+    await API_SERVICE(token).patch(editEndpoint, data).then(response => {
       if (response.status === 200) { navigate('/Items', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
   } else {
-    await axios.post(addEndpoint, data, headers).then(response => {
+    await API_SERVICE(token).post(addEndpoint, data).then(response => {
       if (response.status === 201) { navigate('/Items', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
     }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
@@ -142,16 +105,9 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
 export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues }) => {
   setIsGettingData(true)
 
-  const endpoint = `${API_BASE_URL}item/${id}`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`
-    },
-  }
+  const endpoint = `/item/${id}`
 
-  await axios.get(endpoint, headers).then(response => {
+  await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
       setFetchError('')
       setInitialValues({
