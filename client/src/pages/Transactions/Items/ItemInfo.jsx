@@ -380,12 +380,7 @@ const TagInfo = () => {
                   <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
                     style={{ width: '50%' }}
                     variant='danger'
-                    onClick={e => {
-                      // setInitialValues(InitialValues)
-                      // formik.resetForm(formik.initialValues)
-                      // setError('')
-                      setShowClearDialogue(true)
-                    }}>
+                    onClick={e => setShowClearDialogue(true)}>
                     <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
                   </Button>
                   <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
