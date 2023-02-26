@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BeatLoader } from 'react-spinners'
-import axios from 'axios'
 
 import './Login.css'
-import { API_BASE_URL, APP_TITLE } from '../../config'
+import { APP_TITLE } from '../../config'
+import { API_SERVICE } from '../../services'
 
 const LoginPage = ({ theme }) => {
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -38,18 +38,16 @@ const LoginPage = ({ theme }) => {
     }
 
     setIsLoading(true)
-    await axios.post(`${API_BASE_URL}auth/login`,
-      JSON.stringify({ phoneNumber, password, role: 'admin' }),
-      { headers: { 'Content-Type': 'application/json' }, }
-    ).then((response) => {
-      if (response.status === 200) {
-        localStorage.setItem('userData', JSON.stringify(response.data))
-        navigate('/', { replace: true })
-      }
-    }).catch(error => {
-      setPhoneNumberError('Invalid Phone Number!')
-      setPasswordError('Invalid Password!')
-    })
+    await API_SERVICE().post(`/auth/login`, JSON.stringify({ phoneNumber, password, role: 'admin' }),)
+      .then((response) => {
+        if (response.status === 200) {
+          localStorage.setItem('userData', JSON.stringify(response.data))
+          navigate('/', { replace: true })
+        }
+      }).catch(error => {
+        setPhoneNumberError('Invalid Phone Number!')
+        setPasswordError('Invalid Password!')
+      })
     setIsLoading(false)
   }
 
