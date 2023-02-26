@@ -1,18 +1,10 @@
-import axios from 'axios'
 import moment from 'moment'
-import { API_BASE_URL } from '../../../config'
+import { API_SERVICE } from '../../../services'
 
 export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData }) => {
-  const endpoint = `${API_BASE_URL}user?limit=${pageSize}&page=${pageIndex}`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`
-    }
-  }
+  const endpoint = `/user?limit=${pageSize}&page=${pageIndex}`
 
-  await axios.get(endpoint, headers).then(response => {
+  await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
       const usersData = response.data
       if (usersData.users.length > 0) {
@@ -33,16 +25,9 @@ export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData
 }
 
 export const DeleteUser = async ({ id, token, setError, navigate }) => {
-  const endpoint = `${API_BASE_URL}user/${id}`
-  const headers = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Authorization': `Bearer ${token}`
-    }
-  }
+  const endpoint = `/user/${id}`
 
-  await axios.delete(endpoint, headers).then(response => {
+  await API_SERVICE(token).delete(endpoint).then(response => {
     if (response.status === 200) {
       navigate('/Users', { state: { message: 'User Suspended Successfully!' }, replace: true })
     }
