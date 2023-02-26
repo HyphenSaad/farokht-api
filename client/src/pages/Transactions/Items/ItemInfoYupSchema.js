@@ -103,7 +103,8 @@ const ItemInfoSchema = Yup.object().shape({
       location: Yup.string()
         .typeError('Invalid')
         .min(2, 'Too Short!')
-        .max(75, 'Too Long!'),
+        .max(75, 'Too Long!')
+        .required('Required!'),
 
       cost: Yup.number()
         .typeError('Invalid')

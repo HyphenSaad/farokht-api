@@ -4,8 +4,9 @@ import { Formik, useFormik } from 'formik'
 import { BeatLoader } from 'react-spinners'
 import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
+import { Save, Clear, Done } from '@mui/icons-material'
 
-import { AuthContext, GoBackButton, TextField } from '../../../components'
+import { AuthContext, GoBackButton, TextField, CustomAlertDialogue } from '../../../components'
 import TagInfoSchema from './TagInfoYupSchema'
 import { StatusOptions } from './TagInfoValues'
 import { FetchTagData, SubmitTagData } from './TagInfoAxios'
@@ -15,6 +16,7 @@ const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isGettingData, setIsGettingData] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [showClearDialogue, setShowClearDialogue] = useState(false)
 
   const [error, setError] = useState('')
   const [fetchError, setFetchError] = useState('')
@@ -111,24 +113,48 @@ const TagInfo = () => {
                     <TextField name='createdBy' formik={formik} disable={true}
                       label='Created By' placeholder='Enter Created By' />
                   </Col>
-                  <Col sm={12} md={6} lg={4} xl={3}
-                    className='d-flex justify-content-end align-items-end mt-1 pb-3'>
-                    <Button variant='danger' type='reset' className='w-100 me-3 text-uppercase' onClick={e => {
-                      setInitialValues({
-                        name: '',
-                        status: { value: '', label: 'Choose Status' },
-                        createdBy: `${currentUser.firstName} ${currentUser.lastName}`
-                      })
-                      formik.resetForm(formik.initialValues)
-                      setError('')
-                    }}>Clear</Button>
-                    <Button variant='success' type='submit' className='w-100 text-uppercase'>
+                  <Col sm={12} md={12} lg={6} xl={3}
+                    className='d-flex justify-content-end align-items-end mt-1 gap-3 pb-3'>
+                    <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                      style={{ width: '50%' }}
+                      variant='danger'
+                      onClick={e => setShowClearDialogue(true)}>
+                      <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
+                    </Button>
+                    <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                      style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
+                      variant='success'>
                       {isLoading
                         ? <BeatLoader color='#fff' size={8} />
-                        : isEditMode ? 'Update' : 'Proceed'}
+                        : isEditMode
+                          ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
+                          : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
+                      }
                     </Button>
                   </Col>
                 </Row>
+                {showClearDialogue ?
+                  <CustomAlertDialogue
+                    title='Warning'
+                    positiveMessage='Proceed'
+                    negativeMessage='Cancel'
+                    positiveCallback={() => {
+                      setInitialValues({
+                        name: '',
+                        status: { value: '', label: 'Choose Status' },
+                        createdBy: initialValues.createdBy
+                      })
+                      formik.resetForm(formik.initialValues)
+                      setError('')
+                      setShowClearDialogue(false)
+                    }}
+                    negativeCallback={() => setShowClearDialogue(false)}
+                    show={showClearDialogue}
+                    handleClose={() => setShowClearDialogue(false)}>
+                    <p>Are you sure you want to clear this form?</p>
+                    <p>All data will be lost if you proceed.</p>
+                  </CustomAlertDialogue>
+                  : ''}
               </Form>
             </Formik>
           </>

@@ -6,8 +6,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
 import AsyncSelect from 'react-select/async'
 import AsyncCreatableSelect from 'react-select/async-creatable'
+import { Add, Delete, Save, Clear, Done } from '@mui/icons-material'
 
-import { AuthContext, GoBackButton, TextField } from '../../../components'
+import { AuthContext, GoBackButton, TextField, CustomAlertDialogue } from '../../../components'
 import ItemInfoSchema from './ItemInfoYupSchema'
 import { FetchUnitOfMeasures, FetchUsers, FetchAttributes, FetchTags, SubmitUserData, FetchItemData } from './ItemInfoAxios'
 import { InitialValues, StatusOptions } from './ItemInfoValues'
@@ -19,6 +20,8 @@ const TagInfo = () => {
   const [isEditMode, setIsEditMode] = useState(false)
   const [error, setError] = useState('')
   const [fetchError, setFetchError] = useState('')
+  const [showClearDialogue, setShowClearDialogue] = useState(false)
+
   const parameters = useParams()
   const navigate = useNavigate()
 
@@ -46,32 +49,32 @@ const TagInfo = () => {
 
   return (
     <Container style={{ padding: '1.25rem' }} >
-      <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} >
-        {isGettingData && isEditMode
-          ?
-          <div className='d-flex justify-content-center align-items-center flex-column py-3'>
-            <span className='mb-2 fs-5 text-secondary'>
-              {fetchError.length > 0 ? fetchError : 'Getting Data'}
-            </span>
-            {fetchError.length > 0 ? '' : <BeatLoader color='#333333' size={12} />}
-          </div>
-          :
-          <>
-            <p className='fs-3 fw-bold text-uppercase d-inline'>
-              {isEditMode ? 'Edit Item' : 'Add Item'}
-            </p>
-            <Form.Text className='text-danger ms-3'>{error}</Form.Text>
-            <Formik
-              enableReinitialize={true}
-              initialValues={initialValues}
-              validationSchema={ItemInfoSchema}
-              onSubmit={(values) => {
-                SubmitUserData({ values, isEditMode, token: authContext.token, navigate, setIsLoading, setError, id: parameters.id, })
-              }}
-            >
-              {(formik) => (
-                <Form onSubmit={formik.handleSubmit} className='mt-3'>
-                  <Row>
+      <Formik
+        enableReinitialize={true}
+        initialValues={initialValues}
+        validationSchema={ItemInfoSchema}
+        onSubmit={(values) => {
+          SubmitUserData({ values, isEditMode, token: authContext.token, navigate, setIsLoading, setError, id: parameters.id, })
+        }}
+      >
+        {(formik) => (
+          <Form onSubmit={formik.handleSubmit} className='m-0 p-0'>
+            <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} >
+              {isGettingData && isEditMode
+                ?
+                <div className='d-flex justify-content-center align-items-center flex-column py-3'>
+                  <span className='mb-2 fs-5 text-secondary'>
+                    {fetchError.length > 0 ? fetchError : 'Getting Data'}
+                  </span>
+                  {fetchError.length > 0 ? '' : <BeatLoader color='#333333' size={12} />}
+                </div>
+                :
+                <>
+                  <p className='fs-3 fw-bold text-uppercase d-inline'>
+                    {isEditMode ? 'Edit Item' : 'Add Item'}
+                  </p>
+                  <Form.Text className='text-danger ms-3'>{error}</Form.Text>
+                  <Row className='mt-2'>
                     <Col sm={12} md={6} lg={4} xl={3}>
                       <TextField name='name' formik={formik} label='Title' placeholder='Enter Title' />
                     </Col>
@@ -178,185 +181,248 @@ const TagInfo = () => {
                         label='Vendor Payout Percentage' placeholder='Enter Percentage' />
                     </Col>
                   </Row>
+                </>
+              }
+            </Container>
 
-                  <Row className='border border-2'>
-                    <FieldArray
-                      name='attributes'
-                      render={(array) => (
-                        <>
-                          <Col sm={12} md={6} lg={4} xl={3} className='my-3'>
-                            <Button variant='success' className='w-100 text-uppercase'
-                              onClick={e => {
-                                array.push({
-                                  id: { value: '', label: 'Choose Attribute' },
-                                  value: '',
-                                })
-                              }}>Add Attribute</Button>
-                            {
-                              formik.errors.attributes && formik.touched.attributes && !Array.isArray(formik.errors.attributes)
-                                ? <Form.Text className='text-danger'>{formik.errors.attributes}</Form.Text>
-                                : null
-                            }
-                          </Col>
-                          {formik.values.attributes.map((attribute, index) => (
-                            <Col sm={12} md={6} lg={4} xl={3} className='my-3' key={`id@${index}`}>
-                              <Form.Group className='mb-3'>
-                                <Form.Label>Attribute No. {index + 1}</Form.Label>
-                                <AsyncCreatableSelect
-                                  key={`attributes[${index}].id`}
-                                  name={`attributes[${index}].id`}
-                                  instanceId={`attributes[${index}].id`}
-                                  placeholder='Choose Attribute'
-                                  value={formik.values.attributes[index].id}
-                                  getOptionLabel={e => e.label}
-                                  getOptionValue={e => e.value}
-                                  onChange={(data) => formik.setFieldValue(`attributes[${index}].id`, data)}
-                                  isClearable={true}
-                                  defaultOptions
-                                  loadOptions={(inputValue) => FetchAttributes({ token: authContext.token, value: inputValue, setError })}
-                                />
-                                {
-                                  formik.getFieldMeta(`attributes[${index}].id`).error &&
-                                    formik.getFieldMeta(`attributes[${index}].id`).touched
-                                    ? <Form.Text className='text-danger'>
-                                      {formik.getFieldMeta(`attributes[${index}].id`).error.value}
-                                    </Form.Text>
-                                    : null
-                                }
-                              </Form.Group>
+            <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
 
-                              <TextField
-                                value={formik.values.attributes[index].value}
-                                name={`attributes[${index}].value`}
-                                formik={formik}
-                                label='Value'
-                                placeholder='Enter Value'
-                                hasFieldArrayError={true}
-                              />
-                              <Form.Group>
-                                <Button variant='danger' className='w-100 text-uppercase'
-                                  onClick={e => array.remove(index)}>Remove</Button>
-                              </Form.Group>
-                            </Col>
-                          ))}
-                        </>
-                      )}
-                    />
-                  </Row>
-
-                  <Row className='border border-2 my-3'>
-                    <FieldArray
-                      name='priceSlabs'
-                      render={(array) => {
-                        return (<>
-                          <Col sm={12} md={6} lg={4} xl={3} className='my-3'>
-                            <Button variant='success' className='w-100 text-uppercase' onClick={e => {
-                              array.push({ slab: '', price: '', })
-                            }}>Add Price Slab</Button>
-                            {
-                              formik.errors.priceSlabs && formik.touched.priceSlabs && !Array.isArray(formik.errors.priceSlabs)
-                                ? <Form.Text className='text-danger'>{formik.errors.priceSlabs}</Form.Text>
-                                : null
-                            }
-                          </Col>
-                          {formik.values.priceSlabs.map((attribute, index) => (
-                            <Col sm={12} md={6} lg={4} xl={3} className='my-3' key={`id@${index}`}>
-                              <TextField
-                                value={formik.values.priceSlabs[index].price}
-                                name={`priceSlabs[${index}].price`}
-                                formik={formik}
-                                label={`Slab No. ${index + 1}`}
-                                placeholder='Enter Slab'
-                                hasFieldArrayError={true} />
-                              <TextField
-                                value={formik.values.priceSlabs[index].slab}
-                                name={`priceSlabs[${index}].slab`}
-                                formik={formik}
-                                label='Price'
-                                placeholder='Enter Price'
-                                hasFieldArrayError={true} />
-                              <Form.Group>
-                                <Button variant='danger' className='w-100 text-uppercase'
-                                  onClick={e => { array.remove(index) }}>Remove</Button>
-                              </Form.Group>
-                            </Col>
-                          ))}
-                        </>)
-                      }}
-                    />
-                  </Row>
-
-                  <Row className='border border-2 mb-3'>
-                    <FieldArray
-                      name='shipmentCosts'
-                      render={(array) => (
-                        <>
-                          <Col sm={12} md={6} lg={4} xl={3} className='my-3'>
-                            <Button variant='success' className='w-100 text-uppercase' onClick={e => {
-                              array.push({ location: '', cost: '', days: '', })
-                            }}>Add Shipment Cost</Button>
-                            {
-                              formik.errors.shipmentCosts && formik.touched.shipmentCosts && !Array.isArray(formik.errors.shipmentCosts)
-                                ? <Form.Text className='text-danger'>{formik.errors.shipmentCosts}</Form.Text>
-                                : null
-                            }
-                          </Col>
-                          {formik.values.shipmentCosts.map((attribute, index) => (
-                            <Col sm={12} md={6} lg={4} xl={3} className='my-3' key={`id@${index}`}>
-                              <TextField
-                                value={formik.values.shipmentCosts[index].location}
-                                name={`shipmentCosts[${index}].location`}
-                                formik={formik}
-                                label={`Location ${index + 1}`}
-                                placeholder='Enter Location'
-                                hasFieldArrayError={true} />
-                              <TextField
-                                value={formik.values.shipmentCosts[index].cost}
-                                name={`shipmentCosts[${index}].cost`}
-                                formik={formik}
-                                label='Cost'
-                                placeholder='Enter Cost'
-                                hasFieldArrayError={true} />
-                              <TextField
-                                value={formik.values.shipmentCosts[index].days}
-                                name={`shipmentCosts[${index}].days`}
-                                formik={formik}
-                                label='Delivery Days'
-                                placeholder='Enter Delivery Days'
-                                hasFieldArrayError={true} />
-                              <Form.Group>
-                                <Button variant='danger' className='w-100 text-uppercase'
-                                  onClick={e => { array.remove(index) }}>Remove</Button>
-                              </Form.Group>
-                            </Col>
-                          ))}
-                        </>
-                      )}
-                    />
-                  </Row>
-
-                  <Row>
-                    <Col sm={12} md={6} lg={4} xl={3}
-                      className='d-flex justify-content-end align-items-end mt-1 pb-3'>
-                      <Button variant='danger' type='reset' className='w-100 me-3 text-uppercase' onClick={e => {
-                        setInitialValues(InitialValues)
-                        formik.resetForm(formik.initialValues)
-                        setError('')
-                      }}>Clear</Button>
-                      <Button variant='success' type='submit' className='w-100 text-uppercase'>
-                        {isLoading
-                          ? <BeatLoader color='#fff' size={8} />
-                          : isEditMode ? 'Update' : 'Proceed'}
+              <FieldArray
+                name='attributes'
+                render={(array) => (
+                  <>
+                    <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
+                      <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.5rem' }}>Attributes</p>
+                      <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                        variant='primary'
+                        onClick={e => {
+                          array.push({
+                            id: { value: '', label: 'Choose Attribute' },
+                            value: '',
+                          })
+                        }}>
+                        <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
                       </Button>
-                    </Col>
-                  </Row>
-                </Form>
-              )}
-            </Formik>
-          </>
-        }
-      </Container>
-      <GoBackButton path='/Items' />
+                    </Container>
+                    {
+                      formik.errors.attributes && formik.touched.attributes && !Array.isArray(formik.errors.attributes)
+                        ? <Form.Text className='text-danger'>{formik.errors.attributes}</Form.Text>
+                        : null
+                    }
+                    <Row>
+                      {formik.values.attributes.map((attribute, index) => (
+                        <Col sm={12} md={6} lg={4} xl={3} className='mt-3' key={`id@${index}`}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label>Attribute No. {index + 1}</Form.Label>
+                            <AsyncCreatableSelect
+                              key={`attributes[${index}].id`}
+                              name={`attributes[${index}].id`}
+                              instanceId={`attributes[${index}].id`}
+                              placeholder='Choose Attribute'
+                              value={formik.values.attributes[index].id}
+                              getOptionLabel={e => e.label}
+                              getOptionValue={e => e.value}
+                              onChange={(data) => formik.setFieldValue(`attributes[${index}].id`, data)}
+                              isClearable={true}
+                              defaultOptions
+                              loadOptions={(inputValue) => FetchAttributes({ token: authContext.token, value: inputValue, setError })}
+                            />
+                            {
+                              formik.getFieldMeta(`attributes[${index}].id`).error &&
+                                formik.getFieldMeta(`attributes[${index}].id`).touched
+                                ? <Form.Text className='text-danger'>
+                                  {formik.getFieldMeta(`attributes[${index}].id`).error.value}
+                                </Form.Text>
+                                : null
+                            }
+                          </Form.Group>
+
+                          <TextField
+                            value={formik.values.attributes[index].value}
+                            name={`attributes[${index}].value`}
+                            formik={formik}
+                            label='Value'
+                            placeholder='Enter Value'
+                            hasFieldArrayError={true}
+                          />
+                          <Form.Group>
+                            <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                              style={{ width: '50%' }}
+                              variant='danger'
+                              onClick={e => { array.remove(index) }}>
+                              <Delete style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Remove
+                            </Button>
+                          </Form.Group>
+                        </Col>
+                      ))}
+                    </Row>
+                  </>
+                )}
+              />
+            </Container>
+
+            <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
+              <FieldArray
+                name='priceSlabs'
+                render={(array) => {
+                  return (
+                    <>
+                      <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
+                        <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.5rem' }}>Price Slabs</p>
+                        <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                          variant='primary' onClick={e => {
+                            array.push({ slab: '', price: '', })
+                          }}>
+                          <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
+                        </Button>
+                      </Container>
+                      {
+                        formik.errors.priceSlabs && formik.touched.priceSlabs && !Array.isArray(formik.errors.priceSlabs)
+                          ? <Form.Text className='text-danger'>{formik.errors.priceSlabs}</Form.Text>
+                          : null
+                      }
+                      <Row>
+                        {formik.values.priceSlabs.map((attribute, index) => (
+                          <Col sm={12} md={6} lg={4} xl={3} className='mt-3' key={`id@${index}`}>
+                            <TextField
+                              value={formik.values.priceSlabs[index].price}
+                              name={`priceSlabs[${index}].price`}
+                              formik={formik}
+                              label={`Slab No. ${index + 1}`}
+                              placeholder='Enter Slab'
+                              hasFieldArrayError={true} />
+                            <TextField
+                              value={formik.values.priceSlabs[index].slab}
+                              name={`priceSlabs[${index}].slab`}
+                              formik={formik}
+                              label='Price'
+                              placeholder='Enter Price'
+                              hasFieldArrayError={true} />
+                            <Form.Group>
+                              <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                                style={{ width: '50%' }}
+                                variant='danger'
+                                onClick={e => { array.remove(index) }}>
+                                <Delete style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Remove
+                              </Button>
+                            </Form.Group>
+                          </Col>
+                        ))}
+                      </Row>
+                    </>)
+                }}
+              />
+            </Container>
+
+            <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
+              <FieldArray
+                name='shipmentCosts'
+                render={(array) => (
+                  <>
+                    <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
+                      <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.5rem' }}>Shipment Cost</p>
+                      <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                        variant='primary' onClick={e => {
+                          array.push({ location: '', cost: '', days: '', })
+                        }}>
+                        <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
+                      </Button>
+                    </Container>
+                    {
+                      formik.errors.shipmentCosts && formik.touched.shipmentCosts && !Array.isArray(formik.errors.shipmentCosts)
+                        ? <Form.Text className='text-danger'>{formik.errors.shipmentCosts}</Form.Text>
+                        : null
+                    }
+                    <Row>
+                      {formik.values.shipmentCosts.map((attribute, index) => (
+                        <Col sm={12} md={6} lg={4} xl={3} className='mt-3' key={`id@${index}`}>
+                          <TextField
+                            value={formik.values.shipmentCosts[index].location}
+                            name={`shipmentCosts[${index}].location`}
+                            formik={formik}
+                            label={`Location ${index + 1}`}
+                            placeholder='Enter Location'
+                            hasFieldArrayError={true} />
+                          <TextField
+                            value={formik.values.shipmentCosts[index].cost}
+                            name={`shipmentCosts[${index}].cost`}
+                            formik={formik}
+                            label='Cost'
+                            placeholder='Enter Cost'
+                            hasFieldArrayError={true} />
+                          <TextField
+                            value={formik.values.shipmentCosts[index].days}
+                            name={`shipmentCosts[${index}].days`}
+                            formik={formik}
+                            label='Delivery Days'
+                            placeholder='Enter Delivery Days'
+                            hasFieldArrayError={true} />
+                          <Form.Group>
+                            <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                              style={{ width: '50%' }}
+                              variant='danger'
+                              onClick={e => { array.remove(index) }}>
+                              <Delete style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Remove
+                            </Button>
+                          </Form.Group>
+                        </Col>
+                      ))}
+                    </Row>
+                  </>
+                )}
+              />
+            </Container>
+
+            <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
+              <Row>
+                <Col sm={12} md={6} lg={4} xl={3}
+                  className='d-flex justify-content-end align-items-end gap-3'>
+                  <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                    style={{ width: '50%' }}
+                    variant='danger'
+                    onClick={e => {
+                      // setInitialValues(InitialValues)
+                      // formik.resetForm(formik.initialValues)
+                      // setError('')
+                      setShowClearDialogue(true)
+                    }}>
+                    <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
+                  </Button>
+                  <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                    style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
+                    variant='success'>
+                    {isLoading
+                      ? <BeatLoader color='#fff' size={8} />
+                      : isEditMode
+                        ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
+                        : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
+                    }
+                  </Button>
+                </Col>
+              </Row>
+            </Container>
+            {showClearDialogue ?
+              <CustomAlertDialogue
+                title='Warning'
+                positiveMessage='Proceed'
+                negativeMessage='Cancel'
+                positiveCallback={() => {
+                  setInitialValues(InitialValues)
+                  formik.resetForm(formik.initialValues)
+                  setError('')
+                  setShowClearDialogue(false)
+                }}
+                negativeCallback={() => setShowClearDialogue(false)}
+                show={showClearDialogue}
+                handleClose={() => setShowClearDialogue(false)}>
+                <p>Are you sure you want to clear this form?</p>
+                <p>All data will be lost if you proceed.</p>
+              </CustomAlertDialogue>
+              : ''}
+            <GoBackButton path='/Items' />
+          </Form>
+        )}
+      </Formik>
     </Container>
   )
 }
