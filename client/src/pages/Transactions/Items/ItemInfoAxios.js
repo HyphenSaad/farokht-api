@@ -160,12 +160,12 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
         description: response.data.description,
         unitOfMeasure: {
           value: response.data.unitOfMeasure._id,
-          label: response.data.unitOfMeasure.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
+          label: response.data.unitOfMeasure.name
         },
         tags: response.data.tags.map(tag => {
           return {
             value: tag._id,
-            label: tag.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
+            label: tag.name
           }
         }),
         status: StatusOptions.filter(status => status.value === response.data.status)[0],
@@ -179,7 +179,7 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
           return {
             id: {
               value: attribute._id._id,
-              label: attribute._id.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' '),
+              label: attribute._id.name,
             },
             value: `${attribute.value}`
           }

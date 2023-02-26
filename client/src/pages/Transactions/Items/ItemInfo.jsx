@@ -193,7 +193,7 @@ const TagInfo = () => {
                     render={(array) => (
                       <>
                         <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
-                          <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.5rem' }}>Attributes</p>
+                          <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.3rem' }}>Attributes</p>
                           <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
                             variant='primary'
                             onClick={e => {
@@ -269,7 +269,7 @@ const TagInfo = () => {
                       return (
                         <>
                           <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
-                            <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.5rem' }}>Price Slabs</p>
+                            <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.3rem' }}>Price Slabs</p>
                             <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
                               variant='primary' onClick={e => {
                                 array.push({ slab: '', price: '', })
@@ -321,7 +321,7 @@ const TagInfo = () => {
                     render={(array) => (
                       <>
                         <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
-                          <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.5rem' }}>Shipment Cost</p>
+                          <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.3rem' }}>Shipment Cost</p>
                           <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
                             variant='primary' onClick={e => {
                               array.push({ location: '', cost: '', days: '', })

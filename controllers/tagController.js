@@ -1,6 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 import { Tag } from '../models/index.js'
-import { UpperCaseFirstLetter } from '../utilities.js'
 
 const AddTag = async (request, response, next) => {
   if (request.user.role !== 'admin')
@@ -64,7 +63,7 @@ const GetAllTags = async (request, response, next) => {
   if (minified === 'no') {
     tags.forEach(tag => data.push({
       _id: tag._id,
-      name: UpperCaseFirstLetter(tag.name),
+      name: tag.name,
       status: tag.status,
       createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName,
       createdAt: tag.createdAt,
@@ -73,7 +72,7 @@ const GetAllTags = async (request, response, next) => {
   } else {
     tags.forEach(tag => data.push({
       _id: tag._id,
-      name: UpperCaseFirstLetter(tag.name),
+      name: tag.name,
     }))
   }
 
@@ -93,7 +92,7 @@ const GetTag = async (request, response, next) => {
 
   response.status(StatusCodes.OK).json({
     _id: tag._id,
-    name: UpperCaseFirstLetter(tag.name),
+    name: tag.name,
     status: tag.status,
     createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName,
     createdAt: tag.createdAt,

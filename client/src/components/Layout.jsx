@@ -68,9 +68,15 @@ const GetTitle = () => {
 
   if (window.location.pathname.includes('/UserInfo'))
     return { path: window.location.pathname, title: 'User Info' }
-  if (window.location.pathname.includes('/ItemInfo'))
+  else if (window.location.pathname.includes('/ItemInfo'))
     return { path: window.location.pathname, title: 'Item Info' }
-  return 'Error'
+  else if (window.location.pathname.includes('/UnitOfMeasureInfo'))
+    return { path: window.location.pathname, title: 'Unit Of Measure Info' }
+  else if (window.location.pathname.includes('/TagInfo'))
+    return { path: window.location.pathname, title: 'Tag Info' }
+  else if (window.location.pathname.includes('/AttributeInfo'))
+    return { path: window.location.pathname, title: 'Attribute Info' }
+  return { path: window.location.pathname, title: 'Error' }
 }
 
 const Layout = () => {

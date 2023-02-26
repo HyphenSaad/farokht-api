@@ -1,6 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 import { UnitOfMeasure } from '../models/index.js'
-import { UpperCaseFirstLetter } from '../utilities.js'
 
 const AddUnitOfMeasure = async (request, response, next) => {
   if (request.user.role !== 'admin')
@@ -64,7 +63,7 @@ const GetAllUnitOfMeasures = async (request, response, next) => {
   if (minified === 'no') {
     unitOfMeasure.forEach(uom => data.push({
       _id: uom._id,
-      name: UpperCaseFirstLetter(uom.name),
+      name: uom.name,
       status: uom.status,
       createdBy: uom.createdBy.firstName + ' ' + uom.createdBy.lastName,
       createdAt: uom.createdAt,
@@ -73,7 +72,7 @@ const GetAllUnitOfMeasures = async (request, response, next) => {
   } else {
     unitOfMeasure.forEach(uom => data.push({
       _id: uom._id,
-      name: UpperCaseFirstLetter(uom.name),
+      name: uom.name,
     }))
   }
 
@@ -93,7 +92,7 @@ const GetUnitOfMeasure = async (request, response, next) => {
 
   response.status(StatusCodes.OK).json({
     _id: unitOfMeasure._id,
-    name: UpperCaseFirstLetter(unitOfMeasure.name),
+    name: unitOfMeasure.name,
     status: unitOfMeasure.status,
     createdBy: unitOfMeasure.createdBy.firstName + ' ' + unitOfMeasure.createdBy.lastName,
     createdAt: unitOfMeasure.createdAt,

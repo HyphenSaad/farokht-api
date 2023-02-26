@@ -8,8 +8,10 @@ const AttributeOfItemSchema = new mongoose.Schema({
     minLength: [2, 'Name is too short!'],
     maxLength: [25, 'Name is too long!'],
     trim: true,
-    unique: true,
-    lowercase: true,
+    index: {
+      unique: true,
+      collation: { locale: 'en', strength: 2 }
+    }
   },
   status: {
     type: String,

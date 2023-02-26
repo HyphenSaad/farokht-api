@@ -1,6 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 import { AttributeOfItem } from '../models/index.js'
-import { UpperCaseFirstLetter } from '../utilities.js'
 
 const AddAttribute = async (request, response, next) => {
   if (request.user.role !== 'admin')
@@ -63,7 +62,7 @@ const GetAllAttributes = async (request, response, next) => {
   if (minified === 'no') {
     attributes.forEach(attribute => data.push({
       _id: attribute._id,
-      name: UpperCaseFirstLetter(attribute.name),
+      name: attribute.name,
       status: attribute.status,
       createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
       createdAt: attribute.createdAt,
@@ -72,7 +71,7 @@ const GetAllAttributes = async (request, response, next) => {
   } else {
     attributes.forEach(attribute => data.push({
       _id: attribute._id,
-      name: UpperCaseFirstLetter(attribute.name),
+      name: attribute.name,
     }))
   }
 
@@ -92,7 +91,7 @@ const GetAttribute = async (request, response, next) => {
 
   response.status(StatusCodes.OK).json({
     _id: attribute._id,
-    name: UpperCaseFirstLetter(attribute.name),
+    name: attribute.name,
     status: attribute.status,
     createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
     createdAt: attribute.createdAt,

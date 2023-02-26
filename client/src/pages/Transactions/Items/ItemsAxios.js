@@ -18,7 +18,7 @@ export const FetchItems = async ({ pageSize, pageIndex, token, setError, setData
       if (itemsData.items.length > 0) {
         itemsData.items.forEach(item => {
           item.fullName = `${item.userId.firstName} ${item.userId.lastName}`
-          item.uom = item.unitOfMeasure.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
+          item.uom = item.unitOfMeasure.name
           item.status = item.status.charAt(0).toUpperCase() + item.status.slice(1)
           item.createdAt = moment.utc(item.createdAt).local().format('h:mm A, L')
           item.updatedAt = moment.utc(item.updatedAt).local().format('h:mm A, L')
