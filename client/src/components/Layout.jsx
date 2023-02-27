@@ -71,7 +71,7 @@ const GetTitle = () => {
   else if (window.location.pathname.includes('/ItemInfo'))
     return { path: window.location.pathname, title: 'Item Info' }
   else if (window.location.pathname.includes('/UnitOfMeasureInfo'))
-    return { path: window.location.pathname, title: 'Unit Of Measure Info' }
+    return { path: window.location.pathname, title: 'Unit of Measure Info' }
   else if (window.location.pathname.includes('/TagInfo'))
     return { path: window.location.pathname, title: 'Tag Info' }
   else if (window.location.pathname.includes('/AttributeInfo'))
@@ -130,13 +130,13 @@ const Layout = () => {
         </Sidebar>
       </div>
       <div style={{ width: '50%' }} className='col m-0 p-0 pb-5'>
-        <div style={{ display: 'flex', backgroundColor: '#fff', padding: '1rem', }}>
+        <div style={{ display: 'flex', backgroundColor: '#fff', padding: '0.5rem 1rem', }}>
           <button id='menu-toggle-button' onClick={() => toggleSidebar()}>
             <MenuIcon />
           </button>
           <p style={{
             margin: 0, textTransform: 'uppercase', display: 'inline-block',
-            fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer'
+            fontSize: '1.3rem', fontWeight: 'bold', cursor: 'pointer'
           }}
             onClick={() => { navigate(GetTitle().path) }}
           >{GetTitle().title}</p>
