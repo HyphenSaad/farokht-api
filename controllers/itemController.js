@@ -71,7 +71,7 @@ const UpdateItem = async (request, response, next) => {
   }).catch(error => next(error))
 }
 
-const SoftDeleteItem = async (request, response, next) => {
+const DeleteItem = async (request, response, next) => {
   if (request.user.role === 'retailer')
     throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
 
@@ -202,4 +202,4 @@ const GetAllItems = async (request, response, next) => {
   response.status(StatusCodes.OK).json({ page, limit, totalItems: filteredItems.length, items: filteredItems })
 }
 
-export { CreateItem, UpdateItem, SoftDeleteItem, GetItem, GetAllVendorItems, GetAllItems }
+export { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems }
