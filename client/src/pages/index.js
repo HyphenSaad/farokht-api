@@ -12,13 +12,21 @@ import Attributes from './Setups/Attributes/Attributes'
 import AttributeInfo from './Setups/Attributes/AttributeInfo'
 import Tags from './Setups/Tags/Tags'
 import TagInfo from './Setups/Tags/TagInfo'
+import ShipmentCosts from './Setups/ShipmentCosts/ShipmentCosts'
+import ShipmentCostInfo from './Setups/ShipmentCosts/ShipmentCostInfo'
 import Items from './Transactions/Items/Items'
 import ItemInfo from './Transactions/Items/ItemInfo'
 import Orders from './Transactions/Orders'
 
 export {
   Login, Dashboard, PageNotFound,
-  Payments, EmailNotification, Users, UserInfo, DownloadbleData,
-  UnitOfMeasures, UnitOfMeasureInfo, Attributes, AttributeInfo, Tags, TagInfo,
-  Items, ItemInfo, Orders
+  Payments, EmailNotification,
+  Users, UserInfo,
+  DownloadbleData,
+  UnitOfMeasures, UnitOfMeasureInfo,
+  Attributes, AttributeInfo,
+  Tags, TagInfo,
+  ShipmentCosts, ShipmentCostInfo,
+  Items, ItemInfo,
+  Orders
 }

@@ -6,19 +6,18 @@ export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData
 
   await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
-      const usersData = response.data
-      if (usersData.users.length > 0) {
-        usersData.users.forEach(user => {
-          user.fullName = `${user.firstName} ${user.lastName}`
-          user.phoneNumber1 = `+92${user.phoneNumber1}`
-          user.phoneNumber2 = `+92${user.phoneNumber2}`
-          user.status = user.status.charAt(0).toUpperCase() + user.status.slice(1)
-          user.role = user.role.charAt(0).toUpperCase() + user.role.slice(1)
-          user.createdAt = moment.utc(user.createdAt).local().format('h:mm A, L')
-          user.updatedAt = moment.utc(user.updatedAt).local().format('h:mm A, L')
-        })
-        setData(usersData)
-      }
+      response.data.users.forEach(user => {
+        user.fullName = `${user.firstName} ${user.lastName}`
+        user.phoneNumber1 = `+92${user.phoneNumber1}`
+        user.phoneNumber2 = `+92${user.phoneNumber2}`
+        user.status = user.status.charAt(0).toUpperCase() + user.status.slice(1)
+        user.role = user.role.charAt(0).toUpperCase() + user.role.slice(1)
+        user.createdAt = moment.utc(user.createdAt).local().format('h:mm A, L')
+        user.updatedAt = moment.utc(user.updatedAt).local().format('h:mm A, L')
+        user.updatedBy = `${user.updatedBy.firstName} ${user.updatedBy.lastName}`
+        user.createdBy = `${user.createdBy.firstName} ${user.createdBy.lastName}`
+      })
+      setData(response.data)
       setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
   }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))

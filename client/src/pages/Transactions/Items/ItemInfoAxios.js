@@ -10,7 +10,7 @@ export const FetchUsers = ({ token, value, setError, max = 10 }) => {
         return { value: user._id, label: `${user.firstName} ${user.lastName}` }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }
 
 export const FetchTags = ({ token, value, setError, max = 10 }) => {
@@ -22,7 +22,7 @@ export const FetchTags = ({ token, value, setError, max = 10 }) => {
         return { value: tag._id, label: tag.name }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }
 
 export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
@@ -34,7 +34,7 @@ export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
         return { value: uom._id, label: uom.name }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }
 
 export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
@@ -46,12 +46,29 @@ export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
         return { value: attribute._id, label: attribute.name }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+}
+
+export const FetchShipmentCosts = ({ token, value, setError, max = 10 }) => {
+  const unitOfMeasuresEndpoint = `/shipmentCost?minified=yes&name=${value}&limit=${max}&status=enabled`
+
+  return API_SERVICE(token).get(unitOfMeasuresEndpoint).then(response => {
+    if (response.status === 200) {
+      return response.data.shipmentCosts.map(shipmentCost => {
+        return {
+          value: shipmentCost._id,
+          label: `${shipmentCost.days} days, ${shipmentCost.source} to ${shipmentCost.destination}`,
+          minCost: shipmentCost.minCost,
+          maxCost: shipmentCost.maxCost,
+        }
+      })
+    } else { setError(`${response.status} - ${response.statusText}`) }
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }
 
 const SubmitShapeAdjustment = (values) => {
   const _values = { ...values }
-  _values.status = values.status.value
+  _values.status = values.status.value.length < 1 ? undefined : values.status.value
 
   _values.tags = _values.tags.map(tag => {
     return tag.hasOwnProperty('__isNew__')
@@ -69,9 +86,14 @@ const SubmitShapeAdjustment = (values) => {
       : { id: attribute.id.value, name: attribute.id.label, value: attribute.value }
   })
 
-  _values.userId = _values.user.value
+  _values.shipmentCosts = _values.shipmentCosts.map(shipmentCost => {
+    return shipmentCost.value
+  })
+
+  _values.vendorId = _values.user.value
   delete _values.user
 
+  console.log(_values)
   return _values
 }
 
@@ -91,12 +113,12 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
     await API_SERVICE(token).patch(editEndpoint, data).then(response => {
       if (response.status === 200) { navigate('/Items', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+    }).catch(error => setError(`${error.response.status} - ${JSON.stringify(error.response.data.message) || error.response.statusText}`))
   } else {
     await API_SERVICE(token).post(addEndpoint, data).then(response => {
       if (response.status === 201) { navigate('/Items', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+    }).catch(error => setError(`${error.response.status} - ${JSON.stringify(error.response.data.message) || error.response.statusText}`))
   }
 
   setIsLoading(false)
@@ -113,6 +135,7 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
       setInitialValues({
         name: response.data.name,
         minOrderNumber: response.data.minOrderNumber,
+        maxOrderNumber: response.data.maxOrderNumber === 0 ? '' : response.data.maxOrderNumber,
         description: response.data.description,
         unitOfMeasure: {
           value: response.data.unitOfMeasure._id,
@@ -128,8 +151,8 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
         vendorPayoutPercentage: response.data.vendorPayoutPercentage,
         completionDays: response.data.completionDays,
         user: {
-          value: response.data.userId._id,
-          label: `${response.data.userId.firstName} ${response.data.userId.lastName}`
+          value: response.data.vendorId._id,
+          label: `${response.data.vendorId.firstName} ${response.data.vendorId.lastName}`
         },
         attributes: response.data.attributes.map(attribute => {
           return {
@@ -148,13 +171,14 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
         }),
         shipmentCosts: response.data.shipmentCosts.map(shipmentCost => {
           return {
-            location: `${shipmentCost.location}`,
-            cost: `${shipmentCost.cost}`,
-            days: `${shipmentCost.days}`
+            value: `${shipmentCost._id}`,
+            label: `${shipmentCost.days} days, ${shipmentCost.source} to ${shipmentCost.destination}`,
+            maxCost: `${shipmentCost.maxCost}`,
+            minCost: `${shipmentCost.minCost}`
           }
         }),
       })
       setIsGettingData(false)
     } else { setFetchError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setFetchError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setFetchError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }

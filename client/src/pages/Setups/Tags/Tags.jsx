@@ -64,10 +64,11 @@ const Tags = () => {
 
   const columns = useMemo(() => [
     { accessorKey: 'name', header: 'Tag Title' },
-    { accessorKey: 'status', header: 'Status' },
-    { accessorKey: 'createdBy', header: 'Created By' },
-    { accessorKey: 'createdAt', header: 'Created At' },
-    { accessorKey: 'updatedAt', header: 'Last Modified' },
+    { accessorKey: 'status', header: 'Status', size: 0 },
+    { accessorKey: 'updatedBy', header: 'Last Updated By', size: 0 },
+    { accessorKey: 'updatedAt', header: 'Last Modified', size: 0 },
+    { accessorKey: 'createdBy', header: 'Created By', size: 0 },
+    { accessorKey: 'createdAt', header: 'Created At', size: 0 },
   ], [],)
 
   return (

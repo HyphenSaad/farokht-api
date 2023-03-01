@@ -7,6 +7,7 @@ import UnitOfMeasureRouter from './unitOfMeasureRoutes.js'
 import AttributeRouter from './attributeRoutes.js'
 import TagRouter from './tagRoutes.js'
 import UserManagementRouter from './userManagementRoutes.js'
+import ShipmentCostRouter from './shipmentCostRoutes.js'
 
 const router = express.Router()
 
@@ -16,5 +17,6 @@ router.use('/uom/', AuthorizationMiddleware, UnitOfMeasureRouter)
 router.use('/attribute/', AuthorizationMiddleware, AttributeRouter)
 router.use('/tag/', AuthorizationMiddleware, TagRouter)
 router.use('/user/', AuthorizationMiddleware, UserManagementRouter)
+router.use('/shipmentCost/', AuthorizationMiddleware, ShipmentCostRouter)
 
 export default router

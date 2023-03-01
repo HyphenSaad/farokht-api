@@ -64,12 +64,14 @@ const Items = () => {
 
   const columns = useMemo(() => [
     { accessorKey: 'name', header: 'Title', size: 150 },
+    { accessorKey: 'status', header: 'Status', size: 0 },
     { accessorKey: 'uom', header: 'UOM', size: 100, },
     { accessorKey: 'minOrderNumber', header: 'Minimum Order #', size: 100, },
     { accessorKey: 'fullName', header: 'Vendor', size: 100, },
-    { accessorKey: 'status', header: 'Status', size: 100, },
-    { accessorKey: 'createdAt', header: 'Created At', size: 100, },
-    { accessorKey: 'updatedAt', header: 'Last Modified', size: 100, },
+    { accessorKey: 'updatedBy', header: 'Last Updated By', size: 0 },
+    { accessorKey: 'updatedAt', header: 'Last Modified', size: 0 },
+    { accessorKey: 'createdBy', header: 'Created By', size: 0 },
+    { accessorKey: 'createdAt', header: 'Created At', size: 0 },
   ], [],)
 
   return (

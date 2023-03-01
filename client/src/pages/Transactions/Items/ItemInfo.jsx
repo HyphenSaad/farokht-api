@@ -10,7 +10,7 @@ import { Add, Delete, Save, Clear, Done } from '@mui/icons-material'
 
 import { AuthContext, GoBackButton, TextField, CustomAlertDialogue } from '../../../components'
 import ItemInfoSchema from './ItemInfoYupSchema'
-import { FetchUnitOfMeasures, FetchUsers, FetchAttributes, FetchTags, SubmitUserData, FetchItemData } from './ItemInfoAxios'
+import { FetchUnitOfMeasures, FetchUsers, FetchAttributes, FetchTags, SubmitUserData, FetchItemData, FetchShipmentCosts } from './ItemInfoAxios'
 import { InitialValues, StatusOptions } from './ItemInfoValues'
 import { APP_TITLE } from '../../../config'
 
@@ -26,7 +26,13 @@ const TagInfo = () => {
   const navigate = useNavigate()
 
   const authContext = useContext(AuthContext)
-  const [initialValues, setInitialValues] = useState(InitialValues)
+  const currentUser = authContext.user
+
+  const [initialValues, setInitialValues] = useState({
+    ...InitialValues,
+    updatedBy: `${currentUser.firstName} ${currentUser.lastName}`,
+    createdBy: `${currentUser.firstName} ${currentUser.lastName}`,
+  })
 
   const mounted = useRef(false)
   useEffect(() => {
@@ -75,17 +81,47 @@ const TagInfo = () => {
                   </p>
                   <Form.Text className='text-danger ms-3'>{error}</Form.Text>
                   <Row className='mt-2'>
-                    <Col sm={12} md={6} lg={4} xl={3}>
+                    <Col sm={12} md={6} lg={4} xl={6}>
                       <TextField name='name' formik={formik} label='Title' placeholder='Enter Title' />
                     </Col>
                     <Col sm={12} md={6} lg={4} xl={3}>
                       <TextField name='minOrderNumber' formik={formik} label='Minium Order No.' placeholder='Enter Minium Order No.' />
                     </Col>
-                    <Col sm={12} md={6} lg={4} xl={6}>
+                    <Col sm={12} md={6} lg={4} xl={3}>
+                      <TextField name='maxOrderNumber' formik={formik} label='Maximum Order No.' placeholder='Enter Maximum Order No.' />
+                    </Col>
+                    <Col sm={12} md={6} lg={8} xl={6}>
                       <TextField name='description' formik={formik} label='Description' placeholder='Enter Description' />
                     </Col>
+                    <Col sm={12} md={6} lg={4} xl={3}>
+                      <TextField name='completionDays' formik={formik}
+                        label='Completion Days' placeholder='Completion Days' />
+                    </Col>
 
-                    <Col sm={12} md={6} lg={6} xl={6}>
+                    <Col sm={12} md={6} lg={4} xl={3}>
+                      <TextField name='vendorPayoutPercentage' formik={formik}
+                        label='Vendor Payout Percentage' placeholder='Enter Percentage' />
+                    </Col>
+
+                    <Col sm={12} md={6} lg={4} xl={3}>
+                      <Form.Group className='mb-3'>
+                        <Form.Label>Vendor</Form.Label>
+                        <AsyncSelect
+                          value={formik.values.user}
+                          defaultValue={formik.values.user}
+                          getOptionLabel={e => e.label}
+                          getOptionValue={e => e.value}
+                          defaultOptions
+                          loadOptions={(inputValue) => FetchUsers({ token: authContext.token, value: inputValue, setError })}
+                          onChange={(data) => formik.setFieldValue('user', data)}
+                          isClearable={true}
+                        />
+                        {formik.errors.user && formik.touched.user
+                          ? <Form.Text className='text-danger'>{formik.errors.user.value}</Form.Text> : null}
+                      </Form.Group>
+                    </Col>
+
+                    <Col sm={12} md={6} lg={4} xl={3}>
                       <Form.Group className='mb-3'>
                         <Form.Label>Unit of Measure</Form.Label>
                         <AsyncCreatableSelect
@@ -109,7 +145,7 @@ const TagInfo = () => {
                       </Form.Group>
                     </Col>
 
-                    <Col sm={12} md={12} lg={6} xl={6}>
+                    <Col sm={12} md={12} lg={8} xl={6}>
                       <Form.Group className='mb-3'>
                         <Form.Label>Tags</Form.Label>
                         <AsyncCreatableSelect
@@ -137,24 +173,6 @@ const TagInfo = () => {
 
                     <Col sm={12} md={6} lg={4} xl={3}>
                       <Form.Group className='mb-3'>
-                        <Form.Label>Vendor</Form.Label>
-                        <AsyncSelect
-                          value={formik.values.user}
-                          defaultValue={formik.values.user}
-                          getOptionLabel={e => e.label}
-                          getOptionValue={e => e.value}
-                          defaultOptions
-                          loadOptions={(inputValue) => FetchUsers({ token: authContext.token, value: inputValue, setError })}
-                          onChange={(data) => formik.setFieldValue('user', data)}
-                          isClearable={true}
-                        />
-                        {formik.errors.user && formik.touched.user
-                          ? <Form.Text className='text-danger'>{formik.errors.user.value}</Form.Text> : null}
-                      </Form.Group>
-                    </Col>
-
-                    <Col sm={12} md={6} lg={4} xl={3}>
-                      <Form.Group className='mb-3'>
                         <Form.Label>Status</Form.Label>
                         <Select
                           key='status'
@@ -170,22 +188,20 @@ const TagInfo = () => {
                           ? <Form.Text className='text-danger'>{formik.errors.status.value}</Form.Text> : null}
                       </Form.Group>
                     </Col>
-
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField name='completionDays' formik={formik}
-                        label='Completion Days' placeholder='Completion Days' />
+                      <TextField name='updatedBy' formik={formik} disable={true}
+                        label='Updated By' placeholder='Enter Updated By' />
                     </Col>
-
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField name='vendorPayoutPercentage' formik={formik}
-                        label='Vendor Payout Percentage' placeholder='Enter Percentage' />
+                      <TextField name='createdBy' formik={formik} disable={true}
+                        label='Created By' placeholder='Enter Created By' />
                     </Col>
                   </Row>
                 </>
               }
             </Container>
 
-            {isGettingData ? '' :
+            {isGettingData && isEditMode ? '' :
               <>
                 <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
                   <FieldArray
@@ -286,15 +302,15 @@ const TagInfo = () => {
                             {formik.values.priceSlabs.map((attribute, index) => (
                               <Col sm={12} md={6} lg={4} xl={3} className='mt-3' key={`id@${index}`}>
                                 <TextField
-                                  value={formik.values.priceSlabs[index].price}
-                                  name={`priceSlabs[${index}].price`}
+                                  value={formik.values.priceSlabs[index].slab}
+                                  name={`priceSlabs[${index}].slab`}
                                   formik={formik}
                                   label={`Slab No. ${index + 1}`}
                                   placeholder='Enter Slab'
                                   hasFieldArrayError={true} />
                                 <TextField
-                                  value={formik.values.priceSlabs[index].slab}
-                                  name={`priceSlabs[${index}].slab`}
+                                  value={formik.values.priceSlabs[index].price}
+                                  name={`priceSlabs[${index}].price`}
                                   formik={formik}
                                   label='Price'
                                   placeholder='Enter Price'
@@ -316,6 +332,98 @@ const TagInfo = () => {
                 </Container>
 
                 <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
+                  <FieldArray
+                    name='shipmentCosts'
+                    render={(array) => (
+                      <>
+                        <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
+                          <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.3rem' }}>Shipment Costs</p>
+                          <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                            variant='primary'
+                            onClick={e => {
+                              array.push({
+                                value: '',
+                                label: 'Choose Shipment Preset',
+                                maxCost: '',
+                                minCost: '',
+                              })
+                            }}>
+                            <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
+                          </Button>
+                        </Container>
+                        {
+                          formik.errors.shipmentCosts && formik.touched.shipmentCosts && !Array.isArray(formik.errors.shipmentCosts)
+                            ? <Form.Text className='text-danger'>{formik.errors.shipmentCosts}</Form.Text>
+                            : null
+                        }
+                        {formik.values.shipmentCosts.map((shipmentCost, index) => (
+                          <Row className='mt-3'>
+                            <Col sm={12} md={12} lg={6} xl={4} key={`id@${index}`}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label>Shipment Cost No. {index + 1}</Form.Label>
+                                <AsyncCreatableSelect
+                                  key={`shipmentCosts[${index}]`}
+                                  name={`shipmentCosts[${index}]`}
+                                  instanceId={`shipmentCosts[${index}]`}
+                                  placeholder='Choose Shipment Preset'
+                                  value={formik.values.shipmentCosts[index]}
+                                  getOptionLabel={e => e.label}
+                                  getOptionValue={e => e.value}
+                                  onChange={(data) => formik.setFieldValue(`shipmentCosts[${index}]`, data)}
+                                  defaultOptions
+                                  loadOptions={(inputValue) => FetchShipmentCosts({ token: authContext.token, value: inputValue, setError })}
+                                />
+                                {
+                                  formik.getFieldMeta(`shipmentCosts[${index}]`).error &&
+                                    formik.getFieldMeta(`shipmentCosts[${index}]`).touched
+                                    ? <Form.Text className='text-danger'>
+                                      {formik.getFieldMeta(`shipmentCosts[${index}]`).error.maxCost}
+                                    </Form.Text>
+                                    : null
+                                }
+                              </Form.Group>
+                            </Col>
+                            <Col sm={12} md={4} lg={2} xl={3} key={`maxCost@${index}`}>
+                              <TextField
+                                value={formik.values.shipmentCosts[index].minCost}
+                                name={`shipmentCosts[${index}].minCost`}
+                                formik={formik}
+                                label='Minimum Cost'
+                                placeholder='Minimum Cost'
+                                hasFieldArrayError={true}
+                                disable={true}
+                              />
+                            </Col>
+                            <Col sm={12} md={4} lg={2} xl={3} key={`minCost@${index}`}>
+                              <TextField
+                                value={formik.values.shipmentCosts[index].maxCost}
+                                name={`shipmentCosts[${index}].maxCost`}
+                                formik={formik}
+                                label='Maximum Cost'
+                                placeholder='Maximum Cost'
+                                hasFieldArrayError={true}
+                                disable={true}
+                              />
+                            </Col>
+                            <Col sm={12} md={4} lg={2} xl={2} key={`action@${index}`}>
+                              <Form.Group>
+                                <Form.Label className='d-sm-none d-md-block'>&nbsp;</Form.Label>
+                                <Button className='mt-2 text-uppercase d-flex justify-content-center align-items-center pe-3'
+                                  variant='danger'
+                                  style={{ width: '100%' }}
+                                  onClick={e => { array.remove(index) }}>
+                                  <Delete style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />Remove
+                                </Button>
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        ))}
+                      </>
+                    )}
+                  />
+                </Container>
+
+                {/* <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
                   <FieldArray
                     name='shipmentCosts'
                     render={(array) => (
@@ -372,7 +480,7 @@ const TagInfo = () => {
                       </>
                     )}
                   />
-                </Container>
+                </Container> */}
 
                 <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
                   <Row>
@@ -406,7 +514,11 @@ const TagInfo = () => {
                 positiveMessage='Proceed'
                 negativeMessage='Cancel'
                 positiveCallback={() => {
-                  setInitialValues(InitialValues)
+                  setInitialValues({
+                    ...InitialValues,
+                    updatedBy: `${initialValues.updatedBy.firstName} ${initialValues.updatedBy.lastName}`,
+                    createdBy: `${initialValues.createdBy.firstName} ${initialValues.createdBy.lastName}`,
+                  })
                   formik.resetForm(formik.initialValues)
                   setError('')
                   setShowClearDialogue(false)

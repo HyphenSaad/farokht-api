@@ -15,7 +15,7 @@ const API_SERVICE = (token = null) => {
     post: (url, data, options = {}) => axios.post(API_BASE_URL + url, data, { ...defaultOptions, ...options }),
     put: (url, data, options = {}) => axios.put(API_BASE_URL + url, data, { ...defaultOptions, ...options }),
     delete: (url, options = {}) => axios.delete(API_BASE_URL + url, { ...defaultOptions, ...options }),
-    patch: (url, options = {}) => axios.patch(API_BASE_URL + url, { ...defaultOptions, ...options }),
+    patch: (url, data, options = {}) => axios.patch(API_BASE_URL + url, data, { ...defaultOptions, ...options }),
   }
 }
 

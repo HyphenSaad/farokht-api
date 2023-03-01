@@ -1,6 +1,7 @@
 export const InitialValues = {
   name: '',
   minOrderNumber: '',
+  maxOrderNumber: undefined,
   description: '',
   unitOfMeasure: { value: '', label: 'Choose Unit of Measure' },
   tags: [],
@@ -11,6 +12,8 @@ export const InitialValues = {
   attributes: [],
   priceSlabs: [],
   shipmentCosts: [],
+  updatedBy: '',
+  createdBy: '',
 }
 
 export const StatusOptions = [

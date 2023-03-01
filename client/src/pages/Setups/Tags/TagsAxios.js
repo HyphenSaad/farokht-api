@@ -6,14 +6,15 @@ export const FetchTags = async ({ pageSize, pageIndex, token, setError, setData 
 
   await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
-      setError('')
-      const data = response.data
-      data.tags.forEach(tag => {
+      response.data.tags.forEach(tag => {
         tag.status = tag.status.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
-        tag.createdAt = moment.utc(tag.createdAt).local().format('h:mm A, L')
         tag.updatedAt = moment.utc(tag.updatedAt).local().format('h:mm A, L')
+        tag.createdAt = moment.utc(tag.createdAt).local().format('h:mm A, L')
+        tag.updatedBy = `${tag.updatedBy.firstName} ${tag.updatedBy.lastName}`
+        tag.createdBy = `${tag.createdBy.firstName} ${tag.createdBy.lastName}`
       })
-      setData(data)
+      setData(response.data)
+      setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
   }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
 }

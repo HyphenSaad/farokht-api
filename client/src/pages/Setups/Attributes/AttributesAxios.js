@@ -6,14 +6,15 @@ export const FetchAttributes = async ({ pageSize, pageIndex, token, setError, se
 
   await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
-      setError('')
-      const data = response.data
-      data.attributes.forEach(attribute => {
+      response.data.attributes.forEach(attribute => {
         attribute.status = attribute.status.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
         attribute.createdAt = moment.utc(attribute.createdAt).local().format('h:mm A, L')
         attribute.updatedAt = moment.utc(attribute.updatedAt).local().format('h:mm A, L')
+        attribute.updatedBy = `${attribute.updatedBy.firstName} ${attribute.updatedBy.lastName}`
+        attribute.createdBy = `${attribute.createdBy.firstName} ${attribute.createdBy.lastName}`
       })
-      setData(data)
+      setData(response.data)
+      setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
   }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
 }

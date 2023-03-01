@@ -12,6 +12,11 @@ const ItemInfoSchema = Yup.object().shape({
     .min(1, 'Too Short!')
     .required('Required!'),
 
+  maxOrderNumber: Yup.number()
+    .nullable()
+    .typeError('Invalid')
+    .min(1, 'Too Short!'),
+
   description: Yup.string()
     .trim()
     .min(10, 'Too Short!')
@@ -40,12 +45,12 @@ const ItemInfoSchema = Yup.object().shape({
     }))
     .min(1, 'At Least 1 Required!'),
 
-  status: Yup.object()
-    .shape({
-      value: Yup.string().required('Required!'),
-      label: Yup.string().required('Required!')
-    })
-    .required('Required!'),
+  // status: Yup.object()
+  //   .shape({
+  //     value: Yup.string().required('Required!'),
+  //     label: Yup.string().required('Required!')
+  //   })
+  // .required('Required!'),
 
   vendorPayoutPercentage: Yup.number()
     .typeError('Invalid')
@@ -100,19 +105,9 @@ const ItemInfoSchema = Yup.object().shape({
 
   shipmentCosts: Yup.array()
     .of(Yup.object().shape({
-      location: Yup.string()
-        .typeError('Invalid')
-        .min(2, 'Too Short!')
-        .max(75, 'Too Long!')
-        .required('Required!'),
-
-      cost: Yup.number()
-        .typeError('Invalid')
-        .min(1, 'Too Short!')
-        .required('Required!'),
-
-      days: Yup.number()
-        .typeError('Invalid')
+      value: Yup.string().required('Required!'),
+      label: Yup.string()
+        .trim()
         .min(1, 'Too Short!')
         .required('Required!')
     }))

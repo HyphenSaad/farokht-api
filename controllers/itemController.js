@@ -5,16 +5,20 @@ const CreateItem = async (request, response, next) => {
   if (request.user.role === 'retailer')
     throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
 
-  const user = await User.findOne({ _id: request.item.userId })
+  const user = await User.findOne({ _id: request.item.vendorId })
   if (!user)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Vendor ID!' }
 
   if (request.user.role !== 'admin')
-    if (request.user._id.toString() !== request.item.userId)
+    if (request.user._id.toString() !== request.item.vendorId)
       throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
 
-  const item = await Item.create(request.item).catch(error => next(error))
-  if (item) await item.populate('tags unitOfMeasure attributes._id').catch(error => next(error))
+  const item = await Item.create({
+    ...request.item,
+    updatedBy: request.user._id,
+    createdBy: request.user._id,
+  }).catch(error => next(error))
+  if (item) await item.populate('tags unitOfMeasure attributes._id shipmentCosts').catch(error => next(error))
   response.status(StatusCodes.CREATED).json(item)
 }
 
@@ -30,25 +34,26 @@ const UpdateItem = async (request, response, next) => {
   if (!item)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item ID!' }
 
-  await item.populate('userId').catch(error => next(error))
+  await item.populate('vendorId').catch(error => next(error))
 
-  if (!request.item.userId || !item.userId)
+  if (!request.item.vendorId || !item.vendorId)
     throw { statusCode: StatusCodes.NOT_FOUND, message: 'Item Vendor Not Found!' }
 
   if (request.user.role !== 'admin')
-    if (item.userId._id.toString() !== request.item.userId)
+    if (item.vendorId._id.toString() !== request.item.vendorId)
       throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
 
   if (request.user.role === 'admin') {
-    const user = await User.findOne({ _id: request.item.userId }).catch(error => next(error))
+    const user = await User.findOne({ _id: request.item.vendorId }).catch(error => next(error))
     if (user.role !== 'vendor')
       throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item Owner Can Only Be Vendor' }
     else
-      item.userId = request.item.userId
+      item.vendorId = request.item.vendorId
   }
 
   item.name = request.item.name
   item.minOrderNumber = request.item.minOrderNumber
+  item.maxOrderNumber = request.item.maxOrderNumber
   item.description = request.item.description
   item.tags = request.item.tags
   item.unitOfMeasure = request.item.unitOfMeasure
@@ -56,6 +61,7 @@ const UpdateItem = async (request, response, next) => {
   item.priceSlabs = request.item.priceSlabs
   item.vendorPayoutPercentage = request.item.vendorPayoutPercentage
   item.shipmentCosts = request.item.shipmentCosts
+  item.updatedBy = request.item.updatedBy
 
   if (request.user.role === 'admin')
     item.status = request.item.status
@@ -65,7 +71,7 @@ const UpdateItem = async (request, response, next) => {
   }).catch(error => next(error))
 }
 
-const DeleteItem = async (request, response, next) => {
+const SoftDeleteItem = async (request, response, next) => {
   if (request.user.role === 'retailer')
     throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
 
@@ -74,21 +80,33 @@ const DeleteItem = async (request, response, next) => {
 
   const options = { _id: request.params.itemId }
 
-  if (request.user.role === 'vendor')
-    options.userId = request.user._id.toString()
+  if (request.user.role === 'vendor') {
+    options.vendorId = request.user._id.toString()
 
-  const item = await Item.findOne(options).catch(error => next(error))
-  if (!item)
-    response.status(StatusCodes.NOT_FOUND).json({ message: `Item ${request.params.itemId} Not Found!` })
+    const item = await Item.findOne(options).catch(error => next(error))
+    if (!item)
+      response.status(StatusCodes.NOT_FOUND).json({ message: `Item ${request.params.itemId} Not Found!` })
 
-  item.status = 'suspended'
+    item.status = 'suspended'
+    item.updatedBy = request.item.updatedBy
 
-  await item.save().then(() => {
-    response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
-  }).catch(error => next(error))
+    await item.save().then(() => {
+      response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
+    }).catch(error => next(error))
+  } else if (request.user.role === 'admin') {
+    const item = await Item.deleteOne(options).catch(error => next(error))
+
+    if (item.deletedCount !== 1)
+      response.status(StatusCodes.NOT_FOUND).json({ message: `Item ${request.params.itemId} Not Found!` })
+    else if (item.deletedCount === 1)
+      response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
+  }
 }
 
 const GetItem = async (request, response, next) => {
+  if (request.user.status === 'suspended')
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Your account is not approved!' }
+
   if (!request.params.itemId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
 
@@ -101,34 +119,22 @@ const GetItem = async (request, response, next) => {
   if (!item)
     throw { statusCode: StatusCodes.NOT_FOUND, message: 'Item Not Found!' }
 
-  await item.populate('tags unitOfMeasure attributes._id userId').catch(error => next(error))
+  await item.populate('tags unitOfMeasure attributes._id shipmentCosts')
+    .catch(error => next(error))
 
-  item.userId.phoneNumber1 = undefined
-  item.userId.phoneNumber2 = undefined
-  item.userId.landline = undefined
-  item.userId.email = undefined
-  item.userId.companyName = undefined
-  item.userId.location = undefined
-  item.userId.address = undefined
-  item.userId.paymentMethod = undefined
-  item.userId.bankName = undefined
-  item.userId.bankBranchCode = undefined
-  item.userId.bankAccountNumber = undefined
-  item.userId.createdAt = undefined
-  item.userId.updatedAt = undefined
-  item.userId.role = undefined
+  await item.populate({ path: 'createdBy updatedBy vendorId', model: 'user', select: 'firstName lastName' })
+    .catch(error => next(error))
 
   response.status(StatusCodes.OK).json(item)
 }
 
-// FIXME: Es Mai One-To-Many Ka Relation Impletment Karna Hai, Tan K User K Items Search Nah Karni Parhain Humain
 const GetAllVendorItems = async (request, response, next) => {
-  if (!request.params.userId)
+  if (!request.params.vendorId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
   const page = request.query.page || 1
   const limit = request.query.limit || 10
-  const options = { userId: request.params.userId }
+  const options = { vendorId: request.params.vendorId }
 
   if (request.query.status === 'suspended' && request.user.role !== 'admin')
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
@@ -139,20 +145,28 @@ const GetAllVendorItems = async (request, response, next) => {
     options.status = request.query.status
   } else if (request.user.role === 'vendor' && request.query.status) {
     options.status = request.query.status
-    options.userId = request.user._id
+    options.vendorId = request.user._id
   }
 
   const items = await Item.find(options)
     .limit(limit)
     .skip((page - 1) * limit)
-    .populate('tags unitOfMeasure attributes._id')
+    .populate('tags unitOfMeasure attributes._id shipmentCosts')
+    .populate({ path: 'updatedBy createdBy vendorId', model: 'user', select: 'firstName lastName' })
     .sort({ updatedAt: 'desc' })
     .catch(error => next(error))
 
-  response.status(StatusCodes.OK).json({ count: items.length, items })
+  const filteredItems = items.filter(item => {
+    return (!tag) ? item : item.tags.map(tag => tag.name).includes(tag)
+  })
+
+  response.status(StatusCodes.OK).json({ page, limit, totalItems: filteredItems.length, items: filteredItems })
 }
 
 const GetAllItems = async (request, response, next) => {
+  if (request.user.status === 'suspended')
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Your account is not approved!' }
+
   const page = request.query.page || 1
   const limit = request.query.limit || 10
   const tag = request.query.tag || ''
@@ -176,7 +190,8 @@ const GetAllItems = async (request, response, next) => {
   const items = await Item.find(options)
     .limit(limit)
     .skip((page - 1) * limit)
-    .populate('tags unitOfMeasure attributes._id userId')
+    .populate('tags unitOfMeasure attributes._id shipmentCosts')
+    .populate({ path: 'updatedBy createdBy vendorId', model: 'user', select: 'firstName lastName' })
     .sort({ updatedAt: 'desc' })
     .catch(error => next(error))
 
@@ -184,24 +199,7 @@ const GetAllItems = async (request, response, next) => {
     return (!tag) ? item : item.tags.map(tag => tag.name).includes(tag)
   })
 
-  filteredItems.map(item => {
-    item.userId.phoneNumber1 = undefined
-    item.userId.phoneNumber2 = undefined
-    item.userId.landline = undefined
-    item.userId.email = undefined
-    item.userId.companyName = undefined
-    item.userId.location = undefined
-    item.userId.address = undefined
-    item.userId.paymentMethod = undefined
-    item.userId.bankName = undefined
-    item.userId.bankBranchCode = undefined
-    item.userId.bankAccountNumber = undefined
-    item.userId.createdAt = undefined
-    item.userId.updatedAt = undefined
-    item.userId.role = undefined
-  })
-
   response.status(StatusCodes.OK).json({ page, limit, totalItems: filteredItems.length, items: filteredItems })
 }
 
-export { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems }
+export { CreateItem, UpdateItem, SoftDeleteItem, GetItem, GetAllVendorItems, GetAllItems }

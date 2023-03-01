@@ -11,8 +11,10 @@ const AddTag = async (request, response, next) => {
   const tag = await Tag.create({
     name: request.body.name,
     status: request.body.status,
+    updatedBy: request.user._id,
     createdBy: request.user._id,
-  }).catch(error => next(error))
+  }).populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+    .catch(error => next(error))
 
   response.status(StatusCodes.CREATED).json(tag)
 }
@@ -35,6 +37,10 @@ const UpdateTag = async (request, response, next) => {
 
   tag.name = request.body.name
   tag.status = request.body.status
+  tag.updatedBy = request.user._id
+
+  await tag.populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+    .catch(error => next(error))
 
   await tag.save().then(() => {
     response.status(StatusCodes.OK).json(tag)
@@ -46,34 +52,39 @@ const GetAllTags = async (request, response, next) => {
   const limit = request.query.limit || 10
   const minified = request.query.minified || 'no'
   const options = {}
+  const data = []
 
-  if (request.query.status) options.status = request.query.status
-  if (request.query.name) options.name = { '$regex': `${request.query.name.split(' ').join('|')}`, '$options': 'i' }
+  if (request.query.status)
+    options.status = request.query.status
 
-  const tags = await Tag.find(options)
-    .populate('createdBy')
-    .limit(limit)
-    .skip((page - 1) * limit)
-    .sort({ updatedAt: 'desc' })
-    .catch(error => next(error))
+  if (request.query.name)
+    options.name = {
+      '$regex': `${request.query.name.split(' ').join('|')}`,
+      '$options': 'i'
+    }
 
   const tagCount = await Tag.count(options).catch(error => next(error))
 
-  const data = []
-  if (minified === 'no') {
+  if (minified === 'yes') {
+    const tags = await Tag.find(options)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ updatedAt: 'desc' })
+      .catch(error => next(error))
+
     tags.forEach(tag => data.push({
       _id: tag._id,
       name: tag.name,
-      status: tag.status,
-      createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName,
-      createdAt: tag.createdAt,
-      updatedAt: tag.updatedAt,
     }))
   } else {
-    tags.forEach(tag => data.push({
-      _id: tag._id,
-      name: tag.name,
-    }))
+    const tags = await Tag.find(options)
+      .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ updatedAt: 'desc' })
+      .catch(error => next(error))
+
+    tags.forEach(tag => data.push(tag))
   }
 
   response.status(StatusCodes.OK).json({
@@ -87,17 +98,10 @@ const GetTag = async (request, response, next) => {
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag ID is Required!' }
 
   const tag = await Tag.findOne({ _id: request.params.id })
-    .populate('createdBy')
+    .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
     .catch(error => next(error))
 
-  response.status(StatusCodes.OK).json({
-    _id: tag._id,
-    name: tag.name,
-    status: tag.status,
-    createdBy: tag.createdBy.firstName + ' ' + tag.createdBy.lastName,
-    createdAt: tag.createdAt,
-    updatedAt: tag.updatedAt,
-  })
+  response.status(StatusCodes.OK).json(tag)
 }
 
 export { AddTag, UpdateTag, GetAllTags, GetTag }

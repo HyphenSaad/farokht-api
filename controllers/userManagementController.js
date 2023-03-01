@@ -34,6 +34,7 @@ const DeleteUser = async (request, response, next) => {
     response.status(StatusCodes.NOT_FOUND).json({ message: `User ${userId} Not Found!` })
 
   user.status = 'suspended'
+  user.updatedBy = request.user._id
 
   await user.save().then(() => {
     response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
@@ -48,11 +49,13 @@ const GetUser = async (request, response, next) => {
   if (!userId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
-  const user = await User.findOne({ _id: userId }).catch(error => next(error))
+  const user = await User.findOne({ _id: userId })
+    .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+    .catch(error => next(error))
+
   if (!user)
     throw { statusCode: StatusCodes.NOT_FOUND, message: 'User Not Found!' }
 
-  user.password = undefined
   response.status(StatusCodes.OK).json(user)
 }
 
@@ -63,6 +66,8 @@ const GetAllUsers = async (request, response, next) => {
   const page = request.query.page || 1
   const limit = request.query.limit || 10
   const minified = request.query.minified || 'no'
+  const data = []
+
   const options = {}
   options['$or'] = []
 
@@ -88,30 +93,33 @@ const GetAllUsers = async (request, response, next) => {
 
   const userCount = await User.count(options).catch(error => next(error))
 
-  const users = await User.find(options)
-    .limit(limit)
-    .skip((page - 1) * limit)
-    .sort({ updatedAt: 'desc' })
-    .catch(error => next(error))
-
   if (minified === 'yes') {
-    response.status(StatusCodes.OK).json({
-      totalUsers: userCount, page, limit,
-      count: users.length || 0,
-      users: users.filter(user => {
-        return {
-          _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        }
-      })
-    })
+    const users = await User.find(options)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ updatedAt: 'desc' })
+      .catch(error => next(error))
+
+    users.forEach(user => data.push({
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    }))
   } else {
-    response.status(StatusCodes.OK).json({
-      totalUsers: userCount, page, limit,
-      count: users.length || 0, users
-    })
+    const users = await User.find(options)
+      .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ updatedAt: 'desc' })
+      .catch(error => next(error))
+
+    users.forEach(user => data.push(user))
   }
+
+  response.status(StatusCodes.OK).json({
+    totalUsers: userCount, page, limit,
+    count: data.length || 0, users: data
+  })
 }
 
 export { CreateUser, UpdateUser, DeleteUser, GetUser, GetAllUsers }

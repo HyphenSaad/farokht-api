@@ -64,11 +64,15 @@ const Users = () => {
 
   const columns = useMemo(() => [
     { accessorKey: 'fullName', header: 'Fullname' },
-    { accessorKey: 'phoneNumber1', header: 'Phone #' },
-    { accessorKey: 'role', header: 'Role' },
-    { accessorKey: 'status', header: 'Status' },
-    { accessorKey: 'createdAt', header: 'Created At' },
-    { accessorKey: 'updatedAt', header: 'Last Modified' },
+    { accessorKey: 'phoneNumber1', header: 'Phone #', size: 0 },
+    { accessorKey: 'companyName', header: 'Company', size: 0 },
+    { accessorKey: 'email', header: 'Email', size: 0 },
+    { accessorKey: 'role', header: 'Role', size: 0 },
+    { accessorKey: 'status', header: 'Status', size: 0 },
+    { accessorKey: 'updatedBy', header: 'Last Updated By', size: 0 },
+    { accessorKey: 'updatedAt', header: 'Last Modified', size: 0 },
+    { accessorKey: 'createdBy', header: 'Created By', size: 0 },
+    { accessorKey: 'createdAt', header: 'Created At', size: 0 },
   ], [],)
 
   return (

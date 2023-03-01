@@ -8,10 +8,10 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { AuthContext, CustomDataTable } from '../../../components'
-import { FetchUnitOfMeasures } from './UnitOfMeasuresAxios'
+import { FetchShipmentCosts } from './ShipmentCostsAxios.js'
 import { APP_TITLE } from '../../../config'
 
-const UnitOfMeasures = () => {
+const Tags = () => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
   const [isLoading, setIsLoading] = useState(true)
   const [data, setData] = useState([])
@@ -24,7 +24,7 @@ const UnitOfMeasures = () => {
 
   const mounted = useRef(false)
   useEffect(() => {
-    document.title = `Unit of Measures | ${APP_TITLE}`
+    document.title = `Shipment Costs | ${APP_TITLE}`
 
     if (!mounted.current) {
       mounted.current = true
@@ -44,19 +44,18 @@ const UnitOfMeasures = () => {
         toastId: 'xyz',
       })
 
-      navigate('/UnitOfMeasures', { state: {}, replace: true })
+      navigate('/ShipmentCosts', { state: {}, replace: true })
     }
-
 
     (async () => {
       if (error.length > 1) return
 
-      await FetchUnitOfMeasures({
+      await FetchShipmentCosts({
         token: authContext.token,
         pageSize: pagination.pageSize,
         pageIndex: pagination.pageIndex + 1,
         setError,
-        setData,
+        setData
       })
 
       setIsLoading(false)
@@ -64,7 +63,11 @@ const UnitOfMeasures = () => {
   }, [error, state, navigate, authContext, pagination])
 
   const columns = useMemo(() => [
-    { accessorKey: 'name', header: 'Unit of Measure' },
+    { accessorKey: 'source', header: 'Source', },
+    { accessorKey: 'destination', header: 'Destination', },
+    { accessorKey: 'days', header: 'Shipping Days', size: 0 },
+    { accessorKey: 'minCost', header: 'Minimum Cost', size: 0 },
+    { accessorKey: 'maxCost', header: 'Maximum Cost', size: 0 },
     { accessorKey: 'status', header: 'Status', size: 0 },
     { accessorKey: 'updatedBy', header: 'Last Updated By', size: 0 },
     { accessorKey: 'updatedAt', header: 'Last Modified', size: 0 },
@@ -86,14 +89,14 @@ const UnitOfMeasures = () => {
           </div>
           :
           <CustomDataTable
-            rowCount={data.totalUnitOfMeasures}
+            rowCount={data.totalShipmentCosts}
             onPaginationChange={setPagination}
             state={{ isLoading, pagination }}
             columns={columns}
-            data={data.unitOfMeasures}
+            data={data.shipmentCosts}
             renderTopToolbarCustomActions={() => (
               <Button variant='primary'
-                onClick={() => navigate('/UnitOfMeasureInfo')}
+                onClick={() => navigate('/ShipmentCostInfo')}
                 className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'>
                 <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
               </Button>
@@ -101,7 +104,7 @@ const UnitOfMeasures = () => {
             renderRowActions={({ row, table }) => (
               <Box sx={{ display: 'flex' }}>
                 <Tooltip arrow placement='left' title='Edit'>
-                  <IconButton onClick={() => navigate('/UnitOfMeasureInfo/' + row.original._id)}>
+                  <IconButton onClick={() => navigate('/ShipmentCostInfo/' + row.original._id)}>
                     <Edit />
                   </IconButton>
                 </Tooltip>
@@ -113,4 +116,4 @@ const UnitOfMeasures = () => {
   )
 }
 
-export default UnitOfMeasures
+export default Tags

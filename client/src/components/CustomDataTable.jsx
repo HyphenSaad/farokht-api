@@ -22,7 +22,7 @@ const CustomDataTable = ({ rowCount, onPaginationChange, state, columns, data,
       enableFullScreenToggle={false}
       enableDensityToggle={false}
       enableHiding={false}
-      positionActionsColumn='last'
+      positionActionsColumn='first'
       renderTopToolbarCustomActions={renderTopToolbarCustomActions}
       renderRowActions={renderRowActions}
     />

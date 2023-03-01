@@ -14,6 +14,7 @@ const CreateAdmin = async () => {
     phoneNumber1: '0123456789',
     password: await bcrypt.hash('Admin@123', await bcrypt.genSalt(10)),
     companyName: 'Administrator',
+    email: 'admin@farokht.pk',
     location: 'Not Applicale',
     address: 'Not Applicale',
     paymentMethod: 'Not Applicale',
@@ -21,7 +22,7 @@ const CreateAdmin = async () => {
     bankBranchCode: '0000',
     bankAccountNumber: '0000000000000',
     role: 'admin',
-    status: 'approved'
+    status: 'approved',
   })
 
   console.log('New Admin User Created!')

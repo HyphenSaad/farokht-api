@@ -24,7 +24,13 @@ const TagSchema = new mongoose.Schema({
   },
   createdBy: {
     type: Schema.Types.ObjectId,
-    ref: User
+    ref: User,
+    required: [true, 'User ID is required!'],
+  },
+  updatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: User,
+    required: [true, 'User ID is required!'],
   },
 }, { timestamps: true })
 

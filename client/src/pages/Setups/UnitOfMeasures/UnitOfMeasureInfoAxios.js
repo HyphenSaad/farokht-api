@@ -16,7 +16,7 @@ export const FetchUnitOfMeasureData = async ({ token, id, setFetchError, setIsGe
       })
       setIsGettingData(false)
     } else { setFetchError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setFetchError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setFetchError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }
 
 export const SubmitUnitOfMeasureData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {

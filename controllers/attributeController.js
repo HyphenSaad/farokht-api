@@ -12,7 +12,9 @@ const AddAttribute = async (request, response, next) => {
     name: request.body.name,
     status: request.body.status,
     createdBy: request.user._id,
-  }).catch(error => next(error))
+    updatedBy: request.user._id,
+  }).populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+    .catch(error => next(error))
 
   response.status(StatusCodes.CREATED).json(attribute)
 }
@@ -34,6 +36,11 @@ const UpdateAttribute = async (request, response, next) => {
     response.status(StatusCodes.NOT_FOUND).json({ message: `Attribute ${request.params.id} Not Found!` })
 
   attribute.name = request.body.name
+  attribute.status = request.body.status
+  attribute.updatedBy = request.user._id
+
+  await attribute.populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+    .catch(error => next(error))
 
   await attribute.save().then(() => {
     response.status(StatusCodes.OK).json(attribute)
@@ -45,34 +52,39 @@ const GetAllAttributes = async (request, response, next) => {
   const limit = request.query.limit || 10
   const minified = request.query.minified || 'no'
   const options = {}
+  const data = []
 
-  if (request.query.status) options.status = request.query.status
-  if (request.query.name) options.name = { '$regex': `${request.query.name.split(' ').join('|')}`, '$options': 'i' }
+  if (request.query.status)
+    options.status = request.query.status
 
-  const attributes = await AttributeOfItem.find(options)
-    .populate('createdBy')
-    .limit(limit)
-    .skip((page - 1) * limit)
-    .sort({ updatedAt: 'desc' })
-    .catch(error => next(error))
+  if (request.query.name)
+    options.name = {
+      '$regex': `${request.query.name.split(' ').join('|')}`,
+      '$options': 'i'
+    }
 
   const attributeCount = await AttributeOfItem.count(options).catch(error => next(error))
 
-  const data = []
-  if (minified === 'no') {
+  if (minified === 'yes') {
+    const attributes = await AttributeOfItem.find(options)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ updatedAt: 'desc' })
+      .catch(error => next(error))
+
     attributes.forEach(attribute => data.push({
       _id: attribute._id,
       name: attribute.name,
-      status: attribute.status,
-      createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
-      createdAt: attribute.createdAt,
-      updatedAt: attribute.updatedAt,
     }))
   } else {
-    attributes.forEach(attribute => data.push({
-      _id: attribute._id,
-      name: attribute.name,
-    }))
+    const attributes = await AttributeOfItem.find(options)
+      .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ updatedAt: 'desc' })
+      .catch(error => next(error))
+
+    attributes.forEach(attribute => data.push(attribute))
   }
 
   response.status(StatusCodes.OK).json({
@@ -86,17 +98,10 @@ const GetAttribute = async (request, response, next) => {
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Attribute ID is Required!' }
 
   const attribute = await AttributeOfItem.findOne({ _id: request.params.id })
-    .populate('createdBy')
+    .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
     .catch(error => next(error))
 
-  response.status(StatusCodes.OK).json({
-    _id: attribute._id,
-    name: attribute.name,
-    status: attribute.status,
-    createdBy: attribute.createdBy.firstName + ' ' + attribute.createdBy.lastName,
-    createdAt: attribute.createdAt,
-    updatedAt: attribute.updatedAt,
-  })
+  response.status(StatusCodes.OK).json(attribute)
 }
 
 export { AddAttribute, UpdateAttribute, GetAllAttributes, GetAttribute }

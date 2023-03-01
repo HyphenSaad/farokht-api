@@ -12,6 +12,7 @@ export const FetchAttributeData = async ({ token, id, setFetchError, setIsGettin
       setInitialValues({
         name: response.data.name || '',
         status: StatusOptions.filter(status => status.value === response.data.status)[0],
+        updatedBy: response.data.updatedBy || '',
         createdBy: response.data.createdBy || '',
       })
       setIsGettingData(false)

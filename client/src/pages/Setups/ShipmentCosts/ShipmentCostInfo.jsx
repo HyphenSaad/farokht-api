@@ -7,12 +7,12 @@ import Select from 'react-select'
 import { Save, Clear, Done } from '@mui/icons-material'
 
 import { AuthContext, GoBackButton, TextField, CustomAlertDialogue } from '../../../components'
-import TagInfoSchema from './TagInfoYupSchema'
-import { StatusOptions } from './TagInfoValues'
-import { FetchTagData, SubmitTagData } from './TagInfoAxios'
+import ShipmentCostInfoSchema from './ShipmentCostInfoYupSchema'
+import { StatusOptions } from './ShipmentCostInfoValues'
+import { FetchShipmentCostData, SubmitShipmentCostData } from './ShipmentCostInfoAxios'
 import { APP_TITLE } from '../../../config'
 
-const TagInfo = () => {
+const ShipmentCostInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isGettingData, setIsGettingData] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -28,7 +28,11 @@ const TagInfo = () => {
   const currentUser = authContext.user
 
   const [initialValues, setInitialValues] = useState({
-    name: '',
+    source: '',
+    destination: '',
+    days: '',
+    minCost: '',
+    maxCost: '',
     status: { value: '', label: 'Choose Status' },
     updatedBy: `${currentUser.firstName} ${currentUser.lastName}`,
     createdBy: `${currentUser.firstName} ${currentUser.lastName}`,
@@ -36,7 +40,7 @@ const TagInfo = () => {
 
   const mounted = useRef(false)
   useEffect(() => {
-    document.title = `Tag Info | ${APP_TITLE}`
+    document.title = `Shipment Cost Info | ${APP_TITLE}`
 
     if (!mounted.current) {
       mounted.current = true
@@ -46,7 +50,7 @@ const TagInfo = () => {
     if (parameters.id === undefined) return
     setIsEditMode(true)
 
-    FetchTagData({
+    FetchShipmentCostData({
       token: authContext.token,
       id: parameters.id,
       setFetchError,
@@ -58,9 +62,9 @@ const TagInfo = () => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: initialValues,
-    validationSchema: TagInfoSchema,
+    validationSchema: ShipmentCostInfoSchema,
     onSubmit: async (values) => {
-      SubmitTagData({
+      SubmitShipmentCostData({
         token: authContext.token,
         id: parameters.id,
         values, isEditMode, navigate,
@@ -83,15 +87,31 @@ const TagInfo = () => {
           :
           <>
             <p className='fs-3 fw-bold text-uppercase d-inline'>
-              {isEditMode ? 'Edit Tag' : 'Add Tag'}
+              {isEditMode ? 'Edit Shipment Cost' : 'Add Shipment Cost'}
             </p>
             <Form.Text className='text-danger ms-3'>{error}</Form.Text>
             <Formik enableReinitialize>
               <Form onSubmit={formik.handleSubmit} className='mt-3'>
                 <Row>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='name' formik={formik}
-                      label='Tag Title' placeholder='Enter Tag Title' />
+                    <TextField name='source' formik={formik}
+                      label='Source' placeholder='Enter Source' />
+                  </Col>
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='destination' formik={formik}
+                      label='Destination' placeholder='Enter Destination' />
+                  </Col>
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='days' formik={formik}
+                      label='Shipment Days' placeholder='Enter Days' />
+                  </Col>
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='minCost' formik={formik}
+                      label='Minimum Cost' placeholder='Enter Minimum Cost' />
+                  </Col>
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='maxCost' formik={formik}
+                      label='Maxmium Cost' placeholder='Enter Maximum Cost' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className='mb-3'>
@@ -145,7 +165,11 @@ const TagInfo = () => {
                     negativeMessage='Cancel'
                     positiveCallback={() => {
                       setInitialValues({
-                        name: '',
+                        source: '',
+                        destination: '',
+                        days: '',
+                        minCost: '',
+                        maxCost: '',
                         status: { value: '', label: 'Choose Status' },
                         updatedBy: `${initialValues.updatedBy.firstName} ${initialValues.updatedBy.lastName}`,
                         createdBy: `${initialValues.createdBy.firstName} ${initialValues.createdBy.lastName}`,
@@ -166,9 +190,9 @@ const TagInfo = () => {
           </>
         }
       </Container>
-      <GoBackButton path='/Tags' />
+      <GoBackButton path='/ShipmentCosts' />
     </Container>
   )
 }
 
-export default TagInfo
+export default ShipmentCostInfo

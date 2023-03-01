@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { User, AttributeOfItem, UnitOfMeasure, Tag } from '../index.js'
+import { User, AttributeOfItem, UnitOfMeasure, Tag, ShipmentCost } from '../index.js'
 
 const notEmpty = (array) => array.length !== 0
 
@@ -16,6 +16,11 @@ const ItemSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Minimum order number is required!'],
     min: [1, 'Minimum order number is too short!'],
+  },
+  maxOrderNumber: {
+    type: Number,
+    min: [0, 'Maximum order number is too short!'],
+    default: 0,
   },
   description: {
     type: String,
@@ -45,10 +50,10 @@ const ItemSchema = new mongoose.Schema({
     ref: UnitOfMeasure,
     required: [true, 'Unit of measure is required!'],
   },
-  userId: {
+  vendorId: {
     type: Schema.Types.ObjectId,
     ref: User,
-    required: [true, 'User ID is required!'],
+    required: [true, 'Vendor ID is required!'],
   },
   attributes: {
     type: [{
@@ -103,26 +108,22 @@ const ItemSchema = new mongoose.Schema({
   },
   shipmentCosts: {
     type: [{
-      location: {
-        type: String,
-        required: [true, 'Shipment Location is required!'],
-        minLength: [2, 'Shipment Location is too short!'],
-        maxLength: [75, 'Shipment Location is too long!'],
-        trim: true,
-      },
-      cost: {
-        type: Number,
-        required: [true, 'Shipment Price is required!'],
-        min: [1, 'Shipment Price is too short!'],
-      },
-      days: {
-        type: Number,
-        required: [true, 'Shipment Days are required!'],
-        min: [1, 'Shipment Days are too short!'],
-      }
+      type: Schema.Types.ObjectId,
+      ref: ShipmentCost,
+      unique: true,
     }],
-    validate: [notEmpty, 'Shipment Cost is required!'],
-  }
+    validate: [notEmpty, 'Shipment Costs are required!'],
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: User,
+    required: [true, 'User ID is required!'],
+  },
+  updatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: User,
+    required: [true, 'User ID is required!'],
+  },
 }, { timestamps: true })
 
 export default mongoose.model('item', ItemSchema)

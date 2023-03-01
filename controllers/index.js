@@ -4,6 +4,7 @@ import { AddUnitOfMeasure, UpdateUnitOfMeasure, GetAllUnitOfMeasures, GetUnitOfM
 import { AddAttribute, UpdateAttribute, GetAllAttributes, GetAttribute } from './attributeController.js'
 import { AddTag, UpdateTag, GetAllTags, GetTag } from './tagController.js'
 import { CreateUser, UpdateUser, DeleteUser, GetUser, GetAllUsers } from './userManagementController.js'
+import { AddShipmentCost, UpdateShipmentCost, GetAllShipmentCosts, GetShipmentCost } from './shipmentCostController.js'
 
 export {
   Register, Login, Update,
@@ -12,4 +13,5 @@ export {
   AddAttribute, UpdateAttribute, GetAllAttributes, GetAttribute,
   AddTag, UpdateTag, GetAllTags, GetTag,
   CreateUser, UpdateUser, DeleteUser, GetUser, GetAllUsers,
+  AddShipmentCost, UpdateShipmentCost, GetAllShipmentCosts, GetShipmentCost,
 }

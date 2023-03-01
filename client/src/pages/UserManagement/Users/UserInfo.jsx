@@ -25,9 +25,14 @@ const UserInfo = () => {
   const navigate = useNavigate()
 
   const authContext = useContext(AuthContext)
+  const currentUser = authContext.user
 
   const UserSchema = isEditMode ? UserInfoEditSchema : UserInfoAddSchema
-  const [initialValues, setInitialValues] = useState(InitialValues)
+  const [initialValues, setInitialValues] = useState({
+    ...InitialValues,
+    updatedBy: `${currentUser.firstName} ${currentUser.lastName}`,
+    createdBy: `${currentUser.firstName} ${currentUser.lastName}`,
+  })
 
   useEffect(() => {
     document.title = `User Info | ${APP_TITLE}`
@@ -190,6 +195,14 @@ const UserInfo = () => {
                       />
                     </Form.Group>
                   </Col>
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='updatedBy' formik={formik} disable={true}
+                      label='Updated By' placeholder='Enter Updated By' />
+                  </Col>
+                  <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='createdBy' formik={formik} disable={true}
+                      label='Created By' placeholder='Enter Created By' />
+                  </Col>
                   <Col></Col>
                   <Col sm={12} md={6} lg={4} xl={3}
                     className='d-flex justify-content-end align-items-end mt-1 gap-3'>
@@ -218,11 +231,9 @@ const UserInfo = () => {
                     negativeMessage='Cancel'
                     positiveCallback={() => {
                       setInitialValues({
-                        firstName: '', lastName: '', password: '', phoneNumber1: '', phoneNumber2: '',
-                        landline: '', location: '', address: '', email: '', companyName: '',
-                        paymentMethod: '', bankName: '', bankBranchCode: '', bankAccountNumber: '',
-                        role: { value: '', label: 'Choose Role' },
-                        status: { value: '', label: 'Choose Status' },
+                        ...InitialValues,
+                        updatedBy: `${initialValues.updatedBy.firstName} ${initialValues.updatedBy.lastName}`,
+                        createdBy: `${initialValues.createdBy.firstName} ${initialValues.createdBy.lastName}`,
                       })
 
                       formik.resetForm(formik.initialValues)

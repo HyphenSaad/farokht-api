@@ -28,25 +28,35 @@ const Register = async (request, response, next) => {
   if (phoneNumber2 && (phoneNumber1.trim() === phoneNumber2.trim()))
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Phone Number 1 and 2 Can\'t Be Same!' }
 
+  if (password.length > 32)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Password is too long!' }
+
   const data = {
     firstName, lastName, phoneNumber1, phoneNumber2, landline, email, companyName, location,
     address, paymentMethod, bankName, bankBranchCode, bankAccountNumber, role,
     password: await bcrypt.hash(password, await bcrypt.genSalt(10)).catch(error => next(error)),
-    status: request.user.role === 'admin' ? status : 'pending'
+    status: request.user.role === 'admin' ? status : 'pending',
+    updatedBy: request.user.role === 'admin' ? request.user._id : null,
+    createdBy: request.user.role === 'admin' ? request.user._id : null,
   }
 
   if (phoneNumber2.length < 1) data.phoneNumber2 = undefined
   if (landline.length < 1) data.landline = undefined
   if (email.length < 1) data.email = undefined
 
-  const user = await User.create(data).catch(error => next(error))
+  const user = await User.create(data)
+    .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
+    .catch(error => next(error))
 
   response.status(StatusCodes.CREATED).json({
     user: {
       _id: user._id, firstName, lastName, phoneNumber1, phoneNumber2: phoneNumber2 || '',
       landline: landline || '', email: email || '', companyName, address, paymentMethod,
       bankName, bankBranchCode, bankAccountNumber, role, status: user.status,
-      createdAt: user.createdAt, updatedAt: user.updatedAt
+      updatedBy: user.updatedBy,
+      createdBy: user.createdBy,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     },
     token: jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME })
   })
@@ -91,9 +101,11 @@ const Update = async (request, response, next) => {
   if (phoneNumber2 && (phoneNumber1.trim() === phoneNumber2.trim()))
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Phone Number 1 and 2 Can\'t Be Same!' }
 
+  if (password.length > 32)
+    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Password is too long!' }
+
   const options = {}
   options._id = (request.user.role && request.user.role === 'admin') ? request.updateUserId : request.user.userId
-
 
   const user = await User.findOne(options).catch(error => next(error))
   if (!user)
@@ -112,6 +124,9 @@ const Update = async (request, response, next) => {
   user.bankName = bankName
   user.bankBranchCode = bankBranchCode
   user.bankAccountNumber = bankAccountNumber
+
+  if (request.user.role === 'admin')
+    user.updatedBy = request.user._id
 
   if (request.user.role && request.user.role !== 'admin')
     user.password = await bcrypt.hash(password, await bcrypt.genSalt(10))

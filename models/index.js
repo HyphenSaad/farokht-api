@@ -1,4 +1,5 @@
 import User from './user.js'
+import ShipmentCost from './shipmentCost.js'
 import AttributeOfItem from './item/attributeOfItem.js'
 import Tag from './item/tag.js'
 import UnitOfMeasure from './item/unitOfMeasure.js'
@@ -13,4 +14,5 @@ export {
   EmailNotification, Payment,
   AttributeOfItem, Tag, UnitOfMeasure, Item,
   Order, OrderChat,
+  ShipmentCost
 }

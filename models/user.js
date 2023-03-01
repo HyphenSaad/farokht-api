@@ -1,6 +1,7 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
+import { User } from './index.js'
 
 const UserSchema = new mongoose.Schema({
   firstName: {
@@ -57,7 +58,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Password is required!'],
     minLength: [8, 'Password is too short!'],
-    select: false, // TODO: Yeh Kya Karta Hai???
+    select: false,
   },
   role: {
     type: String,
@@ -128,7 +129,24 @@ const UserSchema = new mongoose.Schema({
     },
     default: 'pending',
     lowercase: true,
-  }
+  },
+  items: {
+    type: [{
+      type: Schema.Types.ObjectId,
+      ref: 'item',
+      unique: true,
+    }],
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    default: undefined,
+  },
+  updatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    default: undefined,
+  },
 }, { timestamps: true })
 
 // UserSchema.pre('deleteOne', { document: false, query: true }, async function (next) {

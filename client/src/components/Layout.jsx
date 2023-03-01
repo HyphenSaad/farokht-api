@@ -2,7 +2,7 @@ import React from 'react'
 import {
   Dashboard,
   AddBusinessRounded, ViewListRounded,
-  StraightenOutlined, AppRegistrationRounded, SellRounded,
+  StraightenOutlined, AppRegistrationRounded, SellRounded, LocalShipping,
   CloudDownloadRounded,
   PeopleRounded, MarkEmailReadRounded,
   PaidRounded,
@@ -56,9 +56,10 @@ const GetTitle = () => {
     case '/': return { path: '/', title: 'Dashboard' }
     case '/Orders': return { path: '/Orders', title: 'Orders' }
     case '/Items': return { path: '/Items', title: 'Items' }
-    case '/UnitOfMeasures': return { path: '/UnitOfMeasures', title: 'Unit Of Measures' }
     case '/Attributes': return { path: '/Attributes', title: 'Attributes' }
+    case '/ShipmentCosts': return { path: '/ShipmentCosts', title: 'Shipment Costs' }
     case '/Tags': return { path: '/Tags', title: 'Tags' }
+    case '/UnitOfMeasures': return { path: '/UnitOfMeasures', title: 'Unit Of Measures' }
     case '/DownloadbleData': return { path: '/DownloadbleData', title: 'Reports' }
     case '/Users': return { path: '/Users', title: 'Users' }
     case '/EmailNotification': return { path: '/Payments', title: 'Email Notification' }
@@ -70,12 +71,14 @@ const GetTitle = () => {
     return { path: window.location.pathname, title: 'User Info' }
   else if (window.location.pathname.includes('/ItemInfo'))
     return { path: window.location.pathname, title: 'Item Info' }
-  else if (window.location.pathname.includes('/UnitOfMeasureInfo'))
-    return { path: window.location.pathname, title: 'Unit of Measure Info' }
-  else if (window.location.pathname.includes('/TagInfo'))
-    return { path: window.location.pathname, title: 'Tag Info' }
   else if (window.location.pathname.includes('/AttributeInfo'))
     return { path: window.location.pathname, title: 'Attribute Info' }
+  else if (window.location.pathname.includes('/ShipmentCostInfo'))
+    return { path: window.location.pathname, title: 'Shipment Cost Info' }
+  else if (window.location.pathname.includes('/TagInfo'))
+    return { path: window.location.pathname, title: 'Tag Info' }
+  else if (window.location.pathname.includes('/UnitOfMeasureInfo'))
+    return { path: window.location.pathname, title: 'Unit of Measure Info' }
   return { path: window.location.pathname, title: 'Error' }
 }
 
@@ -116,9 +119,10 @@ const Layout = () => {
             <CustomMenuItem title='Orders' path='/Orders' icon={<AddBusinessRounded />} />
             <CustomMenuItem title='Items' path='/Items' icon={<ViewListRounded />} />
             <SideBarSeparator title='Setups' />
-            <CustomMenuItem title='Unit of Measures' path='/UnitOfMeasures' icon={<StraightenOutlined />} />
             <CustomMenuItem title='Attributes' path='/Attributes' icon={<AppRegistrationRounded />} />
+            <CustomMenuItem title='Shipment Costs' path='/ShipmentCosts' icon={<LocalShipping />} />
             <CustomMenuItem title='Tags' path='/Tags' icon={<SellRounded />} />
+            <CustomMenuItem title='Unit of Measures' path='/UnitOfMeasures' icon={<StraightenOutlined />} />
             <SideBarSeparator title='Reports' />
             <CustomMenuItem title='Downloadable Data' path='/DownloadbleData' icon={<CloudDownloadRounded />} />
             <SideBarSeparator title='User Management' />

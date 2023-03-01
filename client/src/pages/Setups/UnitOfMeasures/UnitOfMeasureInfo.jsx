@@ -30,7 +30,8 @@ const UnitOfMeasureInfo = () => {
   const [initialValues, setInitialValues] = useState({
     name: '',
     status: { value: '', label: 'Choose Status' },
-    createdBy: `${currentUser.firstName} ${currentUser.lastName}`
+    updatedBy: `${currentUser.firstName} ${currentUser.lastName}`,
+    createdBy: `${currentUser.firstName} ${currentUser.lastName}`,
   })
 
   const mounted = useRef(false)
@@ -110,6 +111,10 @@ const UnitOfMeasureInfo = () => {
                     </Form.Group>
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
+                    <TextField name='updatedBy' formik={formik} disable={true}
+                      label='Updated By' placeholder='Enter Updated By' />
+                  </Col>
+                  <Col sm={12} md={6} lg={4} xl={3}>
                     <TextField name='createdBy' formik={formik} disable={true}
                       label='Created By' placeholder='Enter Created By' />
                   </Col>
@@ -142,7 +147,8 @@ const UnitOfMeasureInfo = () => {
                       setInitialValues({
                         name: '',
                         status: { value: '', label: 'Choose Status' },
-                        createdBy: initialValues.createdBy
+                        updatedBy: `${initialValues.updatedBy.firstName} ${initialValues.updatedBy.lastName}`,
+                        createdBy: `${initialValues.createdBy.firstName} ${initialValues.createdBy.lastName}`,
                       })
                       formik.resetForm(formik.initialValues)
                       setError('')
