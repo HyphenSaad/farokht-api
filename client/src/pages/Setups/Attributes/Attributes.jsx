@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useContext, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
 import { Box, Tooltip, IconButton } from '@mui/material'
-import { Add, Edit } from '@mui/icons-material'
+import { Add, Edit, Visibility } from '@mui/icons-material'
 import { BeatLoader } from 'react-spinners'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -65,9 +65,7 @@ const Attributes = () => {
   const columns = useMemo(() => [
     { accessorKey: 'name', header: 'Attribute Name' },
     { accessorKey: 'status', header: 'Status', size: 0 },
-    { accessorKey: 'updatedBy', header: 'Last Updated By', size: 0 },
     { accessorKey: 'updatedAt', header: 'Last Modified', size: 0 },
-    { accessorKey: 'createdBy', header: 'Created By', size: 0 },
     { accessorKey: 'createdAt', header: 'Created At', size: 0 },
   ], [],)
 
@@ -102,6 +100,14 @@ const Attributes = () => {
                 <Tooltip arrow placement='left' title='Edit'>
                   <IconButton onClick={() => navigate('/AttributeInfo/' + row.original._id)}>
                     <Edit />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip arrow placement='right' title='View'>
+                  <IconButton color='primary' onClick={() => navigate(
+                    '/AttributeInfo/' + row.original._id,
+                    { state: { mode: 0 } }
+                  )}>
+                    <Visibility />
                   </IconButton>
                 </Tooltip>
               </Box>

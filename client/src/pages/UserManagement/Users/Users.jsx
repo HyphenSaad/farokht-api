@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useContext, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
 import { Box, Tooltip, IconButton } from '@mui/material'
-import { Add, Delete, Edit } from '@mui/icons-material'
+import { Add, Delete, Edit, Visibility } from '@mui/icons-material'
 import { BeatLoader } from 'react-spinners'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -63,15 +63,11 @@ const Users = () => {
   }, [error, state, navigate, authContext, pagination])
 
   const columns = useMemo(() => [
-    { accessorKey: 'fullName', header: 'Fullname' },
-    { accessorKey: 'phoneNumber1', header: 'Phone #', size: 0 },
+    { accessorKey: 'fullName', header: 'Fullname', size: 0 },
     { accessorKey: 'companyName', header: 'Company', size: 0 },
-    { accessorKey: 'email', header: 'Email', size: 0 },
     { accessorKey: 'role', header: 'Role', size: 0 },
     { accessorKey: 'status', header: 'Status', size: 0 },
-    { accessorKey: 'updatedBy', header: 'Last Updated By', size: 0 },
     { accessorKey: 'updatedAt', header: 'Last Modified', size: 0 },
-    { accessorKey: 'createdBy', header: 'Created By', size: 0 },
     { accessorKey: 'createdAt', header: 'Created At', size: 0 },
   ], [],)
 
@@ -106,6 +102,14 @@ const Users = () => {
                 <Tooltip arrow placement='left' title='Edit'>
                   <IconButton onClick={() => navigate('/UserInfo/' + row.original._id)}>
                     <Edit />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip arrow placement='right' title='View'>
+                  <IconButton color='primary' onClick={() => navigate(
+                    '/UserInfo/' + row.original._id,
+                    { state: { mode: 0 } }
+                  )}>
+                    <Visibility />
                   </IconButton>
                 </Tooltip>
                 <Tooltip arrow placement='right' title='Suspend'>

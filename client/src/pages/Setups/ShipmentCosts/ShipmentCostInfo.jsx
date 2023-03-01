@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react'
 import { Container, Form, Button, Col, Row } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
 import { BeatLoader } from 'react-spinners'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import Select from 'react-select'
 import { Save, Clear, Done } from '@mui/icons-material'
 
@@ -16,6 +16,7 @@ const ShipmentCostInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isGettingData, setIsGettingData] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [isViewMode, setIsViewMode] = useState(false)
   const [showClearDialogue, setShowClearDialogue] = useState(false)
 
   const [error, setError] = useState('')
@@ -23,6 +24,7 @@ const ShipmentCostInfo = () => {
 
   const parameters = useParams()
   const navigate = useNavigate()
+  const { state } = useLocation()
 
   const authContext = useContext(AuthContext)
   const currentUser = authContext.user
@@ -48,6 +50,7 @@ const ShipmentCostInfo = () => {
     }
 
     if (parameters.id === undefined) return
+    if (state.mode === 0) setIsViewMode(true)
     setIsEditMode(true)
 
     FetchShipmentCostData({
@@ -57,7 +60,7 @@ const ShipmentCostInfo = () => {
       setInitialValues,
       setIsGettingData
     })
-  }, [parameters, setInitialValues, authContext])
+  }, [parameters, setInitialValues, authContext, state])
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -87,36 +90,37 @@ const ShipmentCostInfo = () => {
           :
           <>
             <p className='fs-3 fw-bold text-uppercase d-inline'>
-              {isEditMode ? 'Edit Shipment Cost' : 'Add Shipment Cost'}
+              {isEditMode ? (isViewMode ? 'View Shipment Cost' : 'Edit Shipment Cost') : 'Add Shipment Cost'}
             </p>
             <Form.Text className='text-danger ms-3'>{error}</Form.Text>
             <Formik enableReinitialize>
               <Form onSubmit={formik.handleSubmit} className='mt-3'>
                 <Row>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='source' formik={formik}
+                    <TextField name='source' formik={formik} disable={isViewMode}
                       label='Source' placeholder='Enter Source' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='destination' formik={formik}
+                    <TextField name='destination' formik={formik} disable={isViewMode}
                       label='Destination' placeholder='Enter Destination' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='days' formik={formik}
+                    <TextField name='days' formik={formik} disable={isViewMode}
                       label='Shipment Days' placeholder='Enter Days' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='minCost' formik={formik}
+                    <TextField name='minCost' formik={formik} disable={isViewMode}
                       label='Minimum Cost' placeholder='Enter Minimum Cost' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='maxCost' formik={formik}
+                    <TextField name='maxCost' formik={formik} disable={isViewMode}
                       label='Maxmium Cost' placeholder='Enter Maximum Cost' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className='mb-3'>
                       <Form.Label>Status</Form.Label>
                       <Select
+                        isDisabled={isViewMode}
                         key='status'
                         name='status'
                         instanceId='status'
@@ -138,25 +142,26 @@ const ShipmentCostInfo = () => {
                     <TextField name='createdBy' formik={formik} disable={true}
                       label='Created By' placeholder='Enter Created By' />
                   </Col>
-                  <Col sm={12} md={12} lg={6} xl={3}
-                    className='d-flex justify-content-end align-items-end mt-1 gap-3 pb-3'>
-                    <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
-                      style={{ width: '50%' }}
-                      variant='danger'
-                      onClick={e => setShowClearDialogue(true)}>
-                      <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
-                    </Button>
-                    <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
-                      style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
-                      variant='success'>
-                      {isLoading
-                        ? <BeatLoader color='#fff' size={8} />
-                        : isEditMode
-                          ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
-                          : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
-                      }
-                    </Button>
-                  </Col>
+                  {isEditMode ? '' :
+                    <Col sm={12} md={12} lg={6} xl={3}
+                      className='d-flex justify-content-end align-items-end mt-1 gap-3 pb-3'>
+                      <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                        style={{ width: '50%' }}
+                        variant='danger'
+                        onClick={e => setShowClearDialogue(true)}>
+                        <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
+                      </Button>
+                      <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                        style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
+                        variant='success'>
+                        {isLoading
+                          ? <BeatLoader color='#fff' size={8} />
+                          : isEditMode
+                            ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
+                            : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
+                        }
+                      </Button>
+                    </Col>}
                 </Row>
                 {showClearDialogue ?
                   <CustomAlertDialogue

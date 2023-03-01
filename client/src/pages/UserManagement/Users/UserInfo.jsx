@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Container, Form, Button, Col, Row, InputGroup } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
 import { BeatLoader } from 'react-spinners'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import Select from 'react-select'
 import { Save, Clear, Done } from '@mui/icons-material'
 
@@ -16,6 +16,7 @@ const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isGettingData, setIsGettingData] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [isViewMode, setIsViewMode] = useState(false)
   const [showClearDialogue, setShowClearDialogue] = useState(false)
 
   const [error, setError] = useState('')
@@ -23,6 +24,7 @@ const UserInfo = () => {
 
   const parameters = useParams()
   const navigate = useNavigate()
+  const { state } = useLocation()
 
   const authContext = useContext(AuthContext)
   const currentUser = authContext.user
@@ -38,6 +40,7 @@ const UserInfo = () => {
     document.title = `User Info | ${APP_TITLE}`
 
     if (parameters.id === undefined) return
+    if (state.mode === 0) setIsViewMode(true)
     setIsEditMode(true)
 
     FetchUserData({
@@ -47,7 +50,7 @@ const UserInfo = () => {
       setInitialValues,
       setFetchError,
     })
-  }, [parameters, setInitialValues, authContext])
+  }, [parameters, setInitialValues, authContext, state])
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -77,20 +80,23 @@ const UserInfo = () => {
           :
           <>
             <p className='fs-3 fw-bold text-uppercase d-inline'>
-              {isEditMode ? 'Edit User' : 'Add User'}
+              {isEditMode ? (isViewMode ? 'View User' : 'Edit User') : 'Add User'}
             </p>
             <Form.Text className='text-danger ms-3'>{error}</Form.Text>
             <Formik enableReinitialize>
               <Form onSubmit={formik.handleSubmit} className='mt-3'>
                 <Row>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='firstName' formik={formik} label='First Name' placeholder='Enter First Name' />
+                    <TextField name='firstName' formik={formik} disable={isViewMode}
+                      label='First Name' placeholder='Enter First Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='lastName' formik={formik} label='Last Name' placeholder='Enter Last Name' />
+                    <TextField name='lastName' formik={formik} disable={isViewMode}
+                      label='Last Name' placeholder='Enter Last Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='password' formik={formik} label='Password' placeholder='Enter Password' />
+                    <TextField name='password' formik={formik} disable={isViewMode}
+                      label='Password' placeholder='Enter Password' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className='mb-3'>
@@ -98,7 +104,7 @@ const UserInfo = () => {
                       <InputGroup className='mb-3'>
                         <InputGroup.Text>+92</InputGroup.Text>
                         <Form.Control type='text' placeholder='Enter Phone # 1' name='phoneNumber1'
-                          onChange={formik.handleChange} value={formik.values.phoneNumber1} />
+                          onChange={formik.handleChange} value={formik.values.phoneNumber1} disable={isViewMode} />
                       </InputGroup>
                       {formik.errors.phoneNumber1 && formik.touched.phoneNumber1
                         ? <Form.Text className='text-danger'>{formik.errors.phoneNumber1}</Form.Text> : null}
@@ -110,14 +116,14 @@ const UserInfo = () => {
                       <InputGroup className='mb-3'>
                         <InputGroup.Text>+92</InputGroup.Text>
                         <Form.Control type='text' placeholder='Enter Phone # 2' name='phoneNumber2'
-                          onChange={formik.handleChange} value={formik.values.phoneNumber2} />
+                          onChange={formik.handleChange} value={formik.values.phoneNumber2} disable={isViewMode} />
                       </InputGroup>
                       {formik.errors.phoneNumber2 && formik.touched.phoneNumber2
                         ? <Form.Text className='text-danger'>{formik.errors.phoneNumber2}</Form.Text> : null}
                     </Form.Group>
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='landline' formik={formik}
+                    <TextField name='landline' formik={formik} disable={isViewMode}
                       label='Landline' placeholder='Enter Landline' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
@@ -129,6 +135,7 @@ const UserInfo = () => {
                         <option value='retailer'>Retailer</option>
                       </Form.Select> */}
                       <Select
+                        isDisabled={isViewMode}
                         key='role'
                         name='role'
                         instanceId='role'
@@ -143,35 +150,35 @@ const UserInfo = () => {
                     </Form.Group>
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='email' formik={formik}
+                    <TextField name='email' formik={formik} disable={isViewMode}
                       label='Email Address' placeholder='Enter Email Address' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='companyName' formik={formik}
+                    <TextField name='companyName' formik={formik} disable={isViewMode}
                       label='Company Name' placeholder='Enter Company Name' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='location' formik={formik}
+                    <TextField name='location' formik={formik} disable={isViewMode}
                       label='Location' placeholder='Enter Location' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='address' formik={formik}
+                    <TextField name='address' formik={formik} disable={isViewMode}
                       label='Address' placeholder='Enter Address' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='paymentMethod' formik={formik}
+                    <TextField name='paymentMethod' formik={formik} disable={isViewMode}
                       label='Payment Method' placeholder='Enter Payment Method' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='bankName' formik={formik}
+                    <TextField name='bankName' formik={formik} disable={isViewMode}
                       label='Bank Title' placeholder='Enter Bank Title' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='bankBranchCode' formik={formik}
+                    <TextField name='bankBranchCode' formik={formik} disable={isViewMode}
                       label='Bank Branch Code' placeholder='Enter Bank Branch Code' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='bankAccountNumber' formik={formik}
+                    <TextField name='bankAccountNumber' formik={formik} disable={isViewMode}
                       label='Bank Account No.' placeholder='Enter Bank Account No.' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
@@ -184,6 +191,7 @@ const UserInfo = () => {
                         <option value='suspended'>Suspended</option>
                       </Form.Select> */}
                       <Select
+                        isDisabled={isViewMode}
                         key='status'
                         name='status'
                         instanceId='status'
@@ -204,25 +212,26 @@ const UserInfo = () => {
                       label='Created By' placeholder='Enter Created By' />
                   </Col>
                   <Col></Col>
-                  <Col sm={12} md={6} lg={4} xl={3}
-                    className='d-flex justify-content-end align-items-end mt-1 gap-3'>
-                    <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
-                      style={{ width: '50%' }}
-                      variant='danger'
-                      onClick={e => setShowClearDialogue(true)}>
-                      <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
-                    </Button>
-                    <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
-                      style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
-                      variant='success'>
-                      {isLoading
-                        ? <BeatLoader color='#fff' size={8} />
-                        : isEditMode
-                          ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
-                          : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
-                      }
-                    </Button>
-                  </Col>
+                  {isViewMode ? '' :
+                    <Col sm={12} md={6} lg={4} xl={3}
+                      className='d-flex justify-content-end align-items-end mt-1 gap-3'>
+                      <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                        style={{ width: '50%' }}
+                        variant='danger'
+                        onClick={e => setShowClearDialogue(true)}>
+                        <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
+                      </Button>
+                      <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                        style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
+                        variant='success'>
+                        {isLoading
+                          ? <BeatLoader color='#fff' size={8} />
+                          : isEditMode
+                            ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
+                            : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
+                        }
+                      </Button>
+                    </Col>}
                 </Row>
                 {showClearDialogue ?
                   <CustomAlertDialogue

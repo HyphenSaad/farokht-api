@@ -12,8 +12,8 @@ export const FetchAttributeData = async ({ token, id, setFetchError, setIsGettin
       setInitialValues({
         name: response.data.name || '',
         status: StatusOptions.filter(status => status.value === response.data.status)[0],
-        updatedBy: response.data.updatedBy || '',
-        createdBy: response.data.createdBy || '',
+        updatedBy: `${response.data.updatedBy.firstName} ${response.data.updatedBy.lastName}`,
+        createdBy: `${response.data.createdBy.firstName} ${response.data.createdBy.lastName}`,
       })
       setIsGettingData(false)
     } else { setFetchError(`${response.status} - ${response.statusText}`) }

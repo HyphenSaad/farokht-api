@@ -177,6 +177,8 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
             minCost: `${shipmentCost.minCost}`
           }
         }),
+        updatedBy: `${response.data.updatedBy.firstName} ${response.data.updatedBy.lastName}`,
+        createdBy: `${response.data.createdBy.firstName} ${response.data.createdBy.lastName}`,
       })
       setIsGettingData(false)
     } else { setFetchError(`${response.status} - ${response.statusText}`) }

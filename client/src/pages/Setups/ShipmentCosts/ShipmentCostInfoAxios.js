@@ -16,8 +16,8 @@ export const FetchShipmentCostData = async ({ token, id, setFetchError, setIsGet
         minCost: response.data.minCost || '',
         maxCost: response.data.maxCost || '',
         status: StatusOptions.filter(status => status.value === response.data.status)[0],
-        updatedBy: response.data.updatedBy,
-        createdBy: response.data.createdBy,
+        updatedBy: `${response.data.updatedBy.firstName} ${response.data.updatedBy.lastName}`,
+        createdBy: `${response.data.createdBy.firstName} ${response.data.createdBy.lastName}`,
       })
       setIsGettingData(false)
     } else { setFetchError(`${response.status} - ${response.statusText}`) }

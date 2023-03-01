@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react'
 import { Container, Form, Button, Col, Row } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
 import { BeatLoader } from 'react-spinners'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import Select from 'react-select'
 import { Save, Clear, Done } from '@mui/icons-material'
 
@@ -16,6 +16,7 @@ const UnitOfMeasureInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isGettingData, setIsGettingData] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [isViewMode, setIsViewMode] = useState(false)
   const [showClearDialogue, setShowClearDialogue] = useState(false)
 
   const [error, setError] = useState('')
@@ -23,6 +24,7 @@ const UnitOfMeasureInfo = () => {
 
   const parameters = useParams()
   const navigate = useNavigate()
+  const { state } = useLocation()
 
   const authContext = useContext(AuthContext)
   const currentUser = authContext.user
@@ -44,6 +46,7 @@ const UnitOfMeasureInfo = () => {
     }
 
     if (parameters.id === undefined) return
+    if (state.mode === 0) setIsViewMode(true)
     setIsEditMode(true)
 
     FetchUnitOfMeasureData({
@@ -53,7 +56,7 @@ const UnitOfMeasureInfo = () => {
       setInitialValues,
       setIsGettingData
     })
-  }, [parameters, setInitialValues, authContext])
+  }, [parameters, setInitialValues, authContext, state])
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -83,20 +86,21 @@ const UnitOfMeasureInfo = () => {
           :
           <>
             <p className='fs-3 fw-bold text-uppercase d-inline'>
-              {isEditMode ? 'Edit Unit Of Measure' : 'Add Unit Of Measure'}
+              {isEditMode ? (isViewMode ? 'View Unit Of Measure' : 'Edit Unit Of Measure') : 'Add Unit Of Measure'}
             </p>
             <Form.Text className='text-danger ms-3'>{error}</Form.Text>
             <Formik enableReinitialize>
               <Form onSubmit={formik.handleSubmit} className='mt-3'>
                 <Row>
                   <Col sm={12} md={6} lg={4} xl={3}>
-                    <TextField name='name' formik={formik}
+                    <TextField name='name' formik={formik} disable={isViewMode}
                       label='Unit of Measure' placeholder='Enter Unit of Measure' />
                   </Col>
                   <Col sm={12} md={6} lg={4} xl={3}>
                     <Form.Group className='mb-3'>
                       <Form.Label>Status</Form.Label>
                       <Select
+                        isDisabled={isViewMode}
                         key='status'
                         name='status'
                         instanceId='status'
@@ -118,25 +122,26 @@ const UnitOfMeasureInfo = () => {
                     <TextField name='createdBy' formik={formik} disable={true}
                       label='Created By' placeholder='Enter Created By' />
                   </Col>
-                  <Col sm={12} md={12} lg={6} xl={3}
-                    className='d-flex justify-content-end align-items-end mt-1 gap-3 pb-3'>
-                    <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
-                      style={{ width: '50%' }}
-                      variant='danger'
-                      onClick={e => setShowClearDialogue(true)}>
-                      <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
-                    </Button>
-                    <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
-                      style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
-                      variant='success'>
-                      {isLoading
-                        ? <BeatLoader color='#fff' size={8} />
-                        : isEditMode
-                          ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
-                          : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
-                      }
-                    </Button>
-                  </Col>
+                  {isViewMode ? '' :
+                    <Col sm={12} md={12} lg={6} xl={3}
+                      className='d-flex justify-content-end align-items-end mt-1 gap-3 pb-3'>
+                      <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                        style={{ width: '50%' }}
+                        variant='danger'
+                        onClick={e => setShowClearDialogue(true)}>
+                        <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
+                      </Button>
+                      <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                        style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
+                        variant='success'>
+                        {isLoading
+                          ? <BeatLoader color='#fff' size={8} />
+                          : isEditMode
+                            ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
+                            : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
+                        }
+                      </Button>
+                    </Col>}
                 </Row>
                 {showClearDialogue ?
                   <CustomAlertDialogue

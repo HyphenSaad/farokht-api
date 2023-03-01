@@ -9,6 +9,12 @@ const AddShipmentCost = async (request, response, next) => {
   if (!source || !destination || !days || !maxCost || !minCost || !status)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
 
+  if (minCost > maxCost)
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'Minimum Cost Should Be Less Than Or Equal To Maximum Cost!'
+    }
+
   const shipmentCost = await ShipmentCost.create({
     source,
     destination,
@@ -34,6 +40,12 @@ const UpdateShipmentCost = async (request, response, next) => {
   const { source, destination, days, maxCost, minCost, status } = request.body
   if (!source || !destination || !days || !maxCost || !minCost || !status)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
+
+  if (minCost > maxCost)
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'Minimum Cost Should Be Less Than Or Equal To Maximum Cost!'
+    }
 
   const options = { _id: request.params.id }
   const shipmentCost = await ShipmentCost.findOne(options).catch(error => next(error))

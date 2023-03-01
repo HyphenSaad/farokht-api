@@ -25,8 +25,8 @@ export const FetchUserData = async ({ token, id, setFetchError, setIsGettingData
         bankName: response.data.bankName || '',
         bankBranchCode: response.data.bankBranchCode || '',
         bankAccountNumber: response.data.bankAccountNumber || '',
-        updatedBy: response.data.updatedBy || '',
-        createdBy: response.data.createdBy || '',
+        updatedBy: `${response.data.updatedBy.firstName} ${response.data.updatedBy.lastName}`,
+        createdBy: `${response.data.createdBy.firstName} ${response.data.createdBy.lastName}`,
         role: RoleOptions.filter(role => role.value === response.data.role)[0],
         status: StatusOptions.filter(status => status.value === response.data.status)[0],
       })

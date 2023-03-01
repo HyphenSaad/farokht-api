@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react'
 import { Container, Form, Button, Col, Row } from 'react-bootstrap'
 import { Formik, FieldArray } from 'formik'
 import { BeatLoader } from 'react-spinners'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import Select from 'react-select'
 import AsyncSelect from 'react-select/async'
 import AsyncCreatableSelect from 'react-select/async-creatable'
@@ -18,12 +18,14 @@ const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isGettingData, setIsGettingData] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [isViewMode, setIsViewMode] = useState(false)
   const [error, setError] = useState('')
   const [fetchError, setFetchError] = useState('')
   const [showClearDialogue, setShowClearDialogue] = useState(false)
 
   const parameters = useParams()
   const navigate = useNavigate()
+  const { state } = useLocation()
 
   const authContext = useContext(AuthContext)
   const currentUser = authContext.user
@@ -44,6 +46,7 @@ const TagInfo = () => {
     }
 
     if (parameters.id === undefined) return
+    if (state.mode === 0) setIsViewMode(true)
     setIsEditMode(true)
 
     FetchItemData({
@@ -51,7 +54,7 @@ const TagInfo = () => {
       id: parameters.id,
       setFetchError, setIsGettingData, setInitialValues
     })
-  }, [parameters, setInitialValues, authContext])
+  }, [parameters, setInitialValues, authContext, state])
 
   return (
     <Container style={{ padding: '1.25rem' }} >
@@ -77,29 +80,33 @@ const TagInfo = () => {
                 :
                 <>
                   <p className='fs-3 fw-bold text-uppercase d-inline'>
-                    {isEditMode ? 'Edit Item' : 'Add Item'}
+                    {isEditMode ? (isViewMode ? 'View Item' : 'Edit Item') : 'Add Item'}
                   </p>
                   <Form.Text className='text-danger ms-3'>{error}</Form.Text>
                   <Row className='mt-2'>
                     <Col sm={12} md={6} lg={4} xl={6}>
-                      <TextField name='name' formik={formik} label='Title' placeholder='Enter Title' />
+                      <TextField name='name' formik={formik} disable={isViewMode}
+                        label='Title' placeholder='Enter Title' />
                     </Col>
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField name='minOrderNumber' formik={formik} label='Minium Order No.' placeholder='Enter Minium Order No.' />
+                      <TextField name='minOrderNumber' formik={formik} disable={isViewMode}
+                        label='Minium Order No.' placeholder='Enter Minium Order No.' />
                     </Col>
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField name='maxOrderNumber' formik={formik} label='Maximum Order No.' placeholder='Enter Maximum Order No.' />
+                      <TextField name='maxOrderNumber' formik={formik} disable={isViewMode}
+                        label='Maximum Order No.' placeholder='Enter Maximum Order No.' />
                     </Col>
                     <Col sm={12} md={6} lg={8} xl={6}>
-                      <TextField name='description' formik={formik} label='Description' placeholder='Enter Description' />
+                      <TextField name='description' formik={formik} disable={isViewMode}
+                        label='Description' placeholder='Enter Description' />
                     </Col>
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField name='completionDays' formik={formik}
+                      <TextField name='completionDays' formik={formik} disable={isViewMode}
                         label='Completion Days' placeholder='Completion Days' />
                     </Col>
 
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField name='vendorPayoutPercentage' formik={formik}
+                      <TextField name='vendorPayoutPercentage' formik={formik} disable={isViewMode}
                         label='Vendor Payout Percentage' placeholder='Enter Percentage' />
                     </Col>
 
@@ -107,6 +114,7 @@ const TagInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Vendor</Form.Label>
                         <AsyncSelect
+                          isDisabled={isViewMode}
                           value={formik.values.user}
                           defaultValue={formik.values.user}
                           getOptionLabel={e => e.label}
@@ -125,6 +133,7 @@ const TagInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Unit of Measure</Form.Label>
                         <AsyncCreatableSelect
+                          isDisabled={isViewMode}
                           key='unitOfMeasure'
                           name='unitOfMeasure'
                           instanceId='unitOfMeasure'
@@ -149,6 +158,7 @@ const TagInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Tags</Form.Label>
                         <AsyncCreatableSelect
+                          isDisabled={isViewMode}
                           key='tags'
                           name='tags'
                           instanceId='tags'
@@ -175,6 +185,7 @@ const TagInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Status</Form.Label>
                         <Select
+                          isDisabled={isViewMode}
                           key='status'
                           name='status'
                           instanceId='status'
@@ -210,16 +221,17 @@ const TagInfo = () => {
                       <>
                         <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
                           <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.3rem' }}>Attributes</p>
-                          <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
-                            variant='primary'
-                            onClick={e => {
-                              array.push({
-                                id: { value: '', label: 'Choose Attribute' },
-                                value: '',
-                              })
-                            }}>
-                            <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
-                          </Button>
+                          {isViewMode ? '' :
+                            <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                              variant='primary'
+                              onClick={e => {
+                                array.push({
+                                  id: { value: '', label: 'Choose Attribute' },
+                                  value: '',
+                                })
+                              }}>
+                              <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
+                            </Button>}
                         </Container>
                         {
                           formik.errors.attributes && formik.touched.attributes && !Array.isArray(formik.errors.attributes)
@@ -232,6 +244,7 @@ const TagInfo = () => {
                               <Form.Group className='mb-3'>
                                 <Form.Label>Attribute No. {index + 1}</Form.Label>
                                 <AsyncCreatableSelect
+                                  isDisabled={isViewMode}
                                   key={`attributes[${index}].id`}
                                   name={`attributes[${index}].id`}
                                   instanceId={`attributes[${index}].id`}
@@ -255,6 +268,7 @@ const TagInfo = () => {
                               </Form.Group>
 
                               <TextField
+                                disable={isViewMode}
                                 value={formik.values.attributes[index].value}
                                 name={`attributes[${index}].value`}
                                 formik={formik}
@@ -262,14 +276,15 @@ const TagInfo = () => {
                                 placeholder='Enter Value'
                                 hasFieldArrayError={true}
                               />
-                              <Form.Group>
-                                <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
-                                  style={{ width: '50%' }}
-                                  variant='danger'
-                                  onClick={e => { array.remove(index) }}>
-                                  <Delete style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Remove
-                                </Button>
-                              </Form.Group>
+                              {isViewMode ? '' :
+                                <Form.Group>
+                                  <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                                    style={{ width: '50%' }}
+                                    variant='danger'
+                                    onClick={e => { array.remove(index) }}>
+                                    <Delete style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Remove
+                                  </Button>
+                                </Form.Group>}
                             </Col>
                           ))}
                         </Row>
@@ -286,12 +301,13 @@ const TagInfo = () => {
                         <>
                           <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
                             <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.3rem' }}>Price Slabs</p>
-                            <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
-                              variant='primary' onClick={e => {
-                                array.push({ slab: '', price: '', })
-                              }}>
-                              <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
-                            </Button>
+                            {isViewMode ? '' :
+                              <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                                variant='primary' onClick={e => {
+                                  array.push({ slab: '', price: '', })
+                                }}>
+                                <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
+                              </Button>}
                           </Container>
                           {
                             formik.errors.priceSlabs && formik.touched.priceSlabs && !Array.isArray(formik.errors.priceSlabs)
@@ -302,6 +318,7 @@ const TagInfo = () => {
                             {formik.values.priceSlabs.map((attribute, index) => (
                               <Col sm={12} md={6} lg={4} xl={3} className='mt-3' key={`id@${index}`}>
                                 <TextField
+                                  disable={isViewMode}
                                   value={formik.values.priceSlabs[index].slab}
                                   name={`priceSlabs[${index}].slab`}
                                   formik={formik}
@@ -309,20 +326,22 @@ const TagInfo = () => {
                                   placeholder='Enter Slab'
                                   hasFieldArrayError={true} />
                                 <TextField
+                                  disable={isViewMode}
                                   value={formik.values.priceSlabs[index].price}
                                   name={`priceSlabs[${index}].price`}
                                   formik={formik}
                                   label='Price'
                                   placeholder='Enter Price'
                                   hasFieldArrayError={true} />
-                                <Form.Group>
-                                  <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
-                                    style={{ width: '50%' }}
-                                    variant='danger'
-                                    onClick={e => { array.remove(index) }}>
-                                    <Delete style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Remove
-                                  </Button>
-                                </Form.Group>
+                                {isViewMode ? '' :
+                                  <Form.Group>
+                                    <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                                      style={{ width: '50%' }}
+                                      variant='danger'
+                                      onClick={e => { array.remove(index) }}>
+                                      <Delete style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Remove
+                                    </Button>
+                                  </Form.Group>}
                               </Col>
                             ))}
                           </Row>
@@ -338,7 +357,7 @@ const TagInfo = () => {
                       <>
                         <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
                           <p className='m-0 p-0 text-uppercase fw-bold' style={{ fontSize: '1.3rem' }}>Shipment Costs</p>
-                          <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                          {isViewMode ? '' : <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
                             variant='primary'
                             onClick={e => {
                               array.push({
@@ -349,7 +368,7 @@ const TagInfo = () => {
                               })
                             }}>
                             <Add style={{ marginRight: '0.25rem', fontSize: '1rem' }} />Add
-                          </Button>
+                          </Button>}
                         </Container>
                         {
                           formik.errors.shipmentCosts && formik.touched.shipmentCosts && !Array.isArray(formik.errors.shipmentCosts)
@@ -362,6 +381,7 @@ const TagInfo = () => {
                               <Form.Group className='mb-3'>
                                 <Form.Label>Shipment Cost No. {index + 1}</Form.Label>
                                 <AsyncCreatableSelect
+                                  isDisabled={isViewMode}
                                   key={`shipmentCosts[${index}]`}
                                   name={`shipmentCosts[${index}]`}
                                   instanceId={`shipmentCosts[${index}]`}
@@ -405,17 +425,18 @@ const TagInfo = () => {
                                 disable={true}
                               />
                             </Col>
-                            <Col sm={12} md={4} lg={2} xl={2} key={`action@${index}`}>
-                              <Form.Group>
-                                <Form.Label className='d-sm-none d-md-block'>&nbsp;</Form.Label>
-                                <Button className='mt-2 text-uppercase d-flex justify-content-center align-items-center pe-3'
-                                  variant='danger'
-                                  style={{ width: '100%' }}
-                                  onClick={e => { array.remove(index) }}>
-                                  <Delete style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />Remove
-                                </Button>
-                              </Form.Group>
-                            </Col>
+                            {isViewMode ? '' :
+                              <Col sm={12} md={4} lg={2} xl={2} key={`action@${index}`}>
+                                <Form.Group>
+                                  <Form.Label className='d-sm-none d-md-block'>&nbsp;</Form.Label>
+                                  <Button className='mt-2 text-uppercase d-flex justify-content-center align-items-center pe-3'
+                                    variant='danger'
+                                    style={{ width: '100%' }}
+                                    onClick={e => { array.remove(index) }}>
+                                    <Delete style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />Remove
+                                  </Button>
+                                </Form.Group>
+                              </Col>}
                           </Row>
                         ))}
                       </>
@@ -482,29 +503,30 @@ const TagInfo = () => {
                   />
                 </Container> */}
 
-                <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
-                  <Row>
-                    <Col sm={12} md={6} lg={4} xl={3}
-                      className='d-flex justify-content-end align-items-end gap-3'>
-                      <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
-                        style={{ width: '50%' }}
-                        variant='danger'
-                        onClick={e => setShowClearDialogue(true)}>
-                        <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
-                      </Button>
-                      <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
-                        style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
-                        variant='success'>
-                        {isLoading
-                          ? <BeatLoader color='#fff' size={8} />
-                          : isEditMode
-                            ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
-                            : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
-                        }
-                      </Button>
-                    </Col>
-                  </Row>
-                </Container>
+                {isViewMode ? '' :
+                  <Container style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.5rem' }} className='mt-3'>
+                    <Row>
+                      <Col sm={12} md={6} lg={4} xl={3}
+                        className='d-flex justify-content-end align-items-end gap-3'>
+                        <Button type='reset' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                          style={{ width: '50%' }}
+                          variant='danger'
+                          onClick={e => setShowClearDialogue(true)}>
+                          <Clear style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Clear'}
+                        </Button>
+                        <Button type='submit' className='text-uppercase d-flex justify-content-center align-items-center pe-3'
+                          style={isLoading ? { width: '50%', height: '2.35rem' } : { width: '50%' }}
+                          variant='success'>
+                          {isLoading
+                            ? <BeatLoader color='#fff' size={8} />
+                            : isEditMode
+                              ? <><Save style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Update'}</>
+                              : <><Done style={{ marginRight: '0.25rem', fontSize: '1.25rem' }} />{'Proceed'}</>
+                          }
+                        </Button>
+                      </Col>
+                    </Row>
+                  </Container>}
               </>
             }
 
