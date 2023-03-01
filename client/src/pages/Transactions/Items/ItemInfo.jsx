@@ -52,9 +52,12 @@ const TagInfo = () => {
     FetchItemData({
       token: authContext.token,
       id: parameters.id,
-      setFetchError, setIsGettingData, setInitialValues
+      setFetchError,
+      setIsGettingData,
+      setInitialValues,
+      navigate
     })
-  }, [parameters, setInitialValues, authContext, state])
+  }, [parameters, setInitialValues, authContext, state, navigate])
 
   return (
     <Container style={{ padding: '1.25rem' }} >
@@ -120,7 +123,7 @@ const TagInfo = () => {
                           getOptionLabel={e => e.label}
                           getOptionValue={e => e.value}
                           defaultOptions
-                          loadOptions={(inputValue) => FetchUsers({ token: authContext.token, value: inputValue, setError })}
+                          loadOptions={(inputValue) => FetchUsers({ token: authContext.token, value: inputValue, setError, navigate })}
                           onChange={(data) => formik.setFieldValue('user', data)}
                           isClearable={true}
                         />
@@ -145,7 +148,7 @@ const TagInfo = () => {
                           onChange={(data) => formik.setFieldValue('unitOfMeasure', data)}
                           isClearable={true}
                           defaultOptions
-                          loadOptions={(inputValue) => FetchUnitOfMeasures({ token: authContext.token, value: inputValue, setError })}
+                          loadOptions={(inputValue) => FetchUnitOfMeasures({ token: authContext.token, value: inputValue, setError, navigate })}
                         />
                         {formik.errors.unitOfMeasure && formik.touched.unitOfMeasure
                           ? <Form.Text className='text-danger'>{formik.errors.unitOfMeasure.value}</Form.Text> : null}
@@ -170,7 +173,7 @@ const TagInfo = () => {
                           getOptionValue={e => e.value}
                           onChange={(data) => formik.setFieldValue('tags', data)}
                           isClearable={true}
-                          loadOptions={(inputValue) => FetchTags({ token: authContext.token, value: inputValue, setError })}
+                          loadOptions={(inputValue) => FetchTags({ token: authContext.token, value: inputValue, setError, navigate })}
                         />
                         {formik.errors.tags && formik.touched.tags
                           ? <Form.Text className='text-danger'>{formik.errors.tags}</Form.Text> : null}
@@ -255,7 +258,7 @@ const TagInfo = () => {
                                   onChange={(data) => formik.setFieldValue(`attributes[${index}].id`, data)}
                                   isClearable={true}
                                   defaultOptions
-                                  loadOptions={(inputValue) => FetchAttributes({ token: authContext.token, value: inputValue, setError })}
+                                  loadOptions={(inputValue) => FetchAttributes({ token: authContext.token, value: inputValue, setError, navigate })}
                                 />
                                 {
                                   formik.getFieldMeta(`attributes[${index}].id`).error &&
@@ -391,7 +394,7 @@ const TagInfo = () => {
                                   getOptionValue={e => e.value}
                                   onChange={(data) => formik.setFieldValue(`shipmentCosts[${index}]`, data)}
                                   defaultOptions
-                                  loadOptions={(inputValue) => FetchShipmentCosts({ token: authContext.token, value: inputValue, setError })}
+                                  loadOptions={(inputValue) => FetchShipmentCosts({ token: authContext.token, value: inputValue, setError, navigate })}
                                 />
                                 {
                                   formik.getFieldMeta(`shipmentCosts[${index}]`).error &&

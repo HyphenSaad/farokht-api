@@ -55,7 +55,8 @@ const Tags = () => {
         pageSize: pagination.pageSize,
         pageIndex: pagination.pageIndex + 1,
         setError,
-        setData
+        setData,
+        navigate
       })
 
       setIsLoading(false)

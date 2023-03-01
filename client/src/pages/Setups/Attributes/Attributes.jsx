@@ -56,6 +56,7 @@ const Attributes = () => {
         pageIndex: pagination.pageIndex + 1,
         setError,
         setData,
+        navigate
       })
 
       setIsLoading(false)

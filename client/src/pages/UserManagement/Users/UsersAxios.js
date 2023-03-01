@@ -1,7 +1,7 @@
 import moment from 'moment'
 import { API_SERVICE } from '../../../services'
 
-export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData }) => {
+export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData, navigate }) => {
   const endpoint = `/user?limit=${pageSize}&page=${pageIndex}`
 
   await API_SERVICE(token).get(endpoint).then(response => {
@@ -20,7 +20,10 @@ export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData
       setData(response.data)
       setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }
 
 export const DeleteUser = async ({ id, token, setError, navigate }) => {
@@ -30,5 +33,8 @@ export const DeleteUser = async ({ id, token, setError, navigate }) => {
     if (response.status === 200) {
       navigate('/Users', { state: { message: 'User Suspended Successfully!' }, replace: true })
     }
-  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }

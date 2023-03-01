@@ -1,7 +1,7 @@
 import { API_SERVICE } from '../../../services'
 import { StatusOptions } from './ItemInfoValues'
 
-export const FetchUsers = ({ token, value, setError, max = 10 }) => {
+export const FetchUsers = ({ token, value, setError, max = 10, navigate }) => {
   const usersEndpoint = `/user?role=vendor&status=approved&minified=yes&firstName=${value}&lastName=${value}&limit=${max}`
 
   return API_SERVICE(token).get(usersEndpoint).then(response => {
@@ -10,10 +10,13 @@ export const FetchUsers = ({ token, value, setError, max = 10 }) => {
         return { value: user._id, label: `${user.firstName} ${user.lastName}` }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }
 
-export const FetchTags = ({ token, value, setError, max = 10 }) => {
+export const FetchTags = ({ token, value, setError, max = 10, navigate }) => {
   const tagsEndpoint = `/tag?minified=yes&name=${value}&limit=${max}&status=enabled`
 
   return API_SERVICE(token).get(tagsEndpoint).then(response => {
@@ -22,10 +25,13 @@ export const FetchTags = ({ token, value, setError, max = 10 }) => {
         return { value: tag._id, label: tag.name }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }
 
-export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
+export const FetchUnitOfMeasures = ({ token, value, setError, max = 10, navigate }) => {
   const unitOfMeasuresEndpoint = `/uom?minified=yes&name=${value}&limit=${max}&status=enabled`
 
   return API_SERVICE(token).get(unitOfMeasuresEndpoint).then(response => {
@@ -34,10 +40,13 @@ export const FetchUnitOfMeasures = ({ token, value, setError, max = 10 }) => {
         return { value: uom._id, label: uom.name }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }
 
-export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
+export const FetchAttributes = ({ token, value, setError, max = 10, navigate }) => {
   const attributesEndpoint = `/attribute?minified=yes&name=${value}&limit=${max}&status=enabled`
 
   return API_SERVICE(token).get(attributesEndpoint).then(response => {
@@ -46,10 +55,13 @@ export const FetchAttributes = ({ token, value, setError, max = 10 }) => {
         return { value: attribute._id, label: attribute.name }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }
 
-export const FetchShipmentCosts = ({ token, value, setError, max = 10 }) => {
+export const FetchShipmentCosts = ({ token, value, setError, max = 10, navigate }) => {
   const unitOfMeasuresEndpoint = `/shipmentCost?minified=yes&name=${value}&limit=${max}&status=enabled`
 
   return API_SERVICE(token).get(unitOfMeasuresEndpoint).then(response => {
@@ -63,7 +75,10 @@ export const FetchShipmentCosts = ({ token, value, setError, max = 10 }) => {
         }
       })
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }
 
 const SubmitShapeAdjustment = (values) => {
@@ -113,18 +128,24 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
     await API_SERVICE(token).patch(editEndpoint, data).then(response => {
       if (response.status === 200) { navigate('/Items', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+    }).catch(error => {
+      if (error.response.status === 401) navigate('/Logout')
+      setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+    })
   } else {
     await API_SERVICE(token).post(addEndpoint, data).then(response => {
       if (response.status === 201) { navigate('/Items', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+    }).catch(error => {
+      if (error.response.status === 401) navigate('/Logout')
+      setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+    })
   }
 
   setIsLoading(false)
 }
 
-export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues }) => {
+export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues, navigate }) => {
   setIsGettingData(true)
 
   const endpoint = `/item/${id}`
@@ -182,5 +203,8 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
       })
       setIsGettingData(false)
     } else { setFetchError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setFetchError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setFetchError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }

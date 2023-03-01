@@ -55,7 +55,9 @@ const Users = () => {
         pageSize: pagination.pageSize,
         pageIndex: pagination.pageIndex + 1,
         token: authContext.token,
-        setError, setData
+        setError,
+        setData,
+        navigate
       })
 
       setIsLoading(false)

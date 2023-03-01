@@ -1,7 +1,7 @@
 import { API_SERVICE } from '../../../services'
 import { RoleOptions, StatusOptions } from './UserInfoValues'
 
-export const FetchUserData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues }) => {
+export const FetchUserData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues, navigate }) => {
   setIsGettingData(true)
 
   const endpoint = `/user/${id}`
@@ -33,7 +33,10 @@ export const FetchUserData = async ({ token, id, setFetchError, setIsGettingData
 
       setIsGettingData(false)
     } else { setFetchError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setFetchError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setFetchError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }
 
 export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {
@@ -53,12 +56,18 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
     await API_SERVICE(token).patch(editEndpoint, JSON.stringify(_values)).then(response => {
       if (response.status === 200) { navigate('/Users', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+    }).catch(error => {
+      if (error.response.status === 401) navigate('/Logout')
+      setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+    })
   } else {
     await API_SERVICE(token).post(addEndpoint, JSON.stringify(_values)).then(response => {
       if (response.status === 201) { navigate('/Users', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+    }).catch(error => {
+      if (error.response.status === 401) navigate('/Logout')
+      setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+    })
   }
 
   setIsLoading(false)

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext, useRef } from 'react'
-import { useNavigate, useLocation, createSearchParams } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Container, Button } from 'react-bootstrap'
 import { Box, Tooltip, IconButton } from '@mui/material'
 import { Add, Edit, Visibility } from '@mui/icons-material'
@@ -55,7 +55,8 @@ const Tags = () => {
         pageSize: pagination.pageSize,
         pageIndex: pagination.pageIndex + 1,
         setError,
-        setData
+        setData,
+        navigate
       })
 
       setIsLoading(false)

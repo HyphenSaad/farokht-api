@@ -58,9 +58,10 @@ const ShipmentCostInfo = () => {
       id: parameters.id,
       setFetchError,
       setInitialValues,
-      setIsGettingData
+      setIsGettingData,
+      navigate
     })
-  }, [parameters, setInitialValues, authContext, state])
+  }, [parameters, setInitialValues, authContext, state, navigate])
 
   const formik = useFormik({
     enableReinitialize: true,

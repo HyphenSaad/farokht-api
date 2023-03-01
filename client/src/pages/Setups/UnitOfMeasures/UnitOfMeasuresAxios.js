@@ -1,7 +1,7 @@
 import { API_SERVICE } from '../../../services'
 import moment from 'moment'
 
-export const FetchUnitOfMeasures = async ({ pageSize, pageIndex, token, setError, setData }) => {
+export const FetchUnitOfMeasures = async ({ pageSize, pageIndex, token, setError, setData, navigate }) => {
   const endpoint = `/uom?limit=${pageSize}&page=${pageIndex}`
 
   await API_SERVICE(token).get(endpoint).then(response => {
@@ -16,5 +16,8 @@ export const FetchUnitOfMeasures = async ({ pageSize, pageIndex, token, setError
       setData(response.data)
       setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
+  }).catch(error => {
+    if (error.response.status === 401) navigate('/Logout')
+    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+  })
 }
