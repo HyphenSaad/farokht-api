@@ -20,7 +20,7 @@ export const FetchUsers = async ({ pageSize, pageIndex, token, setError, setData
       setData(response.data)
       setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }
 
 export const DeleteUser = async ({ id, token, setError, navigate }) => {
@@ -30,5 +30,5 @@ export const DeleteUser = async ({ id, token, setError, navigate }) => {
     if (response.status === 200) {
       navigate('/Users', { state: { message: 'User Suspended Successfully!' }, replace: true })
     }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }

@@ -113,12 +113,12 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
     await API_SERVICE(token).patch(editEndpoint, data).then(response => {
       if (response.status === 200) { navigate('/Items', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${JSON.stringify(error.response.data.message) || error.response.statusText}`))
+    }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
   } else {
     await API_SERVICE(token).post(addEndpoint, data).then(response => {
       if (response.status === 201) { navigate('/Items', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${JSON.stringify(error.response.data.message) || error.response.statusText}`))
+    }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
   }
 
   setIsLoading(false)

@@ -19,7 +19,7 @@ export const FetchItems = async ({ pageSize, pageIndex, token, setError, setData
       setError('')
       setData(response.data)
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }
 
 export const DeleteItem = async ({ id, token, setError, navigate }) => {
@@ -29,5 +29,5 @@ export const DeleteItem = async ({ id, token, setError, navigate }) => {
     if (response.status === 200) {
       navigate('/Items', { state: { message: 'Item Deleted Successfully!' }, replace: true })
     }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }

@@ -36,12 +36,12 @@ export const SubmitUnitOfMeasureData = async ({ values, isEditMode, token, id, n
     await API_SERVICE(token).patch(editEndpoint, JSON.stringify(_values)).then(response => {
       if (response.status === 200) { navigate('/UnitOfMeasures', editRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+    }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
   } else {
     await API_SERVICE(token).post(addEndpoint, JSON.stringify(_values)).then(response => {
       if (response.status === 201) { navigate('/UnitOfMeasures', addRedirect) }
       else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+    }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
   }
 
   setIsLoading(false)

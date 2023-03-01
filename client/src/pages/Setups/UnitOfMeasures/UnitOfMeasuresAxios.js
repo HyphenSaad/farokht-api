@@ -16,5 +16,5 @@ export const FetchUnitOfMeasures = async ({ pageSize, pageIndex, token, setError
       setData(response.data)
       setError('')
     } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => setError(`${error.response.status} - ${error.response.statusText}`))
+  }).catch(error => setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`))
 }
