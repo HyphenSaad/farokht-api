@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import mongoose from 'mongoose'
 import { Item, User } from '../models/index.js'
 
 const CreateItem = async (request, response, next) => {
@@ -18,7 +19,12 @@ const CreateItem = async (request, response, next) => {
     updatedBy: request.user._id,
     createdBy: request.user._id,
   }).catch(error => next(error))
-  if (item) await item.populate('tags unitOfMeasure attributes._id shipmentCosts').catch(error => next(error))
+
+  if (item) {
+    await item.populate('tags unitOfMeasure attributes._id shipmentCosts').catch(error => next(error))
+    await User.updateOne({ _id: request.item.vendorId }, { $push: { items: item._id } }).catch(error => next(error))
+  }
+
   response.status(StatusCodes.CREATED).json(item)
 }
 
@@ -132,35 +138,19 @@ const GetAllVendorItems = async (request, response, next) => {
   if (!request.params.vendorId)
     throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
-  const page = request.query.page || 1
-  const limit = request.query.limit || 10
-  const options = { vendorId: request.params.vendorId }
+  const user = await User.findOne({ _id: request.params.vendorId }).catch(error => next(error))
+  if (!user) throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Vendor ID!' }
 
-  if (request.query.status === 'suspended' && request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
-
-  if (request.user.role === 'retailer') {
-    options.status = 'enabled'
-  } else if (request.user.role === 'admin' && request.query.status) {
-    options.status = request.query.status
-  } else if (request.user.role === 'vendor' && request.query.status) {
-    options.status = request.query.status
-    options.vendorId = request.user._id
-  }
-
-  const items = await Item.find(options)
-    .limit(limit)
-    .skip((page - 1) * limit)
-    .populate('tags unitOfMeasure attributes._id shipmentCosts')
-    .populate({ path: 'updatedBy createdBy vendorId', model: 'user', select: 'firstName lastName' })
-    .sort({ updatedAt: 'desc' })
+  await user.populate({ path: 'items', model: 'item' })
+    .populate({ path: 'items.attributes._id', model: 'attributeOfItem' })
+    .populate({ path: 'items.tags', model: 'tag' })
+    .populate({ path: 'items.shipmentCosts', model: 'shipmentCost' })
+    .populate({ path: 'items.unitOfMeasure', model: 'unitOfMeasure' })
     .catch(error => next(error))
 
-  const filteredItems = items.filter(item => {
-    return (!tag) ? item : item.tags.map(tag => tag.name).includes(tag)
+  response.status(StatusCodes.OK).json({
+    items: user.items || []
   })
-
-  response.status(StatusCodes.OK).json({ page, limit, totalItems: filteredItems.length, items: filteredItems })
 }
 
 const GetAllItems = async (request, response, next) => {

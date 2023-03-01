@@ -40,7 +40,7 @@ const UserInfo = () => {
     document.title = `User Info | ${APP_TITLE}`
 
     if (parameters.id === undefined) return
-    if (state.mode === 0) setIsViewMode(true)
+    if (state && state.mode === 0) setIsViewMode(true)
     setIsEditMode(true)
 
     FetchUserData({

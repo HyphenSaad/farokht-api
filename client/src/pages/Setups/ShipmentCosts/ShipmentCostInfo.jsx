@@ -50,7 +50,7 @@ const ShipmentCostInfo = () => {
     }
 
     if (parameters.id === undefined) return
-    if (state.mode === 0) setIsViewMode(true)
+    if (state && state.mode === 0) setIsViewMode(true)
     setIsEditMode(true)
 
     FetchShipmentCostData({
