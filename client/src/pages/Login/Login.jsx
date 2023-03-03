@@ -20,7 +20,9 @@ const LoginPage = ({ theme }) => {
 
     const userData = localStorage.getItem('userData')
     if (userData !== null) {
-      return navigate('/', { replace: true })
+      return navigate('/', {
+        replace: true
+      })
     }
   }, [navigate])
 
@@ -37,8 +39,16 @@ const LoginPage = ({ theme }) => {
       setPhoneNumberError('Invalid Phone Number!')
     }
 
+    const payload = JSON.stringify({
+      phoneNumber,
+      password,
+      role: 'admin',
+    })
+
     setIsLoading(true)
-    await API_SERVICE().post(`/auth/login`, JSON.stringify({ phoneNumber, password, role: 'admin' }),)
+
+    await API_SERVICE()
+      .post(`/auth/login`, payload)
       .then((response) => {
         if (response.status === 200) {
           localStorage.setItem('userData', JSON.stringify(response.data))
@@ -48,6 +58,7 @@ const LoginPage = ({ theme }) => {
         setPhoneNumberError('Invalid Phone Number!')
         setPasswordError('Invalid Password!')
       })
+
     setIsLoading(false)
   }
 
@@ -59,7 +70,8 @@ const LoginPage = ({ theme }) => {
           <div className='content'>
             <div className='input-field'>
               <p>Phone Number</p>
-              <input type='number'
+              <input
+                type='number'
                 placeholder='Enter Your Phone Number'
                 value={phoneNumber}
                 onChange={e => {
@@ -71,7 +83,8 @@ const LoginPage = ({ theme }) => {
             </div>
             <div className='input-field'>
               <p>Password</p>
-              <input type='password'
+              <input
+                type='password'
                 placeholder='Enter Your Password'
                 value={password}
                 onChange={e => {
@@ -82,7 +95,13 @@ const LoginPage = ({ theme }) => {
               <small style={{ color: 'red' }}>{passwordError}</small>
             </div>
           </div>
-          <button type='submit'>{isLoading ? <BeatLoader color='#fff' size={8} /> : 'PROCEED'}</button>
+          <button type='submit'>
+            {
+              isLoading
+                ? <BeatLoader color='#fff' size={8} />
+                : 'PROCEED'
+            }
+          </button>
         </form>
       </div>
     </div>
