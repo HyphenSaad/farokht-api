@@ -12,14 +12,14 @@ const ItemSchema = new mongoose.Schema({
     trim: true,
     match: [/^[a-zA-Z0-9-|&\s]+$/, 'Name should only contains alphabets and digits!'],
   },
-  minOrderNumber: {
+  minOrderQuantity: {
     type: Number,
-    required: [true, 'Minimum order number is required!'],
-    min: [1, 'Minimum order number is too short!'],
+    required: [true, 'Minimum order quantity is required!'],
+    min: [1, 'Minimum order quantity is too short!'],
   },
-  maxOrderNumber: {
+  maxOrderQuantity: {
     type: Number,
-    min: [0, 'Maximum order number is too short!'],
+    min: [0, 'Maximum order quantity is too short!'],
     default: 0,
   },
   description: {
@@ -29,19 +29,17 @@ const ItemSchema = new mongoose.Schema({
     maxLength: [255, 'Description is too long!'],
     trim: true,
   },
-  // pictures: {
-  //   type: [{
-  //     type: String,
-  //     unique: true,
-  //     trim: true,
-  //   }],
-  //   validate: [notEmpty, 'Pictures are required!'],
-  // },
+  pictures: {
+    type: [{
+      type: String,
+      trim: true,
+    }],
+    validate: [notEmpty, 'Pictures are required!'],
+  },
   tags: {
     type: [{
       type: Schema.Types.ObjectId,
       ref: Tag,
-      unique: true,
     }],
     validate: [notEmpty, 'Tags are required!'],
   },
@@ -60,15 +58,16 @@ const ItemSchema = new mongoose.Schema({
       _id: {
         type: Schema.Types.ObjectId,
         ref: AttributeOfItem,
-        unique: true,
       },
-      value: {
-        type: String,
-        required: [true, 'Attribute value is required!'],
-        minLength: [1, 'Attribute value is too short!'],
-        maxLength: [75, 'Attribute value is too long!'],
-        trim: true,
-      }
+      values: [
+        {
+          type: String,
+          required: [true, 'Attribute value is required!'],
+          minLength: [1, 'Attribute value is too short!'],
+          maxLength: [50, 'Attribute value is too long!'],
+          trim: true,
+        }
+      ]
     }],
     validate: [notEmpty, 'Attributes are required!'],
   },
@@ -110,7 +109,6 @@ const ItemSchema = new mongoose.Schema({
     type: [{
       type: Schema.Types.ObjectId,
       ref: ShipmentCost,
-      unique: true,
     }],
     validate: [notEmpty, 'Shipment Costs are required!'],
   },

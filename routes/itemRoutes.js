@@ -9,6 +9,6 @@ router.route('/:itemId').patch(ItemPrepare, UpdateItem)
 router.route('/:itemId').delete(DeleteItem)
 router.route('/:itemId').get(GetItem)
 router.route('/').get(GetAllItems)
-router.route('/getAll/:userId').get(GetAllVendorItems)
+router.route('/vendor/:userId').get(GetAllVendorItems)
 
 export default router

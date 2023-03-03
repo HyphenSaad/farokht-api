@@ -1,45 +1,61 @@
 import { API_SERVICE } from '../../../services'
 import { RoleOptions, StatusOptions } from './UserInfoValues'
+import { HandleAxiosError } from '../../../utilities.js'
 
-export const FetchUserData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues, navigate }) => {
+export const FetchUserData = async ({
+  id,
+  token,
+  navigate,
+  setError,
+  setIsGettingData,
+  setInitialValues,
+}) => {
   setIsGettingData(true)
 
   const endpoint = `/user/${id}`
 
-  await API_SERVICE(token).get(endpoint).then(response => {
-    if (response.status === 200) {
-      setFetchError('')
-
-      setInitialValues({
-        firstName: response.data.firstName || '',
-        lastName: response.data.lastName || '',
-        password: response.data.password || '',
-        phoneNumber1: response.data.phoneNumber1 || '',
-        phoneNumber2: response.data.phoneNumber2 || '',
-        landline: response.data.landline || '',
-        location: response.data.location || '',
-        address: response.data.address || '',
-        email: response.data.email || '',
-        companyName: response.data.companyName || '',
-        paymentMethod: response.data.paymentMethod || '',
-        bankName: response.data.bankName || '',
-        bankBranchCode: response.data.bankBranchCode || '',
-        bankAccountNumber: response.data.bankAccountNumber || '',
-        updatedBy: `${response.data.updatedBy.firstName} ${response.data.updatedBy.lastName}`,
-        createdBy: `${response.data.createdBy.firstName} ${response.data.createdBy.lastName}`,
-        role: RoleOptions.filter(role => role.value === response.data.role)[0],
-        status: StatusOptions.filter(status => status.value === response.data.status)[0],
-      })
-
-      setIsGettingData(false)
-    } else { setFetchError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => {
-    if (error.response.status === 401) navigate('/Logout')
-    setFetchError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-  })
+  await API_SERVICE(token)
+    .get(endpoint)
+    .then(response => {
+      if (response.status === 200) {
+        setError('')
+        setInitialValues({
+          contactName: response.data.contactName || '',
+          password: response.data.password || '',
+          phoneNumber1: response.data.phoneNumber1 || '',
+          phoneNumber2: response.data.phoneNumber2 || '',
+          landline: response.data.landline || '',
+          location: response.data.location || '',
+          address: response.data.address || '',
+          email: response.data.email || '',
+          companyName: response.data.companyName || '',
+          paymentMethod: response.data.paymentMethod || '',
+          bankName: response.data.bankName || '',
+          bankBranchCode: response.data.bankBranchCode || '',
+          bankAccountNumber: response.data.bankAccountNumber || '',
+          updatedBy: response.data.updatedBy?.contactName || '',
+          createdBy: response.data.createdBy?.contactName || '',
+          role: RoleOptions.filter(role => role.value === response.data.role)[0],
+          status: StatusOptions.filter(status => status.value === response.data.status)[0],
+        })
+        setIsGettingData(false)
+      } else {
+        setError(`${response.status} - ${response.statusText}`)
+      }
+    }).catch(error => {
+      HandleAxiosError({ error, setError, navigate })
+    })
 }
 
-export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {
+export const SubmitUserData = async ({
+  id,
+  token,
+  navigate,
+  values,
+  isEditMode,
+  setIsLoading,
+  setError,
+}) => {
   setIsLoading(true)
 
   const editEndpoint = `/user/${id}`
@@ -49,26 +65,51 @@ export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, 
   _values.role = values.role.value
   _values.status = values.status.value
 
-  const addRedirect = { state: { message: 'User Created Successfully!' }, replace: true, }
-  const editRedirect = { state: { message: 'User Updated Successfully!' }, replace: true, }
-
-  if (isEditMode) {
-    await API_SERVICE(token).patch(editEndpoint, JSON.stringify(_values)).then(response => {
-      if (response.status === 200) { navigate('/Users', editRedirect) }
-      else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => {
-      if (error.response.status === 401) navigate('/Logout')
-      setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-    })
-  } else {
-    await API_SERVICE(token).post(addEndpoint, JSON.stringify(_values)).then(response => {
-      if (response.status === 201) { navigate('/Users', addRedirect) }
-      else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => {
-      if (error.response.status === 401) navigate('/Logout')
-      setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-    })
+  const addRedirect = {
+    state: {
+      message: 'User Created Successfully!',
+    },
+    replace: true,
   }
 
-  setIsLoading(false)
+  const editRedirect = {
+    state: {
+      message: 'User Updated Successfully!',
+    },
+    replace: true,
+  }
+
+  const HandleEditMode = async () => {
+    await API_SERVICE(token)
+      .patch(editEndpoint, JSON.stringify(_values))
+      .then(response => {
+        if (response.status === 200) {
+          navigate('/Users', editRedirect)
+        } else {
+          setIsLoading(false)
+          setError(`${response.status} - ${response.statusText}`)
+        }
+      }).catch(error => {
+        setIsLoading(false)
+        HandleAxiosError({ error, setError, navigate })
+      })
+  }
+
+  const HandleCreateMode = async () => {
+    await API_SERVICE(token)
+      .post(addEndpoint, JSON.stringify(_values))
+      .then(response => {
+        if (response.status === 201) {
+          navigate('/Users', addRedirect)
+        } else {
+          setIsLoading(false)
+          setError(`${response.status} - ${response.statusText}`)
+        }
+      }).catch(error => {
+        setIsLoading(false)
+        HandleAxiosError({ error, setError, navigate })
+      })
+  }
+
+  isEditMode ? HandleEditMode() : HandleCreateMode()
 }

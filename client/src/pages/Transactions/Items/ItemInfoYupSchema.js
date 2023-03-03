@@ -7,12 +7,12 @@ const ItemInfoSchema = Yup.object().shape({
     .max(25, 'Too Long!')
     .required('Required!'),
 
-  minOrderNumber: Yup.number()
+  minOrderQuantity: Yup.number()
     .typeError('Invalid')
     .min(1, 'Too Short!')
     .required('Required!'),
 
-  maxOrderNumber: Yup.number()
+  maxOrderQuantity: Yup.number()
     .nullable()
     .typeError('Invalid')
     .min(1, 'Too Short!'),
@@ -43,14 +43,8 @@ const ItemInfoSchema = Yup.object().shape({
         .max(25, 'Too Long!')
         .required('Required!')
     }))
-    .min(1, 'At Least 1 Required!'),
-
-  // status: Yup.object()
-  //   .shape({
-  //     value: Yup.string().required('Required!'),
-  //     label: Yup.string().required('Required!')
-  //   })
-  // .required('Required!'),
+    .min(1, 'At Least 1 Required!')
+    .max(25, 'Max Limit Exceed!'),
 
   vendorPayoutPercentage: Yup.number()
     .typeError('Invalid')
@@ -81,13 +75,17 @@ const ItemInfoSchema = Yup.object().shape({
           .required('Required!'),
       }),
 
-      value: Yup.string()
-        .typeError('Invalid')
-        .min(1, 'Too Short!')
-        .max(75, 'Too Long!')
-        .required('Required!'),
+      values: Yup.array()
+        .of(
+          Yup.string()
+            .typeError('Invalid')
+            .min(1, 'Too Short!')
+            .max(50, 'Too Long!')
+            .required('Required!')
+        ),
     }))
-    .min(1, 'At Least 1 Required!'),
+    .min(1, 'At Least 1 Required!')
+    .max(10, 'Max Limit Exceed!'),
 
   priceSlabs: Yup.array()
     .of(Yup.object().shape({

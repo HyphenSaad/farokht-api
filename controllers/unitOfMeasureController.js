@@ -1,107 +1,221 @@
 import { StatusCodes } from 'http-status-codes'
 import { UnitOfMeasure } from '../models/index.js'
+import { StringValidation } from '../utilities.js'
 
-const AddUnitOfMeasure = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+const __AddUnitOfMeasure = async (request) => {
+  const { name, status } = request.body
 
-  if (!request.body.name || !request.body.status)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
+  StringValidation({
+    fieldName: 'Unit of Measure Name',
+    data: name,
+    minLength: 1,
+    maxLength: 25,
+    isRequired: true,
+  })
 
-  const unitOfMeasure = await UnitOfMeasure.create({
-    name: request.body.name,
-    status: request.body.status,
+  StringValidation({
+    fieldName: 'Unit of Measure Status',
+    data: status,
+    isRequired: true,
+    validValues: ['disabled', 'enabled'],
+  })
+
+  const unitOfMeasureExists = await UnitOfMeasure.findOne({
+    name: {
+      '$regex': `^${name}$`,
+      '$options': 'i'
+    },
+  })
+
+  if (request.__fromItemPrepare && unitOfMeasureExists) {
+    return unitOfMeasureExists
+  } else if (unitOfMeasureExists) {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: `Unit of Measure already exists!`,
+    }
+  }
+
+  const payload = {
+    name: name,
+    status: request.__fromItemPrepare ? 'enabled' : status,
     updatedBy: request.user._id,
     createdBy: request.user._id,
-  }).populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-    .catch(error => next(error))
+  }
 
+  const unitOfMeasure = await UnitOfMeasure.create(payload)
+  return unitOfMeasure
+}
+
+const AddUnitOfMeasure = async (request, response, next) => {
+  if (request.user.role !== 'admin') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: `You're Unauthorized To Perform This Operation!`,
+    }
+  }
+
+  const unitOfMeasure = await __AddUnitOfMeasure(request)
   response.status(StatusCodes.CREATED).json(unitOfMeasure)
 }
 
 const UpdateUnitOfMeasure = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+  if (request.user.role !== 'admin') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: `You're Unauthorized To Perform This Operation!`,
+    }
+  }
 
-  if (!request.params.id)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure ID is Required!' }
+  StringValidation({
+    fieldName: 'Unit of Measure ID',
+    data: request.params.id,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  if (!request.body.name || !request.body.status)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
+  const { name, status } = request.body
 
-  const options = { _id: request.params.id }
-  const unitOfMeasure = await UnitOfMeasure.findOne(options).catch(error => next(error))
+  StringValidation({
+    fieldName: 'Unit of Measure Name',
+    data: name,
+    minLength: 1,
+    maxLength: 25,
+    isRequired: true,
+  })
 
-  if (!unitOfMeasure)
-    response.status(StatusCodes.NOT_FOUND).json({ message: `Unit Of Measure ${request.params.id} Not Found!` })
+  StringValidation({
+    fieldName: 'Unit of Measure Status',
+    data: status,
+    isRequired: true,
+    validValues: ['disabled', 'enabled'],
+  })
 
-  unitOfMeasure.name = request.body.name
-  unitOfMeasure.status = request.body.status
+  const payload = { _id: request.params.id, }
+
+  const populate = {
+    path: 'createdBy updatedBy',
+    model: 'user',
+    select: '_id contactName',
+  }
+
+  const unitOfMeasure = await UnitOfMeasure.findOne(payload)
+    .populate(populate)
+
+  if (!unitOfMeasure) {
+    response.status(StatusCodes.NOT_FOUND).json({
+      message: `Unit of Measure ${request.params.id} Not Found!`,
+    })
+  }
+
+  const unitOfMeasureExists = await UnitOfMeasure.findOne({
+    name: {
+      '$regex': `^${name}$`,
+      '$options': 'i'
+    },
+  })
+
+  if (unitOfMeasureExists && unitOfMeasureExists.name.toLowerCase() !== unitOfMeasure.name.toLowerCase()) {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: `Unit of Measure already exists!`,
+    }
+  }
+
+  unitOfMeasure.name = name
+  unitOfMeasure.status = status.toLowerCase()
   unitOfMeasure.updatedBy = request.user._id
-
-  await unitOfMeasure.populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-    .catch(error => next(error))
 
   await unitOfMeasure.save().then(() => {
     response.status(StatusCodes.OK).json(unitOfMeasure)
-  }).catch(error => next(error))
+  })
 }
 
 const GetAllUnitOfMeasures = async (request, response, next) => {
   const page = request.query.page || 1
   const limit = request.query.limit || 10
   const minified = request.query.minified || 'no'
-  const options = {}
+  const payload = {}
   const data = []
 
-  if (request.query.status)
-    options.status = request.query.status
+  StringValidation({
+    fieldName: 'Unit of Measure Status',
+    data: request.query.status,
+    validValues: ['disabled', 'enabled'],
+  })
 
-  if (request.query.name)
-    options.name = {
+  StringValidation({
+    fieldName: 'Unit of Measure Minified Parameter',
+    data: minified,
+    validValues: ['yes', 'no'],
+  })
+
+  if (request.query.status) {
+    payload.status = request.query.status
+  }
+
+  if (request.query.name) {
+    payload.name = {
       '$regex': `${request.query.name.split(' ').join('|')}`,
       '$options': 'i'
     }
-
-  const unitOfMeasureCount = await UnitOfMeasure.count(options).catch(error => next(error))
-
-  if (minified === 'yes') {
-    const unitOfMeasure = await UnitOfMeasure.find(options)
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .sort({ updatedAt: 'desc' })
-      .catch(error => next(error))
-
-    unitOfMeasure.forEach(uom => data.push({
-      _id: uom._id,
-      name: uom.name,
-    }))
-  } else {
-    const unitOfMeasure = await UnitOfMeasure.find(options)
-      .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .sort({ updatedAt: 'desc' })
-      .catch(error => next(error))
-
-    unitOfMeasure.forEach(uom => data.push(uom))
   }
 
+  // to check the total number of unitOfMeasures we have in database that match the specified criteria
+  const totalUnitOfMeasures = await UnitOfMeasure.count(payload)
+
+  const populate = {
+    path: 'createdBy updatedBy',
+    model: 'user',
+    select: '_id contactName',
+  }
+
+  const unitOfMeasures = await UnitOfMeasure.find(payload)
+    .populate(minified === 'yes' ? { path: '' } : populate)
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ updatedAt: 'desc' })
+
+  unitOfMeasures.forEach(unitOfMeasure => {
+    const simpleData = {
+      _id: unitOfMeasure._id,
+      name: unitOfMeasure.name,
+    }
+
+    data.push(minified === 'yes' ? simpleData : unitOfMeasure)
+  })
+
   response.status(StatusCodes.OK).json({
-    totalUnitOfMeasures: unitOfMeasureCount, page, limit,
-    count: data.length || 0, unitOfMeasures: data
+    totalUnitOfMeasures: totalUnitOfMeasures,
+    page: page,
+    limit: limit,
+    count: data.length || 0,
+    unitOfMeasures: data,
   })
 }
 
 const GetUnitOfMeasure = async (request, response, next) => {
-  if (!request.params.id)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Unit Of Measure ID is Required!' }
+  StringValidation({
+    fieldName: 'Unit of Measure ID',
+    data: request.params.id,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  const unitOfMeasure = await UnitOfMeasure.findOne({ _id: request.params.id })
-    .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-    .catch(error => next(error))
+  const payload = { _id: request.params.id, }
+
+  const populate = {
+    path: 'createdBy updatedBy',
+    model: 'user',
+    select: '_id contactName',
+  }
+
+  const unitOfMeasure = await UnitOfMeasure.findOne(payload)
+    .populate(populate)
 
   response.status(StatusCodes.OK).json(unitOfMeasure)
 }
 
-export { AddUnitOfMeasure, UpdateUnitOfMeasure, GetAllUnitOfMeasures, GetUnitOfMeasure }
+export { __AddUnitOfMeasure, AddUnitOfMeasure, UpdateUnitOfMeasure, GetAllUnitOfMeasures, GetUnitOfMeasure }

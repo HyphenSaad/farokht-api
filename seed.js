@@ -9,8 +9,7 @@ const CreateAdmin = async () => {
   }
 
   await User.create({
-    firstName: 'Admin',
-    lastName: 'Admin',
+    contactName: 'Administrator',
     phoneNumber1: '0123456789',
     password: await bcrypt.hash('Admin@123', await bcrypt.genSalt(10)),
     companyName: 'Administrator',

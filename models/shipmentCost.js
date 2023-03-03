@@ -21,15 +21,15 @@ const ShipmentCostSchema = new mongoose.Schema({
     required: [true, 'Days are required!'],
     min: [1, 'Days are too short!'],
   },
-  maxCost: {
-    type: Number,
-    required: [true, 'Maximum cost is required!'],
-    min: [0, 'Maximum cost is too short!'],
-  },
   minCost: {
     type: Number,
     required: [true, 'Minimum cost is required!'],
     min: [0, 'Minimum cost is too short!'],
+  },
+  maxCost: {
+    type: Number,
+    required: [true, 'Maximum cost is required!'],
+    min: [0, 'Maximum cost is too short!'],
   },
   status: {
     type: String,

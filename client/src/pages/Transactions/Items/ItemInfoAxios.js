@@ -1,84 +1,112 @@
 import { API_SERVICE } from '../../../services'
 import { StatusOptions } from './ItemInfoValues'
+import { HandleAxiosError } from '../../../utilities.js'
 
 export const FetchUsers = ({ token, value, setError, max = 10, navigate }) => {
-  const usersEndpoint = `/user?role=vendor&status=approved&minified=yes&firstName=${value}&lastName=${value}&limit=${max}`
+  const usersEndpoint = `/user?role=vendor&status=approved&minified=yes&contactName=${value}&limit=${max}`
 
-  return API_SERVICE(token).get(usersEndpoint).then(response => {
-    if (response.status === 200) {
-      return response.data.users.map(user => {
-        return { value: user._id, label: `${user.firstName} ${user.lastName}` }
-      })
-    } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => {
-    if (error.response.status === 401) navigate('/Logout')
-    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-  })
+  return API_SERVICE(token)
+    .get(usersEndpoint)
+    .then(response => {
+      if (response.status === 200) {
+        return response.data.users.map(user => {
+          return {
+            value: user._id,
+            label: user.contactName,
+          }
+        })
+      } else {
+        setError(`${response.status} - ${response.statusText}`)
+      }
+    }).catch(error => {
+      HandleAxiosError({ error, setError, navigate })
+    })
 }
 
 export const FetchTags = ({ token, value, setError, max = 10, navigate }) => {
   const tagsEndpoint = `/tag?minified=yes&name=${value}&limit=${max}&status=enabled`
 
-  return API_SERVICE(token).get(tagsEndpoint).then(response => {
-    if (response.status === 200) {
-      return response.data.tags.map(tag => {
-        return { value: tag._id, label: tag.name }
-      })
-    } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => {
-    if (error.response.status === 401) navigate('/Logout')
-    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-  })
+  return API_SERVICE(token)
+    .get(tagsEndpoint)
+    .then(response => {
+      if (response.status === 200) {
+        return response.data.tags.map(tag => {
+          return {
+            value: tag._id,
+            label: tag.name,
+          }
+        })
+      } else {
+        setError(`${response.status} - ${response.statusText}`)
+      }
+    }).catch(error => {
+      HandleAxiosError({ error, setError, navigate })
+    })
 }
 
 export const FetchUnitOfMeasures = ({ token, value, setError, max = 10, navigate }) => {
   const unitOfMeasuresEndpoint = `/uom?minified=yes&name=${value}&limit=${max}&status=enabled`
 
-  return API_SERVICE(token).get(unitOfMeasuresEndpoint).then(response => {
-    if (response.status === 200) {
-      return response.data.unitOfMeasures.map(uom => {
-        return { value: uom._id, label: uom.name }
-      })
-    } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => {
-    if (error.response.status === 401) navigate('/Logout')
-    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-  })
+  return API_SERVICE(token)
+    .get(unitOfMeasuresEndpoint)
+    .then(response => {
+      if (response.status === 200) {
+        return response.data.unitOfMeasures.map(unitOfMeasure => {
+          return {
+            value: unitOfMeasure._id,
+            label: unitOfMeasure.name,
+          }
+        })
+      } else {
+        setError(`${response.status} - ${response.statusText}`)
+      }
+    }).catch(error => {
+      HandleAxiosError({ error, setError, navigate })
+    })
 }
 
 export const FetchAttributes = ({ token, value, setError, max = 10, navigate }) => {
   const attributesEndpoint = `/attribute?minified=yes&name=${value}&limit=${max}&status=enabled`
 
-  return API_SERVICE(token).get(attributesEndpoint).then(response => {
-    if (response.status === 200) {
-      return response.data.attributes.map(attribute => {
-        return { value: attribute._id, label: attribute.name }
-      })
-    } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => {
-    if (error.response.status === 401) navigate('/Logout')
-    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-  })
+  return API_SERVICE(token)
+    .get(attributesEndpoint)
+    .then(response => {
+      if (response.status === 200) {
+        return response.data.attributes.map(attribute => {
+          return {
+            value: attribute._id,
+            label: attribute.name,
+          }
+        })
+      } else {
+        setError(`${response.status} - ${response.statusText}`)
+      }
+    }).catch(error => {
+      HandleAxiosError({ error, setError, navigate })
+    })
 }
 
 export const FetchShipmentCosts = ({ token, value, setError, max = 10, navigate }) => {
   const unitOfMeasuresEndpoint = `/shipmentCost?minified=yes&name=${value}&limit=${max}&status=enabled`
 
-  return API_SERVICE(token).get(unitOfMeasuresEndpoint).then(response => {
-    if (response.status === 200) {
-      return response.data.shipmentCosts.map(shipmentCost => {
-        return {
-          value: shipmentCost._id,
-          label: `${shipmentCost.days} days, ${shipmentCost.source} to ${shipmentCost.destination}`,
-          minCost: shipmentCost.minCost,
-          maxCost: shipmentCost.maxCost,
-        }
-      })
-    } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => {
-    if (error.response.status === 401) navigate('/Logout')
-    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-  })
+  return API_SERVICE(token)
+    .get(unitOfMeasuresEndpoint)
+    .then(response => {
+      if (response.status === 200) {
+        return response.data.shipmentCosts.map(shipmentCost => {
+          return {
+            value: shipmentCost._id,
+            label: `${shipmentCost.days} days, ${shipmentCost.source} to ${shipmentCost.destination}`,
+            minCost: shipmentCost.minCost,
+            maxCost: shipmentCost.maxCost,
+          }
+        })
+      } else {
+        setError(`${response.status} - ${response.statusText}`)
+      }
+    }).catch(error => {
+      HandleAxiosError({ error, setError, navigate })
+    })
 }
 
 const SubmitShapeAdjustment = (values) => {
@@ -97,8 +125,8 @@ const SubmitShapeAdjustment = (values) => {
 
   _values.attributes = _values.attributes.map(attribute => {
     return attribute.id.hasOwnProperty('__isNew__')
-      ? { id: '', name: attribute.id.label, value: attribute.value }
-      : { id: attribute.id.value, name: attribute.id.label, value: attribute.value }
+      ? { id: '', name: attribute.id.label, values: attribute.values }
+      : { id: attribute.id.value, name: attribute.id.label, values: attribute.values }
   })
 
   _values.shipmentCosts = _values.shipmentCosts.map(shipmentCost => {
@@ -108,55 +136,90 @@ const SubmitShapeAdjustment = (values) => {
   _values.vendorId = _values.user.value
   delete _values.user
 
-  console.log(_values)
   return _values
 }
 
-export const SubmitUserData = async ({ values, isEditMode, token, id, navigate, setIsLoading, setError }) => {
+export const SubmitUserData = async ({
+  id,
+  token,
+  navigate,
+  values,
+  isEditMode,
+  setIsLoading,
+  setError,
+}) => {
   setIsLoading(true)
 
   const editEndpoint = `/item/${id}`
   const addEndpoint = `/item/`
 
-  const data = new FormData()
-  data.append('data', JSON.stringify(SubmitShapeAdjustment(values)))
+  const data = SubmitShapeAdjustment(values)
 
-  const addRedirect = { state: { message: 'Item Created Successfully!' }, replace: true, }
-  const editRedirect = { state: { message: 'Item Updated Successfully!' }, replace: true, }
-
-  if (isEditMode) {
-    await API_SERVICE(token).patch(editEndpoint, data).then(response => {
-      if (response.status === 200) { navigate('/Items', editRedirect) }
-      else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => {
-      if (error.response.status === 401) navigate('/Logout')
-      setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-    })
-  } else {
-    await API_SERVICE(token).post(addEndpoint, data).then(response => {
-      if (response.status === 201) { navigate('/Items', addRedirect) }
-      else { setError(`${response.status} - ${response.statusText}`) }
-    }).catch(error => {
-      if (error.response.status === 401) navigate('/Logout')
-      setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-    })
+  const addRedirect = {
+    state: {
+      message: 'Item Created Successfully!',
+    }, replace: true,
   }
 
-  setIsLoading(false)
+  const editRedirect = {
+    state: {
+      message: 'Item Updated Successfully!',
+    }, replace: true,
+  }
+
+  const HandleEditMode = async () => {
+    await API_SERVICE(token)
+      .patch(editEndpoint, data)
+      .then(response => {
+        if (response.status === 200) {
+          navigate('/Items', editRedirect)
+        } else {
+          setIsLoading(false)
+          setError(`${response.status} - ${response.statusText}`)
+        }
+      }).catch(error => {
+        setIsLoading(false)
+        HandleAxiosError({ error, setError, navigate })
+      })
+  }
+
+  const HandleCreateMode = async () => {
+    await API_SERVICE(token)
+      .post(addEndpoint, data)
+      .then(response => {
+        if (response.status === 201) {
+          navigate('/Items', addRedirect)
+        } else {
+          setIsLoading(false)
+          setError(`${response.status} - ${response.statusText}`)
+        }
+      }).catch(error => {
+        setIsLoading(false)
+        HandleAxiosError({ error, setError, navigate })
+      })
+  }
+
+  isEditMode ? HandleEditMode() : HandleCreateMode()
 }
 
-export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData, setInitialValues, navigate }) => {
+export const FetchItemData = async ({ token,
+  id,
+  navigate,
+  setError,
+  setIsGettingData,
+  setInitialValues,
+}) => {
   setIsGettingData(true)
 
   const endpoint = `/item/${id}`
 
   await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
-      setFetchError('')
+      setError('')
       setInitialValues({
         name: response.data.name,
-        minOrderNumber: response.data.minOrderNumber,
-        maxOrderNumber: response.data.maxOrderNumber === 0 ? '' : response.data.maxOrderNumber,
+        minOrderQuantity: response.data.minOrderQuantity,
+        maxOrderQuantity: response.data.maxOrderQuantity === 0 ? '' : response.data.maxOrderQuantity,
         description: response.data.description,
         unitOfMeasure: {
           value: response.data.unitOfMeasure._id,
@@ -173,7 +236,7 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
         completionDays: response.data.completionDays,
         user: {
           value: response.data.vendorId._id,
-          label: `${response.data.vendorId.firstName} ${response.data.vendorId.lastName}`
+          label: response.data.vendorId.contactName
         },
         attributes: response.data.attributes.map(attribute => {
           return {
@@ -181,7 +244,7 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
               value: attribute._id._id,
               label: attribute._id.name,
             },
-            value: `${attribute.value}`
+            values: attribute.values
           }
         }),
         priceSlabs: response.data.priceSlabs.map(priceSlab => {
@@ -198,13 +261,14 @@ export const FetchItemData = async ({ token, id, setFetchError, setIsGettingData
             minCost: `${shipmentCost.minCost}`
           }
         }),
-        updatedBy: `${response.data.updatedBy.firstName} ${response.data.updatedBy.lastName}`,
-        createdBy: `${response.data.createdBy.firstName} ${response.data.createdBy.lastName}`,
+        updatedBy: response.data.updatedBy.contactName,
+        createdBy: response.data.createdBy.contactName,
       })
       setIsGettingData(false)
-    } else { setFetchError(`${response.status} - ${response.statusText}`) }
+    } else {
+      setError(`${response.status} - ${response.statusText}`)
+    }
   }).catch(error => {
-    if (error.response.status === 401) navigate('/Logout')
-    setFetchError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
+    HandleAxiosError({ error, setError, navigate })
   })
 }

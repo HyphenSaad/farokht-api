@@ -1,124 +1,183 @@
 import { StatusCodes } from 'http-status-codes'
 import { Register, Update } from "./authorizationController.js"
 import { User } from '../models/index.js'
+import { StringValidation } from '../utilities.js'
 
 const CreateUser = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+  if (request.user.role !== 'admin') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: 'You\'re Unauthorized To Perform This Operation!'
+    }
+  }
 
   await Register(request, response, next)
 }
 
 const UpdateUser = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+  if (request.user.role !== 'admin') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: 'You\'re Unauthorized To Perform This Operation!'
+    }
+  }
 
-  const userId = request.params.userId
-  if (!userId)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+  StringValidation({
+    fieldName: 'User ID',
+    data: request.params.userId,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  request.updateUserId = userId
+  request.updateUserId = request.params.userId
   await Update(request, response, next)
 }
 
 const DeleteUser = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+  if (request.user.role !== 'admin') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: 'You\'re Unauthorized To Perform This Operation!'
+    }
+  }
 
   const userId = request.params.userId
-  if (!userId)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
 
-  const user = await User.findOne({ _id: userId }).catch(error => next(error))
-  if (!user)
-    response.status(StatusCodes.NOT_FOUND).json({ message: `User ${userId} Not Found!` })
+  StringValidation({
+    fieldName: 'User ID',
+    data: userId,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
+
+  const user = await User.findOne({ _id: userId })
+  if (!user) {
+    response.status(StatusCodes.NOT_FOUND).json({
+      message: `User ${userId} Not Found!`
+    })
+  }
+
+  if (user._id.toString() === request.user._id.toString()) {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: `You can't delete your own account!`
+    }
+  }
 
   user.status = 'suspended'
   user.updatedBy = request.user._id
 
   await user.save().then(() => {
-    response.status(StatusCodes.OK).json({ message: `User ${userId} Deleted Successfully!` })
-  }).catch(error => next(error))
+    response.status(StatusCodes.OK).json({
+      message: `User ${userId} Deleted Successfully!`
+    })
+  })
 }
 
 const GetUser = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
-
   const userId = request.params.userId
-  if (!userId)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+
+  StringValidation({
+    fieldName: 'User ID',
+    data: userId,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
+
+  const populate = {
+    path: 'createdBy updatedBy',
+    model: 'user',
+    select: '_id contactName',
+  }
 
   const user = await User.findOne({ _id: userId })
-    .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-    .catch(error => next(error))
+    .populate(populate)
 
-  if (!user)
-    throw { statusCode: StatusCodes.NOT_FOUND, message: 'User Not Found!' }
+  if (!user) {
+    response.status(StatusCodes.NOT_FOUND).json({
+      message: `User ${userId} Not Found!`
+    })
+  }
 
   response.status(StatusCodes.OK).json(user)
 }
 
 const GetAllUsers = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
-
   const page = request.query.page || 1
   const limit = request.query.limit || 10
   const minified = request.query.minified || 'no'
+  const payload = { '$or': [] }
   const data = []
 
-  const options = {}
-  options['$or'] = []
-
   const query = { ...request.query }
-  Object.keys(query).forEach(key => { query[key] = query[key].split(' ').join('|') })
+  Object.keys(query).forEach(key => {
+    query[key] = query[key].split(' ').join('|')
 
-  if (query.status) options.status = query.status
-  if (query.firstName) options['$or'].push({ firstName: { '$regex': `${query.firstName}`, '$options': 'i' } })
-  if (query.lastName) options['$or'].push({ lastName: { '$regex': `${query.lastName}`, '$options': 'i' } })
-  if (query.phoneNumber1) options.phoneNumber1 = { '$regex': `${query.phoneNumber1}`, '$options': 'i' }
-  if (query.phoneNumber2) options.phoneNumber2 = { '$regex': `${query.phoneNumber2}`, '$options': 'i' }
-  if (query.companyName) options.companyName = { '$regex': `${query.companyName}`, '$options': 'i' }
-  if (query.location) options.location = { '$regex': `${query.location}`, '$options': 'i' }
-  if (query.address) options.address = { '$regex': `${query.address}`, '$options': 'i' }
-  if (query.paymentMethod) options.paymentMethod = { '$regex': `${query.paymentMethod}`, '$options': 'i' }
-  if (query.bankName) options.bankName = { '$regex': `${query.bankName}`, '$options': 'i' }
-  if (query.branchCode) options.branchCode = { '$regex': `${query.branchCode}`, '$options': 'i' }
-  if (query.bankAccountNumber) options.bankAccountNumber = { '$regex': `${query.bankAccountNumber}`, '$options': 'i' }
+    if (key !== 'role' && key !== 'status' && key !== 'limit' && key !== 'page') {
+      payload['$or'].push({
+        [key]: {
+          '$regex': `${query[key]}`,
+          '$options': 'i',
+        }
+      })
+    }
+  })
 
-  options.role = request.query.role && request.query.role !== 'admin'
-    ? { '$regex': `${request.query.role}`, '$options': 'i' }
-    : options.role = { '$ne': 'admin' }
+  StringValidation({
+    fieldName: 'User Role',
+    data: query.role,
+    validValues: ['admin', 'vendor', 'retailer'],
+  })
 
-  const userCount = await User.count(options).catch(error => next(error))
+  StringValidation({
+    fieldName: 'User Account Status',
+    data: query.status,
+    validValues: ['pending', 'approved', 'suspended'],
+  })
 
-  if (minified === 'yes') {
-    const users = await User.find(options)
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .sort({ updatedAt: 'desc' })
-      .catch(error => next(error))
-
-    users.forEach(user => data.push({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    }))
+  if (request.user.role === 'admin') {
+    if (query.status)
+      payload.status = query.status
+    if (query.role)
+      payload.role = query.role
   } else {
-    const users = await User.find(options)
-      .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .sort({ updatedAt: 'desc' })
-      .catch(error => next(error))
-
-    users.forEach(user => data.push(user))
+    payload.role = {
+      '$ne': 'admin',
+    }
   }
 
+  const totalUsers = await User.count(payload)
+
+  const populate = {
+    path: 'createdBy updatedBy',
+    model: 'user',
+    select: '_id contactName',
+  }
+  const users = await User.find(payload)
+    .populate(minified === 'yes' ? { path: '' } : populate)
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ updatedAt: 'desc' })
+
+  console.log(users)
+  users.forEach(user => {
+    const simpleData = {
+      _id: user._id,
+      contactName: user.contactName,
+    }
+
+    data.push(minified === 'yes' ? simpleData : user)
+  })
+
   response.status(StatusCodes.OK).json({
-    totalUsers: userCount, page, limit,
-    count: data.length || 0, users: data
+    totalUsers: totalUsers,
+    page: page,
+    limie: limit,
+    count: data.length || 0,
+    users: data,
   })
 }
 

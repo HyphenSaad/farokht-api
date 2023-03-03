@@ -1,65 +1,110 @@
 import { StatusCodes } from 'http-status-codes'
-import mongoose from 'mongoose'
 import { Item, User } from '../models/index.js'
+import { StringValidation } from '../utilities.js'
 
 const CreateItem = async (request, response, next) => {
-  if (request.user.role === 'retailer')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+  if (request.user.role === 'retailer') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: 'You\'re Unauthorized To Perform This Operation!'
+    }
+  }
 
   const user = await User.findOne({ _id: request.item.vendorId })
-  if (!user)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Vendor ID!' }
+  if (!user) {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'Invalid Vendor ID!'
+    }
+  }
 
-  if (request.user.role !== 'admin')
-    if (request.user._id.toString() !== request.item.vendorId)
-      throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
+  if (request.user.role === 'vendor') {
+    if (request.user._id.toString() !== request.item.vendorId || request.user.status !== 'approved') {
+      throw {
+        statusCode: StatusCodes.UNAUTHORIZED,
+        message: 'You Are Unauthorized To Perform This Operation!',
+      }
+    }
+  }
 
-  const item = await Item.create({
+  const payload = {
     ...request.item,
     updatedBy: request.user._id,
     createdBy: request.user._id,
-  }).catch(error => next(error))
+    pictures: ['hhhhhhh', 'mmmmmmmmm']
+  }
+
+  const item = await Item.create(payload)
 
   if (item) {
-    await item.populate('tags unitOfMeasure attributes._id shipmentCosts').catch(error => next(error))
-    await User.updateOne({ _id: request.item.vendorId }, { $push: { items: item._id } }).catch(error => next(error))
+    await User.updateOne({ _id: request.item.vendorId, }, {
+      $push: {
+        items: item._id,
+      },
+    })
   }
 
   response.status(StatusCodes.CREATED).json(item)
 }
 
 const UpdateItem = async (request, response, next) => {
-  if (request.user.role === 'retailer')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+  if (request.user.role === 'retailer') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: 'You\'re Unauthorized To Perform This Operation!'
+    }
+  }
 
-  if (!request.params.itemId)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
+  StringValidation({
+    fieldName: 'Item ID',
+    data: request.params.itemId,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  const item = await Item.findOne({ _id: request.params.itemId }).catch(error => next(error))
+  const item = await Item.findOne({ _id: request.params.itemId })
+  if (!item) {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'Invalid Item ID!'
+    }
+  }
 
-  if (!item)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item ID!' }
+  await item.populate({ path: 'vendorId', model: 'user', select: '_id contactName' })
 
-  await item.populate('vendorId').catch(error => next(error))
+  if (!request.item.vendorId || !item.vendorId) {
+    throw {
+      statusCode: StatusCodes.NOT_FOUND,
+      message: 'Item Vendor Not Found!'
+    }
+  }
 
-  if (!request.item.vendorId || !item.vendorId)
-    throw { statusCode: StatusCodes.NOT_FOUND, message: 'Item Vendor Not Found!' }
-
-  if (request.user.role !== 'admin')
-    if (item.vendorId._id.toString() !== request.item.vendorId)
-      throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You Are Unauthorized To Perform This Operation!' }
+  if (request.user.role === 'vendor') {
+    if (item.vendorId._id.toString() !== request.item.vendorId) {
+      throw {
+        statusCode: StatusCodes.UNAUTHORIZED,
+        message: 'You Are Unauthorized To Perform This Operation!'
+      }
+    }
+  }
 
   if (request.user.role === 'admin') {
-    const user = await User.findOne({ _id: request.item.vendorId }).catch(error => next(error))
-    if (user.role !== 'vendor')
-      throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item Owner Can Only Be Vendor' }
-    else
+    const user = await User.findOne({ _id: request.item.vendorId })
+
+    if (user.role !== 'vendor') {
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: 'Item Owner Can Only Be Vendor'
+      }
+    } else {
       item.vendorId = request.item.vendorId
+    }
   }
 
   item.name = request.item.name
-  item.minOrderNumber = request.item.minOrderNumber
-  item.maxOrderNumber = request.item.maxOrderNumber
+  item.minOrderQuantity = request.item.minOrderQuantity
+  item.maxOrderQuantity = request.item.maxOrderQuantity
   item.description = request.item.description
   item.tags = request.item.tags
   item.unitOfMeasure = request.item.unitOfMeasure
@@ -67,129 +112,199 @@ const UpdateItem = async (request, response, next) => {
   item.priceSlabs = request.item.priceSlabs
   item.vendorPayoutPercentage = request.item.vendorPayoutPercentage
   item.shipmentCosts = request.item.shipmentCosts
+  item.completionDays = request.item.completionDays
   item.updatedBy = request.item.updatedBy
 
-  if (request.user.role === 'admin')
+  if (request.user.role === 'admin') {
     item.status = request.item.status
+
+    if (request.item.vendorId.toString() !== item.vendorId.toString()) {
+      await User.updateOne({ _id: item.vendorId }, {
+        $pull: { items: item._id },
+      })
+
+      await User.updateOne({ _id: request.item.vendorId, }, {
+        $push: { items: item._id, },
+      })
+
+      item.vendorId = request.item.vendorId
+    }
+  }
 
   await item.save().then(() => {
     response.status(StatusCodes.OK).json(item)
-  }).catch(error => next(error))
+  })
 }
 
 const DeleteItem = async (request, response, next) => {
-  if (request.user.role === 'retailer')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+  if (request.user.role === 'retailer') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: 'You\'re Unauthorized To Perform This Operation!'
+    }
+  }
 
-  if (!request.params.itemId)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
+  StringValidation({
+    fieldName: 'Item ID',
+    data: request.params.itemId,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  const options = { _id: request.params.itemId }
+  const payload = { _id: request.params.itemId }
 
   if (request.user.role === 'vendor') {
-    options.vendorId = request.user._id.toString()
+    payload.vendorId = request.user._id.toString()
 
-    const item = await Item.findOne(options).catch(error => next(error))
-    if (!item)
-      response.status(StatusCodes.NOT_FOUND).json({ message: `Item ${request.params.itemId} Not Found!` })
+    const item = await Item.findOne(payload)
+    if (!item) {
+      throw {
+        statusCode: StatusCodes.NOT_FOUND,
+        message: `Item ${request.params.itemId} Not Found!`
+      }
+    }
 
     item.status = 'suspended'
     item.updatedBy = request.item.updatedBy
 
     await item.save().then(() => {
-      response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
-    }).catch(error => next(error))
+      response.status(StatusCodes.OK).json({
+        message: `Item ${request.params.itemId} Deleted Successfully!`
+      })
+    })
   } else if (request.user.role === 'admin') {
-    const item = await Item.deleteOne(options).catch(error => next(error))
+    const item = await Item.findOne(payload)
 
-    if (item.deletedCount !== 1)
-      response.status(StatusCodes.NOT_FOUND).json({ message: `Item ${request.params.itemId} Not Found!` })
-    else if (item.deletedCount === 1)
-      response.status(StatusCodes.OK).json({ message: `Item ${request.params.itemId} Deleted Successfully!` })
+    await User.updateOne({ _id: item.vendorId }, {
+      $pull: { items: item._id },
+    })
+
+    await item.remove().then(() => {
+      response.status(StatusCodes.OK).json({
+        message: `Item ${request.params.itemId} Deleted Succesfully!`
+      })
+    })
   }
 }
 
 const GetItem = async (request, response, next) => {
-  if (request.user.status === 'suspended')
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Your account is not approved!' }
+  StringValidation({
+    fieldName: 'Item ID',
+    data: request.params.itemId,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  if (!request.params.itemId)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Item ID is Required!' }
+  const payload = { _id: request.params.itemId }
 
-  const options = { _id: request.params.itemId }
+  if (request.user.role === 'retailer') {
+    payload.status = 'enabled'
+  }
 
-  if (request.user.role === 'retailer')
-    options.status = 'enabled'
+  const item = await Item.findOne(payload)
+  if (!item) {
+    throw {
+      statusCode: StatusCodes.NOT_FOUND,
+      message: 'Item Not Found!'
+    }
+  }
 
-  const item = await Item.findOne(options).catch(error => next(error))
-  if (!item)
-    throw { statusCode: StatusCodes.NOT_FOUND, message: 'Item Not Found!' }
+  const populate = {
+    path: 'createdBy updatedBy vendorId',
+    model: 'user',
+    select: '_id contactName',
+  }
 
   await item.populate('tags unitOfMeasure attributes._id shipmentCosts')
-    .catch(error => next(error))
-
-  await item.populate({ path: 'createdBy updatedBy vendorId', model: 'user', select: 'firstName lastName' })
-    .catch(error => next(error))
+  await item.populate(populate)
 
   response.status(StatusCodes.OK).json(item)
 }
 
 const GetAllVendorItems = async (request, response, next) => {
-  if (!request.params.vendorId)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'User ID is Required!' }
+  const payload = { _id: request.params.userId }
 
-  const user = await User.findOne({ _id: request.params.vendorId }).catch(error => next(error))
-  if (!user) throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Vendor ID!' }
+  StringValidation({
+    fieldName: 'User ID',
+    data: request.params.userId,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  await user.populate({ path: 'items', model: 'item' })
+  const user = await User.findOne(payload)
+    .populate('items')
     .populate({ path: 'items.attributes._id', model: 'attributeOfItem' })
     .populate({ path: 'items.tags', model: 'tag' })
     .populate({ path: 'items.shipmentCosts', model: 'shipmentCost' })
     .populate({ path: 'items.unitOfMeasure', model: 'unitOfMeasure' })
-    .catch(error => next(error))
+
+  if (!user) {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'Invalid Vendor ID!'
+    }
+  }
 
   response.status(StatusCodes.OK).json({
-    items: user.items || []
+    items: user.items
   })
 }
 
 const GetAllItems = async (request, response, next) => {
-  if (request.user.status === 'suspended')
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Your account is not approved!' }
-
   const page = request.query.page || 1
   const limit = request.query.limit || 10
   const tag = request.query.tag || ''
-  const options = {}
+  const payload = {}
 
-  if (request.query.status === 'suspended' && request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Invalid Item Status Requested!' }
+  if (request.query.status === 'suspended' && request.user.role !== 'admin') {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'Invalid Item Status Requested!'
+    }
+  }
 
-  if (request.query.minOrderNumber)
-    if (isNaN(request.query.minOrderNumber))
-      throw { statusCode: StatusCodes.BAD_REQUEST, message: 'MinOrderNumber Should Be Numeric Only!' }
-    else if (request.query.minOrderNumber)
-      options.minOrderNumber = { '$lte': `${request.query.minOrderNumber}` }
+  if (request.query.minOrderQuantity) {
+    if (isNaN(request.query.minOrderQuantity)) {
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: 'MinOrderNumber Should Be Numeric Only!'
+      }
+    }
+    else if (request.query.minOrderQuantity) {
+      payload.minOrderQuantity = {
+        '$lte': `${request.query.minOrderQuantity}`,
+      }
+    }
+  }
 
-  if (request.user.role === 'admin' && request.query.status)
-    options.status = request.query.status
+  if (request.user.role === 'admin' && request.query.status) {
+    payload.status = request.query.status
+  }
 
-  if (request.query.name)
-    options.name = { '$regex': `${request.query.name}`, '$options': 'i' }
+  if (request.query.name) {
+    payload.name = { '$regex': `${request.query.name}`, '$options': 'i' }
+  }
 
-  const items = await Item.find(options)
+  const items = await Item.find(payload)
     .limit(limit)
     .skip((page - 1) * limit)
     .populate('tags unitOfMeasure attributes._id shipmentCosts')
-    .populate({ path: 'updatedBy createdBy vendorId', model: 'user', select: 'firstName lastName' })
+    .populate({ path: 'updatedBy createdBy vendorId', model: 'user', select: '_id contactName' })
     .sort({ updatedAt: 'desc' })
-    .catch(error => next(error))
 
   const filteredItems = items.filter(item => {
     return (!tag) ? item : item.tags.map(tag => tag.name).includes(tag)
   })
 
-  response.status(StatusCodes.OK).json({ page, limit, totalItems: filteredItems.length, items: filteredItems })
+  response.status(StatusCodes.OK).json({
+    totalItems: filteredItems.length,
+    page: page,
+    limit: limit,
+    items: filteredItems,
+  })
 }
 
 export { CreateItem, UpdateItem, DeleteItem, GetItem, GetAllVendorItems, GetAllItems }

@@ -10,7 +10,7 @@ const UnitOfMeasureInfoYupSchema = Yup.object().shape({
   status: Yup.object()
     .shape({
       value: Yup.string().required('Required!'),
-      label: Yup.string().required('Required!')
+      label: Yup.string().required('Required!'),
     })
     .required('Required!'),
 })

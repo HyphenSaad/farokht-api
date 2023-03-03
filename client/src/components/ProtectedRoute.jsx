@@ -1,3 +1,7 @@
+// I have used useContext to save the user data and JWT token.
+// And to make it accessible across the Dashboard
+// # Global Context
+
 import React, { useEffect, useState, createContext } from "react"
 import { useNavigate } from "react-router-dom"
 import jwt_decode from "jwt-decode"

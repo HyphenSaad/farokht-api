@@ -1,18 +1,11 @@
 import * as Yup from 'yup'
 
 const UserInfoBase = {
-  firstName: Yup.string()
+  contactName: Yup.string()
     .trim()
     .matches(/^[a-zA-Z\s]+$/, 'Only Alphabets Allowed!')
     .min(3, 'Too Short!')
-    .max(20, 'Too Long!')
-    .required('Required!'),
-
-  lastName: Yup.string()
-    .trim()
-    .matches(/^[a-zA-Z\s]+$/, 'Only Alphabets Allowed!')
-    .min(3, 'Too Short!')
-    .max(20, 'Too Long!')
+    .max(35, 'Too Long!')
     .required('Required!'),
 
   phoneNumber1: Yup.string()
@@ -96,12 +89,17 @@ const UserInfoBase = {
 
 const UserInfoAddSchema = Yup.object().shape({
   ...UserInfoBase,
-  password: Yup.string().min(8, 'Too Short!').required('Required!'),
+  password: Yup.string()
+    .min(8, 'Too Short!')
+    .max(32, 'Too Long!')
+    .required('Required!'),
 })
 
 const UserInfoEditSchema = Yup.object().shape({
   ...UserInfoBase,
-  password: Yup.string().min(8, 'Too Short!'),
+  password: Yup.string()
+    .min(8, 'Too Short!')
+    .max(32, 'Too Long!'),
 })
 
 export { UserInfoAddSchema, UserInfoEditSchema }

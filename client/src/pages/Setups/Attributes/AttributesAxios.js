@@ -1,23 +1,31 @@
-import moment from 'moment'
 import { API_SERVICE } from '../../../services'
+import { FormatTimestamp, HandleAxiosError, UpperCaseFirstLetter } from '../../../utilities.js'
 
-export const FetchAttributes = async ({ pageSize, pageIndex, token, setError, setData, navigate }) => {
+export const FetchAttributes = async ({
+  pageSize,
+  pageIndex,
+  token,
+  setError,
+  setData,
+  navigate,
+}) => {
   const endpoint = `/attribute?limit=${pageSize}&page=${pageIndex}`
 
-  await API_SERVICE(token).get(endpoint).then(response => {
-    if (response.status === 200) {
-      response.data.attributes.forEach(attribute => {
-        attribute.status = attribute.status.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')
-        attribute.createdAt = moment.utc(attribute.createdAt).local().format('h:mm A, L')
-        attribute.updatedAt = moment.utc(attribute.updatedAt).local().format('h:mm A, L')
-        attribute.updatedBy = `${attribute.updatedBy.firstName} ${attribute.updatedBy.lastName}`
-        attribute.createdBy = `${attribute.createdBy.firstName} ${attribute.createdBy.lastName}`
-      })
-      setData(response.data)
-      setError('')
-    } else { setError(`${response.status} - ${response.statusText}`) }
-  }).catch(error => {
-    if (error.response.status === 401) navigate('/Logout')
-    setError(`${error.response.status} - ${error.response.data.message || error.response.statusText}`)
-  })
+  await API_SERVICE(token)
+    .get(endpoint)
+    .then(response => {
+      if (response.status === 200) {
+        response.data.attributes.forEach(attribute => {
+          attribute.status = UpperCaseFirstLetter(attribute.status)
+          attribute.updatedAt = FormatTimestamp(attribute.updatedAt)
+          attribute.createdAt = FormatTimestamp(attribute.createdAt)
+        })
+        setData(response.data)
+        setError('')
+      } else {
+        setError(`${response.status} - ${response.statusText}`)
+      }
+    }).catch(error => {
+      HandleAxiosError({ error, setError, navigate })
+    })
 }

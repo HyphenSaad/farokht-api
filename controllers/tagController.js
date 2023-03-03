@@ -1,107 +1,221 @@
 import { StatusCodes } from 'http-status-codes'
 import { Tag } from '../models/index.js'
+import { StringValidation } from '../utilities.js'
 
-const AddTag = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+const __AddTag = async (request) => {
+  const { name, status } = request.body
 
-  if (!request.body.name || !request.body.status)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
+  StringValidation({
+    fieldName: 'Tag Name',
+    data: name,
+    minLength: 1,
+    maxLength: 25,
+    isRequired: true,
+  })
 
-  const tag = await Tag.create({
-    name: request.body.name,
-    status: request.body.status,
+  StringValidation({
+    fieldName: 'Tag Status',
+    data: status,
+    isRequired: true,
+    validValues: ['disabled', 'enabled'],
+  })
+
+  const tagExists = await Tag.findOne({
+    name: {
+      '$regex': `^${name}$`,
+      '$options': 'i'
+    },
+  })
+
+  if (request.__fromItemPrepare && tagExists) {
+    return tagExists
+  } else if (tagExists) {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: `Tag already exists!`,
+    }
+  }
+
+  const payload = {
+    name: name,
+    status: request.__fromItemPrepare ? 'enabled' : status,
     updatedBy: request.user._id,
     createdBy: request.user._id,
-  }).populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-    .catch(error => next(error))
+  }
 
+  const tag = await Tag.create(payload)
+  return tag
+}
+
+const AddTag = async (request, response, next) => {
+  if (request.user.role !== 'admin') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: `You're Unauthorized To Perform This Operation!`,
+    }
+  }
+
+  const tag = await __AddTag(request)
   response.status(StatusCodes.CREATED).json(tag)
 }
 
 const UpdateTag = async (request, response, next) => {
-  if (request.user.role !== 'admin')
-    throw { statusCode: StatusCodes.UNAUTHORIZED, message: 'You\'re Unauthorized To Perform This Operation!' }
+  if (request.user.role !== 'admin') {
+    throw {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: `You're Unauthorized To Perform This Operation!`,
+    }
+  }
 
-  if (!request.params.id)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag ID is Required!' }
+  StringValidation({
+    fieldName: 'Tag ID',
+    data: request.params.id,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  if (!request.body.name || !request.body.status)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Please Provide All Values!' }
+  const { name, status } = request.body
 
-  const options = { _id: request.params.id }
-  const tag = await Tag.findOne(options).catch(error => next(error))
+  StringValidation({
+    fieldName: 'Tag Name',
+    data: name,
+    minLength: 1,
+    maxLength: 25,
+    isRequired: true,
+  })
 
-  if (!tag)
-    response.status(StatusCodes.NOT_FOUND).json({ message: `Tag ${request.params.id} Not Found!` })
+  StringValidation({
+    fieldName: 'Tag Status',
+    data: status,
+    isRequired: true,
+    validValues: ['disabled', 'enabled'],
+  })
 
-  tag.name = request.body.name
-  tag.status = request.body.status
+  const payload = { _id: request.params.id, }
+
+  const populate = {
+    path: 'createdBy updatedBy',
+    model: 'user',
+    select: '_id contactName',
+  }
+
+  const tag = await Tag.findOne(payload)
+    .populate(populate)
+
+  if (!tag) {
+    response.status(StatusCodes.NOT_FOUND).json({
+      message: `Tag ${request.params.id} Not Found!`,
+    })
+  }
+
+  const tagExists = await Tag.findOne({
+    name: {
+      '$regex': `^${name}$`,
+      '$options': 'i'
+    },
+  })
+
+  if (tagExists && tagExists.name.toLowerCase() !== tag.name.toLowerCase()) {
+    throw {
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: `Tag already exists!`,
+    }
+  }
+
+  tag.name = name
+  tag.status = status.toLowerCase()
   tag.updatedBy = request.user._id
-
-  await tag.populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-    .catch(error => next(error))
 
   await tag.save().then(() => {
     response.status(StatusCodes.OK).json(tag)
-  }).catch(error => next(error))
+  })
 }
 
 const GetAllTags = async (request, response, next) => {
   const page = request.query.page || 1
   const limit = request.query.limit || 10
   const minified = request.query.minified || 'no'
-  const options = {}
+  const payload = {}
   const data = []
 
-  if (request.query.status)
-    options.status = request.query.status
+  StringValidation({
+    fieldName: 'Tag Status',
+    data: request.query.status,
+    validValues: ['disabled', 'enabled'],
+  })
 
-  if (request.query.name)
-    options.name = {
+  StringValidation({
+    fieldName: 'Tag Minified Parameter',
+    data: minified,
+    validValues: ['yes', 'no'],
+  })
+
+  if (request.query.status) {
+    payload.status = request.query.status
+  }
+
+  if (request.query.name) {
+    payload.name = {
       '$regex': `${request.query.name.split(' ').join('|')}`,
       '$options': 'i'
     }
-
-  const tagCount = await Tag.count(options).catch(error => next(error))
-
-  if (minified === 'yes') {
-    const tags = await Tag.find(options)
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .sort({ updatedAt: 'desc' })
-      .catch(error => next(error))
-
-    tags.forEach(tag => data.push({
-      _id: tag._id,
-      name: tag.name,
-    }))
-  } else {
-    const tags = await Tag.find(options)
-      .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .sort({ updatedAt: 'desc' })
-      .catch(error => next(error))
-
-    tags.forEach(tag => data.push(tag))
   }
 
+  // to check the total number of tags we have in database that match the specified criteria
+  const totalTags = await Tag.count(payload)
+
+  const populate = {
+    path: 'createdBy updatedBy',
+    model: 'user',
+    select: '_id contactName',
+  }
+
+  const tags = await Tag.find(payload)
+    .populate(minified === 'yes' ? { path: '' } : populate)
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ updatedAt: 'desc' })
+
+  tags.forEach(tag => {
+    const simpleData = {
+      _id: tag._id,
+      name: tag.name,
+    }
+
+    data.push(minified === 'yes' ? simpleData : tag)
+  })
+
   response.status(StatusCodes.OK).json({
-    totalTags: tagCount, page, limit,
-    count: data.length || 0, tags: data
+    totalTags: totalTags,
+    page: page,
+    limit: limit,
+    count: data.length || 0,
+    tags: data,
   })
 }
 
 const GetTag = async (request, response, next) => {
-  if (!request.params.id)
-    throw { statusCode: StatusCodes.BAD_REQUEST, message: 'Tag ID is Required!' }
+  StringValidation({
+    fieldName: 'Tag ID',
+    data: request.params.id,
+    minLength: 24,
+    maxLength: 24,
+    isRequired: true,
+  })
 
-  const tag = await Tag.findOne({ _id: request.params.id })
-    .populate({ path: 'createdBy updatedBy', model: 'user', select: 'firstName lastName' })
-    .catch(error => next(error))
+  const payload = { _id: request.params.id, }
+
+  const populate = {
+    path: 'createdBy updatedBy',
+    model: 'user',
+    select: '_id contactName',
+  }
+
+  const tag = await Tag.findOne(payload)
+    .populate(populate)
 
   response.status(StatusCodes.OK).json(tag)
 }
 
-export { AddTag, UpdateTag, GetAllTags, GetTag }
+export { __AddTag, AddTag, UpdateTag, GetAllTags, GetTag }

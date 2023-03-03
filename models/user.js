@@ -1,24 +1,15 @@
 import mongoose, { Schema } from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
-import { User } from './index.js'
 
 const UserSchema = new mongoose.Schema({
-  firstName: {
+  contactName: {
     type: String,
     required: [true, 'First name is required!'],
     minLength: [3, 'First name is too short!'],
-    maxLength: [20, 'First name is too long!'],
+    maxLength: [35, 'First name is too long!'],
     trim: true,
     match: [/^[a-zA-Z\s]+$/, 'First name should only contains alphabets!'],
-  },
-  lastName: {
-    type: String,
-    required: [true, 'Last name is required!'],
-    minLength: [3, 'Last name is too short!'],
-    maxLength: [20, 'Last name is too long!'],
-    trim: true,
-    match: [/^[a-zA-Z\s]+$/, 'Last name should only contains alphabets!'],
   },
   phoneNumber1: {
     type: String,
@@ -134,7 +125,6 @@ const UserSchema = new mongoose.Schema({
     type: [{
       type: Schema.Types.ObjectId,
       ref: 'item',
-      unique: true,
     }],
   },
   createdBy: {
