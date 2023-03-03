@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Dashboard,
   AddBusinessRounded, ViewListRounded,
@@ -10,6 +10,7 @@ import {
 } from '@mui/icons-material'
 import { Sidebar, Menu, MenuItem, menuClasses, sidebarClasses, useProSidebar } from 'react-pro-sidebar'
 import { Link, useNavigate, Outlet } from 'react-router-dom'
+import { CustomAlertDialogue } from './index.js'
 
 const CustomMenuItem = ({ path, title, icon }) => {
   return (
@@ -108,6 +109,8 @@ const Layout = () => {
   const { toggleSidebar } = useProSidebar()
   const navigate = useNavigate()
 
+  const [showClearDialogue, setShowClearDialogue] = useState(false)
+
   return (
     <div className='row m-0' style={{ height: '100vh' }}>
       <div className='col-auto m-0 p-0'>
@@ -133,25 +136,61 @@ const Layout = () => {
           </Menu>
         </Sidebar>
       </div>
-      <div style={{ width: '50%' }} className='col m-0 p-0 pb-5'>
-        <div style={{ display: 'flex', backgroundColor: '#fff', padding: '0.5rem 1rem', }}>
-          <button id='menu-toggle-button' onClick={() => toggleSidebar()}>
+      <div
+        className='col m-0 p-0 pb-5'
+        style={{
+          width: '50%',
+        }}>
+        <div style={{
+          display: 'flex',
+          backgroundColor: '#fff',
+          padding: '0.5rem 1rem',
+        }}>
+          <button
+            id='menu-toggle-button'
+            onClick={() => toggleSidebar()}>
             <MenuIcon />
           </button>
-          <p style={{
-            margin: 0, textTransform: 'uppercase', display: 'inline-block',
-            fontSize: '1.3rem', fontWeight: 'bold', cursor: 'pointer'
-          }}
-            onClick={() => { navigate(GetTitle().path) }}
-          >{GetTitle().title}</p>
-          <button style={{ marginLeft: 'auto' }} id='logout-button' onClick={() => {
-            localStorage.clear()
-            navigate('/Login', { replace: true })
-          }}>
+          <p
+            style={{
+              margin: 0,
+              textTransform: 'uppercase',
+              display: 'inline-block',
+              fontSize: '1.3rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
+            onClick={() => navigate(GetTitle().path)}>
+            {GetTitle().title}
+          </p>
+          <button
+            style={{ marginLeft: 'auto', }}
+            id='logout-button'
+            onClick={() => setShowClearDialogue(true)}>
             <Logout />
           </button>
         </div>
-
+        {
+          showClearDialogue
+            ?
+            <CustomAlertDialogue
+              title='Warning'
+              positiveMessage='Yes'
+              negativeMessage='No'
+              positiveCallback={() => {
+                localStorage.clear()
+                navigate('/Login', {
+                  replace: true,
+                })
+                setShowClearDialogue(false)
+              }}
+              negativeCallback={() => setShowClearDialogue(false)}
+              show={showClearDialogue}
+              handleClose={() => setShowClearDialogue(false)}>
+              <p>Are you sure you want to logout?</p>
+            </CustomAlertDialogue>
+            : ''
+        }
         <Outlet />
       </div>
     </div>
