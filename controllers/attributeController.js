@@ -151,8 +151,10 @@ const GetAllAttributes = async (request, response, next) => {
     validValues: ['yes', 'no'],
   })
 
-  if (request.query.status) {
+  if (request.query.status && request.user.role === 'admin') {
     payload.status = request.query.status
+  } else {
+    payload.status = 'enabled'
   }
 
   if (request.query.name) {
@@ -214,6 +216,13 @@ const GetAttribute = async (request, response, next) => {
 
   const attribute = await AttributeOfItem.findOne(payload)
     .populate(populate)
+
+  if (!attribute) {
+    throw {
+      statusCode: StatusCodes.NOT_FOUND,
+      message: `Attribute ${payload._id} Not Found!`,
+    }
+  }
 
   response.status(StatusCodes.OK).json(attribute)
 }

@@ -96,7 +96,7 @@ const GetUser = async (request, response, next) => {
   const user = await User.findOne({ _id: userId })
     .populate(populate)
 
-  if (!user) {
+  if (!user || (request.user.role !== 'admin' && user.status !== 'approved')) {
     response.status(StatusCodes.NOT_FOUND).json({
       message: `User ${userId} Not Found!`
     })
@@ -147,6 +147,7 @@ const GetAllUsers = async (request, response, next) => {
     payload.role = {
       '$ne': 'admin',
     }
+    payload.status = 'approved'
   }
 
   const totalUsers = await User.count(payload)
@@ -156,6 +157,7 @@ const GetAllUsers = async (request, response, next) => {
     model: 'user',
     select: '_id contactName',
   }
+
   const users = await User.find(payload)
     .populate(minified === 'yes' ? { path: '' } : populate)
     .limit(limit)

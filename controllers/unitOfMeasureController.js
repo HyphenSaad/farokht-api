@@ -151,8 +151,10 @@ const GetAllUnitOfMeasures = async (request, response, next) => {
     validValues: ['yes', 'no'],
   })
 
-  if (request.query.status) {
+  if (request.query.status && request.user.role === 'admin') {
     payload.status = request.query.status
+  } else {
+    payload.status = 'enabled'
   }
 
   if (request.query.name) {
@@ -214,6 +216,13 @@ const GetUnitOfMeasure = async (request, response, next) => {
 
   const unitOfMeasure = await UnitOfMeasure.findOne(payload)
     .populate(populate)
+
+  if (!unitOfMeasure) {
+    throw {
+      statusCode: StatusCodes.NOT_FOUND,
+      message: `Unit Of Measure ${payload._id} Not Found!`,
+    }
+  }
 
   response.status(StatusCodes.OK).json(unitOfMeasure)
 }

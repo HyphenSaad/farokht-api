@@ -198,8 +198,10 @@ const GetAllShipmentCosts = async (request, response, next) => {
     validValues: ['yes', 'no'],
   })
 
-  if (status) {
+  if (status && request.user.role === 'admin') {
     payload.status = status
+  } else {
+    payload.status = 'enabled'
   }
 
   if (source) {
@@ -276,6 +278,13 @@ const GetShipmentCost = async (request, response, next) => {
 
   const shipmentCost = await ShipmentCost.findOne(payload)
     .populate(populate)
+
+  if (!shipmentCost) {
+    throw {
+      statusCode: StatusCodes.NOT_FOUND,
+      message: `Shipment Cost ${payload._id} Not Found!`,
+    }
+  }
 
   response.status(StatusCodes.OK).json(shipmentCost)
 }
