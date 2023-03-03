@@ -15,7 +15,6 @@ import { ToastValues } from '../../../values'
 const Items = () => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10, })
   const [isLoading, setIsLoading] = useState(true)
-
   const [data, setData] = useState([])
   const [error, setError] = useState('')
 
@@ -82,7 +81,7 @@ const Items = () => {
         borderRadius: '0.5rem',
       }} >
         {
-          isLoading
+          isLoading || error.length > 0
             ?
             <div className='d-flex justify-content-center align-items-center flex-column py-3'>
               <span className='mb-2 fs-5 text-secondary'>
