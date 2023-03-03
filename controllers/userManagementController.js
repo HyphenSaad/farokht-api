@@ -162,7 +162,6 @@ const GetAllUsers = async (request, response, next) => {
     .skip((page - 1) * limit)
     .sort({ updatedAt: 'desc' })
 
-  console.log(users)
   users.forEach(user => {
     const simpleData = {
       _id: user._id,
