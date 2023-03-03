@@ -150,12 +150,14 @@ const Register = async (request, response, next) => {
     regExMessage: 'Bank Account Number should only contain digits!'
   })
 
-  StringValidation({
-    fieldName: 'User Account Status',
-    data: status,
-    isRequired: request.user.role === 'admin',
-    validValues: ['pending', 'approved', 'suspended'],
-  })
+  if (request.user) {
+    StringValidation({
+      fieldName: 'User Account Status',
+      data: status,
+      isRequired: request.user.role === 'admin',
+      validValues: ['pending', 'approved', 'suspended'],
+    })
+  }
 
   const isPhoneNumber1Registered = await User.findOne({ phoneNumber1: phoneNumber1.trim() })
   if (isPhoneNumber1Registered) {
@@ -165,11 +167,23 @@ const Register = async (request, response, next) => {
     }
   }
 
-  const isPhoneNumber2Registered = await User.findOne({ phoneNumber2: phoneNumber2.trim() })
-  if (isPhoneNumber2Registered) {
-    throw {
-      statusCode: StatusCodes.BAD_REQUEST,
-      message: 'Phone Number 02 is already registered!'
+  if (phoneNumber2) {
+    const isPhoneNumber2Registered = await User.findOne({
+      phoneNumber2: phoneNumber2.trim()
+    })
+
+    if (isPhoneNumber2Registered) {
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: 'Phone Number 02 is already registered!'
+      }
+    }
+
+    if (phoneNumber2 && (phoneNumber1.trim() === phoneNumber2.trim())) {
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: `Phone Number 1 and 2 can't be same!`
+      }
     }
   }
 
@@ -177,13 +191,6 @@ const Register = async (request, response, next) => {
     throw {
       statusCode: StatusCodes.BAD_REQUEST,
       message: 'Invalid Role for Registration!'
-    }
-  }
-
-  if (phoneNumber2 && (phoneNumber1.trim() === phoneNumber2.trim())) {
-    throw {
-      statusCode: StatusCodes.BAD_REQUEST,
-      message: `Phone Number 1 and 2 can't be same!`
     }
   }
 
@@ -201,14 +208,26 @@ const Register = async (request, response, next) => {
     bankBranchCode,
     bankAccountNumber,
     role,
-    password: await bcrypt.hash(password, await bcrypt.genSalt(10)).catch(error => next(error)),
-    status: request.user.role === 'admin' ? status : 'pending',
-    updatedBy: request.user.role === 'admin' ? request.user._id : null,
-    createdBy: request.user.role === 'admin' ? request.user._id : null,
+    password: await bcrypt.hash(password, await bcrypt.genSalt(10)),
   }
 
-  if (phoneNumber2.length < 1) payload.phoneNumber2 = undefined
-  if (landline.length < 1) payload.landline = undefined
+  if (request.user && request.user.role === 'admin') {
+    payload.status = status
+    payload.updatedBy = request.user._id
+    payload.createdBy = request.user._id
+  } else {
+    payload.status = 'pending'
+    payload.updatedBy = null
+    payload.createdBy = null
+  }
+
+  if (phoneNumber2 && phoneNumber2.length < 1) {
+    payload.phoneNumber2 = undefined
+  }
+
+  if (landline && landline.length < 1) {
+    payload.landline = undefined
+  }
 
   const user = await User.create(payload)
 
@@ -216,6 +235,8 @@ const Register = async (request, response, next) => {
     process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_LIFETIME,
   })
+
+  user.password = undefined
 
   response.status(StatusCodes.CREATED).json({
     user: user,

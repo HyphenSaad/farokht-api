@@ -52,33 +52,35 @@ const ItemPrepare = async (request, response, next) => {
     isRequired: true,
   })
 
-  StringValidation({
-    fieldName: 'Item Status',
-    data: status,
-    isRequired: true,
-    validValues: ['disabled', 'enabled'],
-  })
+  if (request.user.role === 'admin') {
+    StringValidation({
+      fieldName: 'Item Status',
+      data: status,
+      isRequired: true,
+      validValues: ['disabled', 'enabled'],
+    })
 
-  StringValidation({
-    fieldName: 'Vendor ID',
-    data: vendorId,
-    minLength: 24,
-    maxLength: 24,
-    isRequired: true,
-  })
+    StringValidation({
+      fieldName: 'Vendor ID',
+      data: vendorId,
+      minLength: 24,
+      maxLength: 24,
+      isRequired: true,
+    })
 
-  const vendor = await User.findOne({ _id: vendorId })
-  if (!vendor) {
-    throw {
-      statusCode: StatusCodes.BAD_REQUEST,
-      message: `Vendor ${vendorId} not found!`
+    const vendor = await User.findOne({ _id: vendorId })
+    if (!vendor) {
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: `Vendor ${vendorId} not found!`
+      }
     }
-  }
 
-  if (vendor.role !== 'vendor') {
-    throw {
-      statusCode: StatusCodes.BAD_REQUEST,
-      message: `${vendorId} - Invalid Vendor!`
+    if (vendor.role !== 'vendor') {
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: `${vendorId} - Invalid Vendor!`
+      }
     }
   }
 
@@ -245,8 +247,13 @@ const ItemPrepare = async (request, response, next) => {
   } else {
     request.item = {
       tags,
-      attributes,
-      unitOfMeasure
+      attributes: attributes.map(attribute => {
+        return {
+          _id: attribute.id,
+          values: attribute.values
+        }
+      }),
+      unitOfMeasure,
     }
   }
 
@@ -278,7 +285,7 @@ const ItemPrepare = async (request, response, next) => {
     minOrderQuantity,
     maxOrderQuantity,
     description,
-    vendorId,
+    vendorId: request.user.role === 'admin' ? vendorId : request.user._id,
     priceSlabs,
     completionDays,
     vendorPayoutPercentage,

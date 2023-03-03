@@ -215,6 +215,7 @@ export const FetchItemData = async ({ token,
 
   await API_SERVICE(token).get(endpoint).then(response => {
     if (response.status === 200) {
+      console.log(response.data)
       setError('')
       setInitialValues({
         name: response.data.name,

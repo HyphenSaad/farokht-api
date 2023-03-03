@@ -785,7 +785,7 @@ const TagInfo = () => {
             }
 
             {
-              showUpdateDialogue
+              showUpdateDialogue && isEditMode
                 ?
                 <CustomAlertDialogue
                   title='Warning'

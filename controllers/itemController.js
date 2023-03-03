@@ -19,7 +19,8 @@ const CreateItem = async (request, response, next) => {
   }
 
   if (request.user.role === 'vendor') {
-    if (request.user._id.toString() !== request.item.vendorId || request.user.status !== 'approved') {
+    if (request.user._id.toString() !== request.item.vendorId.toString()
+      || request.user.status !== 'approved') {
       throw {
         statusCode: StatusCodes.UNAUTHORIZED,
         message: 'You Are Unauthorized To Perform This Operation!',
@@ -81,7 +82,8 @@ const UpdateItem = async (request, response, next) => {
   }
 
   if (request.user.role === 'vendor') {
-    if (item.vendorId._id.toString() !== request.item.vendorId) {
+    if (item.vendorId._id.toString() !== request.item.vendorId.toString()
+      || request.user.status !== 'approved') {
       throw {
         statusCode: StatusCodes.UNAUTHORIZED,
         message: 'You Are Unauthorized To Perform This Operation!'
