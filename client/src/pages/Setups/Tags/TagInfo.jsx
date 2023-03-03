@@ -11,6 +11,7 @@ import TagInfoSchema from './TagInfoYupSchema'
 import { StatusOptions, InitialValues } from './TagInfoValues'
 import { FetchTagData, SubmitTagData } from './TagInfoAxios'
 import { APP_TITLE } from '../../../config'
+import { SelectMenuDisabledStyle } from '../../../values'
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -137,6 +138,7 @@ const TagInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Status</Form.Label>
                         <Select
+                          styles={isViewMode && SelectMenuDisabledStyle}
                           isDisabled={isViewMode}
                           key='status'
                           name='status'

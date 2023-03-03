@@ -11,6 +11,7 @@ import ShipmentCostInfoSchema from './ShipmentCostInfoYupSchema'
 import { StatusOptions, InitialValues } from './ShipmentCostInfoValues'
 import { FetchShipmentCostData, SubmitShipmentCostData } from './ShipmentCostInfoAxios'
 import { APP_TITLE } from '../../../config'
+import { SelectMenuDisabledStyle } from '../../../values'
 
 const ShipmentCostInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -169,6 +170,7 @@ const ShipmentCostInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Status</Form.Label>
                         <Select
+                          styles={isViewMode && SelectMenuDisabledStyle}
                           isDisabled={isViewMode}
                           key='status'
                           name='status'

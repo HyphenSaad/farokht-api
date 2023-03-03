@@ -11,6 +11,7 @@ import AttributeInfoSchema from './AttributeInfoYupSchema'
 import { StatusOptions, InitialValues } from './AttributeInfoValues'
 import { FetchAttributeData, SubmitAttributeData } from './AttributeInfoAxios'
 import { APP_TITLE } from '../../../config'
+import { SelectMenuDisabledStyle } from '../../../values'
 
 const AttributeInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -137,6 +138,7 @@ const AttributeInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Status</Form.Label>
                         <Select
+                          styles={isViewMode && SelectMenuDisabledStyle}
                           isDisabled={isViewMode}
                           key='status'
                           name='status'

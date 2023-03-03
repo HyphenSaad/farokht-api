@@ -11,6 +11,7 @@ import UnitOfMeasureInfoSchema from './UnitOfMeasureInfoYupSchema'
 import { StatusOptions, InitialValues } from './UnitOfMeasureInfoValues'
 import { FetchUnitOfMeasureData, SubmitUnitOfMeasureData } from './UnitOfMeasureInfoAxios'
 import { APP_TITLE } from '../../../config'
+import { SelectMenuDisabledStyle } from '../../../values'
 
 const UnitOfMeasureInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -138,6 +139,7 @@ const UnitOfMeasureInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Status</Form.Label>
                         <Select
+                          styles={isViewMode && SelectMenuDisabledStyle}
                           isDisabled={isViewMode}
                           key='status'
                           name='status'

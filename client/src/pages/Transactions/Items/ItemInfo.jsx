@@ -16,6 +16,7 @@ import {
 } from './ItemInfoAxios'
 import { InitialValues, StatusOptions } from './ItemInfoValues'
 import { APP_TITLE } from '../../../config'
+import { SelectMenuDisabledStyle } from '../../../values'
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -176,6 +177,7 @@ const TagInfo = () => {
                         <Form.Group className='mb-3'>
                           <Form.Label>Vendor</Form.Label>
                           <AsyncSelect
+                            styles={isViewMode && SelectMenuDisabledStyle}
                             isDisabled={isViewMode}
                             value={formik.values.user}
                             defaultValue={formik.values.user}
@@ -203,6 +205,7 @@ const TagInfo = () => {
                         <Form.Group className='mb-3'>
                           <Form.Label>Unit of Measure</Form.Label>
                           <AsyncCreatableSelect
+                            styles={isViewMode && SelectMenuDisabledStyle}
                             isDisabled={isViewMode}
                             key='unitOfMeasure'
                             name='unitOfMeasure'
@@ -239,6 +242,7 @@ const TagInfo = () => {
                         <Form.Group className='mb-3'>
                           <Form.Label>Tags</Form.Label>
                           <AsyncCreatableSelect
+                            styles={isViewMode && SelectMenuDisabledStyle}
                             isDisabled={isViewMode}
                             key='tags'
                             name='tags'
@@ -284,6 +288,7 @@ const TagInfo = () => {
                         <Form.Group className='mb-3'>
                           <Form.Label>Status</Form.Label>
                           <Select
+                            styles={isViewMode && SelectMenuDisabledStyle}
                             isDisabled={isViewMode}
                             key='status'
                             name='status'
@@ -381,6 +386,7 @@ const TagInfo = () => {
                                   <Form.Group className='mb-3'>
                                     <Form.Label>Attribute No. {index + 1}</Form.Label>
                                     <AsyncCreatableSelect
+                                      styles={isViewMode && SelectMenuDisabledStyle}
                                       isDisabled={isViewMode}
                                       key={`attributes[${index}].id`}
                                       name={`attributes[${index}].id`}
@@ -628,6 +634,7 @@ const TagInfo = () => {
                                   <Form.Group className='mb-3'>
                                     <Form.Label>Shipment Cost No. {index + 1}</Form.Label>
                                     <AsyncCreatableSelect
+                                      styles={isViewMode && SelectMenuDisabledStyle}
                                       isDisabled={isViewMode}
                                       name={`shipmentCosts[${index}]`}
                                       instanceId={`shipmentCosts[${index}]`}

@@ -11,6 +11,7 @@ import { APP_TITLE } from '../../../config'
 import { UserInfoAddSchema, UserInfoEditSchema } from './UserInfoYupSchema'
 import { FetchUserData, SubmitUserData } from './UserInfoAxios'
 import { InitialValues, RoleOptions, StatusOptions } from './UserInfoValues'
+import { SelectMenuDisabledStyle } from '../../../values'
 
 const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -197,6 +198,7 @@ const UserInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Role</Form.Label>
                         <Select
+                          styles={isViewMode && SelectMenuDisabledStyle}
                           isDisabled={isViewMode}
                           key='role'
                           name='role'
@@ -282,6 +284,7 @@ const UserInfo = () => {
                       <Form.Group className='mb-3'>
                         <Form.Label>Status</Form.Label>
                         <Select
+                          styles={isViewMode && SelectMenuDisabledStyle}
                           isDisabled={isViewMode}
                           key='status'
                           name='status'
