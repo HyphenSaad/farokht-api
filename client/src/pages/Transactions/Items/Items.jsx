@@ -7,7 +7,7 @@ import { BeatLoader } from 'react-spinners'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-import { AuthContext, CustomDataTable } from '../../../components'
+import { AuthContext, CustomDataTable, CustomAlertDialogue } from '../../../components'
 import { DeleteItem, FetchItems } from './ItemsAxios'
 import { APP_TITLE } from '../../../config'
 import { ToastValues } from '../../../values'
@@ -17,6 +17,10 @@ const Items = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [data, setData] = useState([])
   const [error, setError] = useState('')
+  const [showUpdateDialogue, setShowUpdateDialogue] = useState({
+    value: -1,
+    status: false,
+  })
 
   const navigate = useNavigate()
   const { state } = useLocation()
@@ -147,20 +151,40 @@ const Items = () => {
                     title='Delete'>
                     <IconButton
                       color='error'
-                      onClick={async () => {
-                        await DeleteItem({
-                          id: row.original._id,
-                          token: authContext.token,
-                          setError,
-                          navigate,
-                        })
-                      }}>
+                      onClick={() => setShowUpdateDialogue({
+                        value: row.original._id,
+                        status: true,
+                      })}>
                       <Delete />
                     </IconButton>
                   </Tooltip>
                 </Box>
               )}
             />
+        }
+        {
+          showUpdateDialogue.status
+            ?
+            <CustomAlertDialogue
+              title='Warning'
+              positiveMessage='Delete'
+              negativeMessage='Cancel'
+              positiveCallback={async () => {
+                await DeleteItem({
+                  id: showUpdateDialogue.value,
+                  token: authContext.token,
+                  setError,
+                  navigate,
+                })
+                setShowUpdateDialogue({ status: false })
+              }}
+              negativeCallback={() => setShowUpdateDialogue({ status: false })}
+              show={showUpdateDialogue.status}
+              handleClose={() => setShowUpdateDialogue({ status: false })}>
+              <p>Are you sure you want to delete this item?</p>
+              <p>Once deleted, you will not be able to revert the changes!</p>
+            </CustomAlertDialogue>
+            : ''
         }
       </Container>
     </Container>

@@ -25,6 +25,7 @@ const TagInfo = () => {
   const [error, setError] = useState('')
   const [fetchError, setFetchError] = useState('')
   const [showClearDialogue, setShowClearDialogue] = useState(false)
+  const [showUpdateDialogue, setShowUpdateDialogue] = useState(false)
 
   const parameters = useParams()
   const navigate = useNavigate()
@@ -82,15 +83,7 @@ const TagInfo = () => {
         initialValues={initialValues}
         validationSchema={ItemInfoSchema}
         onSubmit={(values) => {
-          SubmitUserData({
-            id: parameters.id,
-            token: authContext.token,
-            navigate,
-            values,
-            isEditMode,
-            setIsLoading,
-            setError,
-          })
+          setShowUpdateDialogue(true)
         }}>
         {(formik) => (
           <Form onSubmit={formik.handleSubmit} className='m-0 p-0'>
@@ -780,6 +773,34 @@ const TagInfo = () => {
                   handleClose={() => setShowClearDialogue(false)}>
                   <p>Are you sure you want to clear this form?</p>
                   <p>All data will be lost if you proceed.</p>
+                </CustomAlertDialogue>
+                : ''
+            }
+
+            {
+              showUpdateDialogue
+                ?
+                <CustomAlertDialogue
+                  title='Warning'
+                  positiveMessage='Update'
+                  negativeMessage='Cancel'
+                  positiveCallback={() => {
+                    SubmitUserData({
+                      id: parameters.id,
+                      token: authContext.token,
+                      navigate,
+                      values: formik.values,
+                      isEditMode,
+                      setIsLoading,
+                      setError,
+                    })
+                    setShowUpdateDialogue(false)
+                  }}
+                  negativeCallback={() => setShowUpdateDialogue(false)}
+                  show={showUpdateDialogue}
+                  handleClose={() => setShowUpdateDialogue(false)}>
+                  <p>Are you sure you want to update this form?</p>
+                  <p>Once updated, you will not be able to revert the changes!</p>
                 </CustomAlertDialogue>
                 : ''
             }
