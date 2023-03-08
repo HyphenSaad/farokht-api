@@ -1,6 +1,7 @@
 import { API_SERVICE } from '../../../services'
 import { RoleOptions, StatusOptions } from './UserInfoValues'
 import { HandleAxiosError } from '../../../utilities.js'
+import PAKISTANI_CITIES from '../../../cities'
 
 export const FetchUserData = async ({
   id,
@@ -25,7 +26,6 @@ export const FetchUserData = async ({
           phoneNumber1: response.data.phoneNumber1 || '',
           phoneNumber2: response.data.phoneNumber2 || '',
           landline: response.data.landline || '',
-          location: response.data.location || '',
           address: response.data.address || '',
           email: response.data.email || '',
           companyName: response.data.companyName || '',
@@ -37,6 +37,7 @@ export const FetchUserData = async ({
           createdBy: response.data.createdBy?.contactName || '',
           role: RoleOptions.filter(role => role.value === response.data.role)[0],
           status: StatusOptions.filter(status => status.value === response.data.status)[0],
+          location: PAKISTANI_CITIES.filter(city => city.value === response.data.location)[0],
         })
         setIsGettingData(false)
       } else {
@@ -64,6 +65,7 @@ export const SubmitUserData = async ({
   const _values = { ...values }
   _values.role = values.role.value
   _values.status = values.status.value
+  _values.location = values.location.value
 
   const addRedirect = {
     state: {

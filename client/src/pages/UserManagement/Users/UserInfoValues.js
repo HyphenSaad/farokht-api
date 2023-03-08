@@ -4,7 +4,10 @@ export const InitialValues = {
   phoneNumber1: '',
   phoneNumber2: '',
   landline: '',
-  location: '',
+  location: {
+    value: '',
+    label: 'Choose Location'
+  },
   address: '',
   email: '',
   companyName: '',

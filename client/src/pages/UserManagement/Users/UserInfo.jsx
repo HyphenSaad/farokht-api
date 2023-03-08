@@ -12,6 +12,7 @@ import { UserInfoAddSchema, UserInfoEditSchema } from './UserInfoYupSchema'
 import { FetchUserData, SubmitUserData } from './UserInfoAxios'
 import { InitialValues, RoleOptions, StatusOptions } from './UserInfoValues'
 import { SelectMenuDisabledStyle } from '../../../values'
+import PAKISTANI_CITIES from '../../../cities'
 
 const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -233,12 +234,37 @@ const UserInfo = () => {
                         placeholder='Enter Company Name' />
                     </Col>
                     <Col sm={12} md={6} lg={4} xl={3}>
-                      <TextField
+                      <Form.Group className='mb-3'>
+                        <Form.Label>Location</Form.Label>
+                        <Select
+                          styles={isViewMode && SelectMenuDisabledStyle}
+                          isDisabled={isViewMode}
+                          key={`location`}
+                          name={`location`}
+                          instanceId={`location`}
+                          placeholder='Choose Location'
+                          isSearchable={true}
+                          isClearable={false}
+                          onChange={(data) => formik.setFieldValue(`location`, data)}
+                          options={PAKISTANI_CITIES}
+                          value={formik.values.location}
+                          defaultOptions
+                        />
+                        {
+                          formik.getFieldMeta(`location.value`).error
+                            ?
+                            <Form.Text className='text-danger'>
+                              {formik.getFieldMeta(`location.value`).error}
+                            </Form.Text>
+                            : null
+                        }
+                      </Form.Group>
+                      {/* <TextField
                         name='location'
                         formik={formik}
                         disable={isViewMode}
                         label='Location'
-                        placeholder='Enter Location' />
+                        placeholder='Enter Location' /> */}
                     </Col>
                     <Col sm={12} md={6} lg={4} xl={3}>
                       <TextField

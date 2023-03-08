@@ -1,6 +1,7 @@
 import { API_SERVICE } from '../../../services'
 import { StatusOptions } from './ItemInfoValues'
 import { HandleAxiosError } from '../../../utilities.js'
+import PAKISTANI_CITIES from '../../../cities'
 
 export const FetchUsers = ({ token, value, setError, max = 10, navigate }) => {
   const usersEndpoint = `/user?role=vendor&status=approved&minified=yes&contactName=${value}&limit=${max}`
@@ -236,7 +237,7 @@ export const FetchItemData = async ({ token,
         }),
         shipmentCosts: response.data.shipmentCosts.map(shipmentCost => {
           return {
-            location: `${shipmentCost.location}`,
+            location: PAKISTANI_CITIES.filter(city => city.value === shipmentCost.location)[0],
             cost: `${shipmentCost.cost}`,
             days: `${shipmentCost.days}`
           }

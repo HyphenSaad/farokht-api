@@ -47,11 +47,19 @@ const UserInfoBase = {
     .max(50, 'Too Long!')
     .required('Required!'),
 
-  location: Yup.string()
-    .trim()
-    .min(3, 'Too Short!')
-    .max(50, 'Too Long!')
-    .required('Required!'),
+  location: Yup.object().shape({
+    label: Yup.string()
+      .typeError('Invalid')
+      .min(2, 'Too Short!')
+      .max(75, 'Too Long!')
+      .required('Required!'),
+
+    value: Yup.string()
+      .typeError('Invalid')
+      .min(2, 'Too Short!')
+      .max(75, 'Too Long!')
+      .required('Required!'),
+  }),
 
   address: Yup.string()
     .trim()
