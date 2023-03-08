@@ -197,8 +197,8 @@ const Register = async (request, response, next) => {
   const payload = {
     contactName,
     phoneNumber1,
-    phoneNumber2,
-    landline,
+    phoneNumber2: phoneNumber2 === '' ? undefined : phoneNumber2,
+    landline: landline === '' ? undefined : landline,
     email,
     companyName,
     location,
