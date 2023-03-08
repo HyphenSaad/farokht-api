@@ -103,9 +103,27 @@ const ItemInfoSchema = Yup.object().shape({
 
   shipmentCosts: Yup.array()
     .of(Yup.object().shape({
-      value: Yup.string().required('Required!'),
-      label: Yup.string()
-        .trim()
+      location: Yup.object().shape({
+        label: Yup.string()
+          .typeError('Invalid')
+          .min(2, 'Too Short!')
+          .max(75, 'Too Long!')
+          .required('Required!'),
+
+        value: Yup.string()
+          .typeError('Invalid')
+          .min(2, 'Too Short!')
+          .max(75, 'Too Long!')
+          .required('Required!'),
+      }),
+
+      cost: Yup.number()
+        .typeError('Invalid')
+        .min(1, 'Too Short!')
+        .required('Required!'),
+
+      days: Yup.number()
+        .typeError('Invalid')
         .min(1, 'Too Short!')
         .required('Required!')
     }))

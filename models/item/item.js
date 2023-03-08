@@ -107,11 +107,33 @@ const ItemSchema = new mongoose.Schema({
   },
   shipmentCosts: {
     type: [{
-      type: Schema.Types.ObjectId,
-      ref: ShipmentCost,
+      location: {
+        type: String,
+        required: [true, 'Shipment Location is required!'],
+        minLength: [2, 'Shipment Location is too short!'],
+        maxLength: [75, 'Shipment Location is too long!'],
+        trim: true,
+      },
+      cost: {
+        type: Number,
+        required: [true, 'Shipment Price is required!'],
+        min: [1, 'Shipment Price is too short!'],
+      },
+      days: {
+        type: Number,
+        required: [true, 'Shipment Days are required!'],
+        min: [1, 'Shipment Days are too short!'],
+      }
     }],
-    validate: [notEmpty, 'Shipment Costs are required!'],
+    validate: [notEmpty, 'Shipment Cost is required!'],
   },
+  // shipmentCosts: {
+  //   type: [{
+  //     type: Schema.Types.ObjectId,
+  //     ref: ShipmentCost,
+  //   }],
+  //   validate: [notEmpty, 'Shipment Costs are required!'],
+  // },
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: User,

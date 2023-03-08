@@ -16,6 +16,8 @@ export const StringValidation = ({
   regExMessage = undefined,
   validValues = [],
 }) => {
+  if (!data && !isRequired) return
+
   // Check if the data is required and not empty or null
   if (isRequired && (!data || data.trim() === '')) {
     throw {
@@ -60,6 +62,8 @@ export const NumberValidation = ({
   maxValue = Infinity,
   isRequired = true,
 }) => {
+  if (!data && !isRequired) return
+
   // Convert the data to a number (if it is given as a string)
   const number = Number(data)
 
@@ -93,6 +97,8 @@ export const ArrayValidation = ({
   data = '',
   isRequired = true,
 }) => {
+  if (!data && !isRequired) return
+
   if (isRequired && !data) {
     throw {
       statusCode: StatusCodes.BAD_REQUEST,

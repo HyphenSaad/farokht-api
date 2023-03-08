@@ -12,11 +12,12 @@ import { AuthContext, GoBackButton, TextField, CustomAlertDialogue } from '../..
 import ItemInfoSchema from './ItemInfoYupSchema'
 import {
   FetchUnitOfMeasures, FetchUsers, FetchAttributes, FetchTags,
-  SubmitUserData, FetchItemData, FetchShipmentCosts
+  SubmitUserData, FetchItemData
 } from './ItemInfoAxios'
 import { InitialValues, StatusOptions } from './ItemInfoValues'
 import { APP_TITLE } from '../../../config'
 import { SelectMenuDisabledStyle } from '../../../values'
+import PAKISTANI_CITIES from '../../../cities'
 
 const TagInfo = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -84,7 +85,19 @@ const TagInfo = () => {
         initialValues={initialValues}
         validationSchema={ItemInfoSchema}
         onSubmit={(values) => {
-          setShowUpdateDialogue(true)
+          if (isEditMode) {
+            setShowUpdateDialogue(true)
+          } else {
+            SubmitUserData({
+              id: parameters.id,
+              token: authContext.token,
+              navigate,
+              values: values,
+              isEditMode,
+              setIsLoading,
+              setError,
+            })
+          }
         }}>
         {(formik) => (
           <Form onSubmit={formik.handleSubmit} className='m-0 p-0'>
@@ -590,7 +603,7 @@ const TagInfo = () => {
                   <Container style={{
                     background: '#fff',
                     padding: '1.5rem',
-                    borderRadius: '0.5rem'
+                    borderRadius: '0.5rem',
                   }} className='mt-3'>
                     <FieldArray
                       name='shipmentCosts'
@@ -599,114 +612,88 @@ const TagInfo = () => {
                           <Container className='m-0 p-0 d-flex justify-content-between align-items-center'>
                             <p className='m-0 p-0 text-uppercase fw-bold'
                               style={{
-                                fontSize: '1.3rem',
+                                fontSize: '1.5rem',
                               }}>
-                              Shipment Costs
+                              Shipment Cost
                             </p>
-                            {
-                              isViewMode
-                                ? ''
-                                :
-                                <Button
-                                  className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
-                                  variant='primary'
-                                  onClick={e => {
-                                    array.push({
-                                      value: '',
-                                      label: 'Choose Shipment Preset',
-                                      maxCost: '',
-                                      minCost: '',
-                                    })
-                                  }}>
-                                  <Add style={IconStyles} />Add
-                                </Button>}
+                            <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                              variant='primary' onClick={e => {
+                                array.push({
+                                  location: {
+                                    value: '',
+                                    label: 'Choose Location',
+                                  },
+                                  cost: '',
+                                  days: '',
+                                })
+                              }}>
+                              <Add style={IconStyles} />Add
+                            </Button>
                           </Container>
                           {
-                            formik.errors.shipmentCosts && formik.touched.shipmentCosts
+                            formik.errors.shipmentCosts
+                              && formik.touched.shipmentCosts
                               && !Array.isArray(formik.errors.shipmentCosts)
-                              ? <Form.Text className='text-danger'>{formik.errors.shipmentCosts}</Form.Text>
+                              ?
+                              <Form.Text className='text-danger'>
+                                {formik.errors.shipmentCosts}
+                              </Form.Text>
                               : null
                           }
-                          {
-                            formik.values.shipmentCosts.map((shipmentCost, index) => (
-                              <Row className='mt-3' key={`id@${index}`}>
-                                <Col sm={12} md={12} lg={6} xl={4}>
+                          <Row>
+                            {
+                              formik.values.shipmentCosts.map((attribute, index) => (
+                                <Col sm={12} md={6} lg={4} xl={3} className='mt-3' key={`id@${index}`}>
                                   <Form.Group className='mb-3'>
-                                    <Form.Label>Shipment Cost No. {index + 1}</Form.Label>
-                                    <AsyncCreatableSelect
+                                    <Form.Label>{`Location No. ${index + 1}`}</Form.Label>
+                                    <Select
                                       styles={isViewMode && SelectMenuDisabledStyle}
                                       isDisabled={isViewMode}
-                                      name={`shipmentCosts[${index}]`}
-                                      instanceId={`shipmentCosts[${index}]`}
-                                      placeholder='Choose Shipment Preset'
-                                      value={formik.values.shipmentCosts[index] || ''}
-                                      getOptionLabel={e => e.label}
-                                      getOptionValue={e => e.value}
-                                      onChange={(data) => formik.setFieldValue(`shipmentCosts[${index}]`, data)}
-                                      defaultOptions
-                                      loadOptions={(inputValue) => FetchShipmentCosts({
-                                        token: authContext.token,
-                                        value: inputValue,
-                                        setError,
-                                        navigate
-                                      })}
+                                      key={`shipmentCosts[${index}].location`}
+                                      name={`shipmentCosts[${index}].location`}
+                                      instanceId={`shipmentCosts[${index}].location`}
+                                      placeholder='Choose Location'
+                                      isSearchable={true}
                                       isClearable={false}
+                                      onChange={(data) => formik.setFieldValue(`shipmentCosts[${index}].location`, data)}
+                                      options={PAKISTANI_CITIES}
+                                      value={formik.values.shipmentCosts[index].location}
+                                      defaultOptions
                                     />
                                     {
-                                      formik.getFieldMeta(`shipmentCosts[${index}]`).error
-                                        && formik.getFieldMeta(`shipmentCosts[${index}]`).touched
+                                      formik.getFieldMeta(`shipmentCosts[${index}].location.value`).error
                                         ?
                                         <Form.Text className='text-danger'>
-                                          {formik.getFieldMeta(`shipmentCosts[${index}]`).error.maxCost}
+                                          {formik.getFieldMeta(`shipmentCosts[${index}].location.value`).error}
                                         </Form.Text>
                                         : null
                                     }
                                   </Form.Group>
-                                </Col>
-                                <Col sm={12} md={4} lg={2} xl={3} key={`maxCost@${index}`}>
                                   <TextField
-                                    value={formik.values.shipmentCosts[index].minCost || ''}
-                                    name={`shipmentCosts[${index}].minCost`}
+                                    value={formik.values.shipmentCosts[index].cost}
+                                    name={`shipmentCosts[${index}].cost`}
                                     formik={formik}
-                                    label='Minimum Cost'
-                                    placeholder='Minimum Cost'
-                                    hasFieldArrayError={true}
-                                    disable={true}
-                                  />
-                                </Col>
-                                <Col sm={12} md={4} lg={2} xl={3} key={`minCost@${index}`}>
+                                    label='Cost'
+                                    placeholder='Enter Cost'
+                                    hasFieldArrayError={true} />
                                   <TextField
-                                    value={formik.values.shipmentCosts[index].maxCost || ''}
-                                    name={`shipmentCosts[${index}].maxCost`}
+                                    value={formik.values.shipmentCosts[index].days}
+                                    name={`shipmentCosts[${index}].days`}
                                     formik={formik}
-                                    label='Maximum Cost'
-                                    placeholder='Maximum Cost'
-                                    hasFieldArrayError={true}
-                                    disable={true}
-                                  />
+                                    label='Delivery Days'
+                                    placeholder='Enter Delivery Days'
+                                    hasFieldArrayError={true} />
+                                  <Form.Group>
+                                    <Button className='btn-sm text-uppercase d-flex justify-content-center align-items-center pe-3'
+                                      style={{ width: '50%' }}
+                                      variant='danger'
+                                      onClick={e => { array.remove(index) }}>
+                                      <Delete style={IconStyles} />Remove
+                                    </Button>
+                                  </Form.Group>
                                 </Col>
-                                {
-                                  isViewMode
-                                    ? ''
-                                    :
-                                    <Col sm={12} md={4} lg={2} xl={2}>
-                                      <Form.Group>
-                                        <Form.Label className='d-sm-none d-md-block'>&nbsp;</Form.Label>
-                                        <Button className='mt-2 text-uppercase d-flex justify-content-center align-items-center pe-3'
-                                          variant='danger'
-                                          style={{
-                                            width: '100%',
-                                            textTransform: 'uppercase',
-                                          }}
-                                          onClick={e => { array.remove(index) }}>
-                                          <Delete style={IconStyles} />Remove
-                                        </Button>
-                                      </Form.Group>
-                                    </Col>
-                                }
-                              </Row>
-                            ))
-                          }
+                              ))}
+                          </Row>
                         </>
                       )}
                     />

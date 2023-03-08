@@ -335,7 +335,7 @@ const Update = async (request, response, next) => {
     data: contactName,
     minLength: 3,
     maxLength: 35,
-    isRequired: true,
+    isRequired: false,
     regEx: /^[a-zA-Z\s]+$/,
     regExMessage: 'Contact Name should only contain alphabets!'
   })
@@ -345,7 +345,7 @@ const Update = async (request, response, next) => {
     data: phoneNumber1,
     minLength: 10,
     maxLength: 10,
-    isRequired: true,
+    isRequired: false,
     regEx: /^[0-9]+$/,
     regExMessage: 'Phone Number 01 should only contain digits!'
   })
@@ -355,6 +355,7 @@ const Update = async (request, response, next) => {
     data: phoneNumber2,
     minLength: 10,
     maxLength: 10,
+    isRequired: false,
     regEx: /^[0-9]+$/,
     regExMessage: 'Phone Number 02 should only contain digits!'
   })
@@ -364,6 +365,7 @@ const Update = async (request, response, next) => {
     data: landline,
     minLength: 9,
     maxLength: 11,
+    isRequired: false,
     regEx: /^[0-9]+$/,
     regExMessage: 'Landline should only contain digits!'
   })
@@ -373,7 +375,7 @@ const Update = async (request, response, next) => {
     data: email,
     minLength: 5,
     maxLength: 50,
-    isRequired: true,
+    isRequired: false,
     // TODO: Find The Proper Email Validation RegEx
     regEx: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   })
@@ -391,7 +393,7 @@ const Update = async (request, response, next) => {
   StringValidation({
     fieldName: 'User Role',
     data: role,
-    isRequired: true,
+    isRequired: false,
     validValues: ['admin', 'vendor', 'retailer'],
   })
 
@@ -400,7 +402,7 @@ const Update = async (request, response, next) => {
     data: companyName,
     minLength: 3,
     maxLength: 50,
-    isRequired: true,
+    isRequired: false,
   })
 
   StringValidation({
@@ -408,7 +410,7 @@ const Update = async (request, response, next) => {
     data: location,
     minLength: 3,
     maxLength: 50,
-    isRequired: true,
+    isRequired: false,
   })
 
   StringValidation({
@@ -416,7 +418,7 @@ const Update = async (request, response, next) => {
     data: address,
     minLength: 3,
     maxLength: 50,
-    isRequired: true,
+    isRequired: false,
   })
 
   StringValidation({
@@ -424,7 +426,7 @@ const Update = async (request, response, next) => {
     data: paymentMethod,
     minLength: 3,
     maxLength: 50,
-    isRequired: true,
+    isRequired: false,
   })
 
   StringValidation({
@@ -432,7 +434,7 @@ const Update = async (request, response, next) => {
     data: bankName,
     minLength: 3,
     maxLength: 50,
-    isRequired: true,
+    isRequired: false,
     regEx: /^[a-zA-Z\s]+$/,
     regExMessage: 'Bank Name should only contain alphabets!'
   })
@@ -442,7 +444,7 @@ const Update = async (request, response, next) => {
     data: bankBranchCode,
     minLength: 4,
     maxLength: 7,
-    isRequired: true,
+    isRequired: false,
     regEx: /^[0-9]+$/,
     regExMessage: 'Bank Branch Code should only contain digits!'
   })
@@ -452,7 +454,7 @@ const Update = async (request, response, next) => {
     data: bankAccountNumber,
     minLength: 10,
     maxLength: 15,
-    isRequired: true,
+    isRequired: false,
     regEx: /^[0-9]+$/,
     regExMessage: 'Bank Account Number should only contain digits!'
   })
@@ -460,7 +462,7 @@ const Update = async (request, response, next) => {
   StringValidation({
     fieldName: 'User Account Status',
     data: status,
-    isRequired: request.user.role === 'admin',
+    isRequired: false,
     validValues: ['pending', 'approved', 'suspended'],
   })
 
@@ -508,25 +510,61 @@ const Update = async (request, response, next) => {
     }
   }
 
-  user.contactName = contactName
-  user.phoneNumber1 = phoneNumber1
-  user.phoneNumber2 = phoneNumber2 || undefined
-  user.landline = landline || undefined
-  user.email = email
-  user.companyName = companyName
-  user.location = location
-  user.address = address
-  user.paymentMethod = paymentMethod
-  user.bankName = bankName
-  user.bankBranchCode = bankBranchCode
-  user.bankAccountNumber = bankAccountNumber
+  if (contactName) {
+    user.contactName = contactName
+  }
+
+  if (phoneNumber1) {
+    user.phoneNumber1 = phoneNumber1
+  }
+
+  if (phoneNumber2) {
+    user.phoneNumber2 = phoneNumber2 || undefined
+  }
+
+  if (landline) {
+    user.landline = landline || undefined
+  }
+
+  if (email) {
+    user.email = email
+  }
+
+  if (companyName) {
+    user.companyName = companyName
+  }
+
+  if (location) {
+    user.location = location
+  }
+
+  if (address) {
+    user.address = address
+  }
+
+  if (paymentMethod) {
+    user.paymentMethod = paymentMethod
+  }
+
+  if (bankName) {
+    user.bankName = bankName
+  }
+
+  if (bankBranchCode) {
+    user.bankBranchCode = bankBranchCode
+  }
+
+  if (bankAccountNumber) {
+    user.bankAccountNumber = bankAccountNumber
+  }
+
   user.updatedBy = request.user._id
 
   if (password) {
     user.password = await bcrypt.hash(password, await bcrypt.genSalt(10))
   }
 
-  if (request.user.role === 'admin') {
+  if (request.user.role === 'admin' && user.role) {
     if (user.role === 'vendor' && role === 'admin') {
       throw {
         statusCode: StatusCodes.BAD_REQUEST,
@@ -547,7 +585,7 @@ const Update = async (request, response, next) => {
     }
   }
 
-  if (request.user.role === 'admin') {
+  if (request.user.role === 'admin' && status) {
     user.status = status
   }
 

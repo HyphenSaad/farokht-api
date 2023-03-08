@@ -86,29 +86,6 @@ export const FetchAttributes = ({ token, value, setError, max = 10, navigate }) 
     })
 }
 
-export const FetchShipmentCosts = ({ token, value, setError, max = 10, navigate }) => {
-  const unitOfMeasuresEndpoint = `/shipmentCost?minified=yes&name=${value}&limit=${max}&status=enabled`
-
-  return API_SERVICE(token)
-    .get(unitOfMeasuresEndpoint)
-    .then(response => {
-      if (response.status === 200) {
-        return response.data.shipmentCosts.map(shipmentCost => {
-          return {
-            value: shipmentCost._id,
-            label: `${shipmentCost.days} days, ${shipmentCost.source} to ${shipmentCost.destination}`,
-            minCost: shipmentCost.minCost,
-            maxCost: shipmentCost.maxCost,
-          }
-        })
-      } else {
-        setError(`${response.status} - ${response.statusText}`)
-      }
-    }).catch(error => {
-      HandleAxiosError({ error, setError, navigate })
-    })
-}
-
 const SubmitShapeAdjustment = (values) => {
   const _values = { ...values }
   _values.status = values.status.value.length < 1 ? undefined : values.status.value
@@ -130,7 +107,11 @@ const SubmitShapeAdjustment = (values) => {
   })
 
   _values.shipmentCosts = _values.shipmentCosts.map(shipmentCost => {
-    return shipmentCost.value
+    return {
+      location: shipmentCost.location.value,
+      cost: shipmentCost.cost,
+      days: shipmentCost.days,
+    }
   })
 
   _values.vendorId = _values.user.value
@@ -255,10 +236,9 @@ export const FetchItemData = async ({ token,
         }),
         shipmentCosts: response.data.shipmentCosts.map(shipmentCost => {
           return {
-            value: `${shipmentCost._id}`,
-            label: `${shipmentCost.days} days, ${shipmentCost.source} to ${shipmentCost.destination}`,
-            maxCost: `${shipmentCost.maxCost}`,
-            minCost: `${shipmentCost.minCost}`
+            location: `${shipmentCost.location}`,
+            cost: `${shipmentCost.cost}`,
+            days: `${shipmentCost.days}`
           }
         }),
         updatedBy: response.data.updatedBy.contactName,

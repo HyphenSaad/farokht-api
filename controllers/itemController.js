@@ -32,7 +32,7 @@ const CreateItem = async (request, response, next) => {
     ...request.item,
     updatedBy: request.user._id,
     createdBy: request.user._id,
-    pictures: ['hhhhhhh', 'mmmmmmmmm']
+    pictures: ['Image 01 Link', 'Image 02 Link', 'Image 03 Link', 'Image 04 Link']
   }
 
   const item = await Item.create(payload)
@@ -74,14 +74,14 @@ const UpdateItem = async (request, response, next) => {
 
   await item.populate({ path: 'vendorId', model: 'user', select: '_id contactName' })
 
-  if (!request.item.vendorId || !item.vendorId) {
+  if (!item.vendorId) {
     throw {
       statusCode: StatusCodes.NOT_FOUND,
       message: 'Item Vendor Not Found!'
     }
   }
 
-  if (request.user.role === 'vendor') {
+  if (request.user.role === 'vendor' && request.item.vendorId) {
     if (item.vendorId._id.toString() !== request.item.vendorId.toString()
       || request.user.status !== 'approved') {
       throw {
@@ -91,7 +91,7 @@ const UpdateItem = async (request, response, next) => {
     }
   }
 
-  if (request.user.role === 'admin') {
+  if (request.user.role === 'admin' && request.item.vendorId) {
     const user = await User.findOne({ _id: request.item.vendorId })
 
     if (user.role !== 'vendor') {
@@ -104,32 +104,69 @@ const UpdateItem = async (request, response, next) => {
     }
   }
 
-  item.name = request.item.name
-  item.minOrderQuantity = request.item.minOrderQuantity
-  item.maxOrderQuantity = request.item.maxOrderQuantity
-  item.description = request.item.description
-  item.tags = request.item.tags
-  item.unitOfMeasure = request.item.unitOfMeasure
-  item.attributes = request.item.attributes
-  item.priceSlabs = request.item.priceSlabs
-  item.vendorPayoutPercentage = request.item.vendorPayoutPercentage
-  item.shipmentCosts = request.item.shipmentCosts
-  item.completionDays = request.item.completionDays
+  if (request.item.name) {
+    item.name = request.item.name
+  }
+
+  if (request.item.minOrderQuantity) {
+    item.minOrderQuantity = request.item.minOrderQuantity
+  }
+
+  if (request.item.maxOrderQuantity) {
+    item.maxOrderQuantity = request.item.maxOrderQuantity
+  }
+
+  if (request.item.description) {
+    item.description = request.item.description
+  }
+
+  if (request.item.tags) {
+    item.tags = request.item.tags
+  }
+
+  if (request.item.unitOfMeasure) {
+    item.unitOfMeasure = request.item.unitOfMeasure
+  }
+
+  if (request.item.attributes) {
+    item.attributes = request.item.attributes
+  }
+
+  if (request.item.priceSlabs) {
+    item.priceSlabs = request.item.priceSlabs
+  }
+
+  if (request.item.vendorPayoutPercentage) {
+    item.vendorPayoutPercentage = request.item.vendorPayoutPercentage
+  }
+
+  if (request.item.shipmentCosts) {
+    item.shipmentCosts = request.item.shipmentCosts
+  }
+
+  if (request.item.completionDays) {
+    item.completionDays = request.item.completionDays
+  }
+
   item.updatedBy = request.item.updatedBy
 
   if (request.user.role === 'admin') {
-    item.status = request.item.status
+    if (request.item.status) {
+      item.status = request.item.status
+    }
 
-    if (request.item.vendorId.toString() !== item.vendorId.toString()) {
-      await User.updateOne({ _id: item.vendorId }, {
-        $pull: { items: item._id },
-      })
+    if (request.item.vendorId) {
+      if (request.item.vendorId.toString() !== item.vendorId.toString()) {
+        await User.updateOne({ _id: item.vendorId }, {
+          $pull: { items: item._id },
+        })
 
-      await User.updateOne({ _id: request.item.vendorId, }, {
-        $push: { items: item._id, },
-      })
+        await User.updateOne({ _id: request.item.vendorId, }, {
+          $push: { items: item._id, },
+        })
 
-      item.vendorId = request.item.vendorId
+        item.vendorId = request.item.vendorId
+      }
     }
   }
 
@@ -219,7 +256,7 @@ const GetItem = async (request, response, next) => {
     select: '_id contactName',
   }
 
-  await item.populate('tags unitOfMeasure attributes._id shipmentCosts')
+  await item.populate('tags unitOfMeasure attributes._id')
   await item.populate(populate)
 
   response.status(StatusCodes.OK).json(item)
@@ -240,7 +277,6 @@ const GetAllVendorItems = async (request, response, next) => {
     .populate('items')
     .populate({ path: 'items.attributes._id', model: 'attributeOfItem' })
     .populate({ path: 'items.tags', model: 'tag' })
-    .populate({ path: 'items.shipmentCosts', model: 'shipmentCost' })
     .populate({ path: 'items.unitOfMeasure', model: 'unitOfMeasure' })
 
   if (!user) {
@@ -293,7 +329,7 @@ const GetAllItems = async (request, response, next) => {
   const items = await Item.find(payload)
     .limit(limit)
     .skip((page - 1) * limit)
-    .populate('tags unitOfMeasure attributes._id shipmentCosts')
+    .populate('tags unitOfMeasure attributes._id')
     .populate({ path: 'updatedBy createdBy vendorId', model: 'user', select: '_id contactName' })
     .sort({ updatedAt: 'desc' })
 

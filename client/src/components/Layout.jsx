@@ -58,7 +58,7 @@ const GetTitle = () => {
     case '/Orders': return { path: '/Orders', title: 'Orders' }
     case '/Items': return { path: '/Items', title: 'Items' }
     case '/Attributes': return { path: '/Attributes', title: 'Attributes' }
-    case '/ShipmentCosts': return { path: '/ShipmentCosts', title: 'Shipment Costs' }
+    // case '/ShipmentCosts': return { path: '/ShipmentCosts', title: 'Shipment Costs' }
     case '/Tags': return { path: '/Tags', title: 'Tags' }
     case '/UnitOfMeasures': return { path: '/UnitOfMeasures', title: 'Unit Of Measures' }
     case '/DownloadbleData': return { path: '/DownloadbleData', title: 'Reports' }
@@ -74,8 +74,8 @@ const GetTitle = () => {
     return { path: window.location.pathname, title: 'Item Info' }
   else if (window.location.pathname.includes('/AttributeInfo'))
     return { path: window.location.pathname, title: 'Attribute Info' }
-  else if (window.location.pathname.includes('/ShipmentCostInfo'))
-    return { path: window.location.pathname, title: 'Shipment Cost Info' }
+  // else if (window.location.pathname.includes('/ShipmentCostInfo'))
+  //   return { path: window.location.pathname, title: 'Shipment Cost Info' }
   else if (window.location.pathname.includes('/TagInfo'))
     return { path: window.location.pathname, title: 'Tag Info' }
   else if (window.location.pathname.includes('/UnitOfMeasureInfo'))
@@ -123,7 +123,7 @@ const Layout = () => {
             <CustomMenuItem title='Items' path='/Items' icon={<ViewListRounded />} />
             <SideBarSeparator title='Setups' />
             <CustomMenuItem title='Attributes' path='/Attributes' icon={<AppRegistrationRounded />} />
-            <CustomMenuItem title='Shipment Costs' path='/ShipmentCosts' icon={<LocalShipping />} />
+            {/* <CustomMenuItem title='Shipment Costs' path='/ShipmentCosts' icon={<LocalShipping />} /> */}
             <CustomMenuItem title='Tags' path='/Tags' icon={<SellRounded />} />
             <CustomMenuItem title='Unit of Measures' path='/UnitOfMeasures' icon={<StraightenOutlined />} />
             <SideBarSeparator title='Reports' />
