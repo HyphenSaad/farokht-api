@@ -483,7 +483,7 @@ const Update = async (request, response, next) => {
   const payload = {
     _id: request.user.role === 'admin'
       ? request.updateUserId
-      : request.user.userId
+      : request.user._id
   }
 
   const user = await User.findOne(payload)
@@ -494,19 +494,22 @@ const Update = async (request, response, next) => {
     }
   }
 
-  const userWithPhoneNumber1 = await User.findOne({ phoneNumber1: phoneNumber1.trim() })
-  if (userWithPhoneNumber1 && userWithPhoneNumber1._id.toString() !== user._id.toString()) {
-    throw {
-      statusCode: StatusCodes.BAD_REQUEST,
-      message: 'Phone Number 01 is already registered!'
-    }
-  }
+  if (phoneNumber1) {
+    const userWithPhoneNumber1 = await User.findOne({ phoneNumber1: phoneNumber1.trim() })
 
-  const userWithPhoneNumber2 = await User.findOne({ phoneNumber2: phoneNumber2.trim() })
-  if (userWithPhoneNumber2 && userWithPhoneNumber2._id.toString() !== user._id.toString()) {
-    throw {
-      statusCode: StatusCodes.BAD_REQUEST,
-      message: 'Phone Number 02 is already registered!'
+    if (userWithPhoneNumber1 && userWithPhoneNumber1._id.toString() !== user._id.toString()) {
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: 'Phone Number 01 is already registered!'
+      }
+    }
+
+    const userWithPhoneNumber2 = await User.findOne({ phoneNumber2: phoneNumber2.trim() })
+    if (userWithPhoneNumber2 && userWithPhoneNumber2._id.toString() !== user._id.toString()) {
+      throw {
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: 'Phone Number 02 is already registered!'
+      }
     }
   }
 
