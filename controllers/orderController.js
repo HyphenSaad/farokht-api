@@ -33,3 +33,21 @@ const createOrder = async (request, response, next) => {
     };
   }
 };
+
+const updateOrder = async (request, response, next) =>{}
+const deleteOrder = async (request, response, next) =>{}
+const getOrder = async (request, response, next) =>{}
+const getAllOrders = async (request, response, next) =>{
+  const page = request.query.page || 1
+  const limit = request.query.limit || 10
+
+  if (request.user.role === 'admin') {
+    response.status(StatusCodes.OK).json({message:'All Orders'})
+  }
+}
+
+const getAllOrdersOfVendor = (request, response, next) => {}
+const getAllOrdersOfRetailer = (request, response, next) => {}
+
+
+export {createOrder, updateOrder, deleteOrder, getOrder, getAllOrders}
